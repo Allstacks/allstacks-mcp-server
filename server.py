@@ -1,13 +1,19 @@
+import argparse
+import json
 from typing import Any
 import httpx
+import requests
 from mcp.server.fastmcp import FastMCP
 
 # Initialize FastMCP server
-mcp = FastMCP("weather")
+mcp = FastMCP("Allstacks-MCP")
 
 # Constants
 NWS_API_BASE = "https://api.weather.gov"
 USER_AGENT = "weather-app/1.0"
+
+ALLSTACKS_API_TOKEN = "example"
+ALLSTACKS_BASE_URL = "https://api.allstacks.com/api/v1/"
 
 async def make_nws_request(url: str) -> dict[str, Any] | None:
     """Make a request to the NWS API with proper error handling."""
@@ -89,6 +95,52 @@ Forecast: {period['detailedForecast']}
 
     return "\n---\n".join(forecasts)
 
+
+@mcp.tool()
+async def getOrganizationInvestments(org_id: int) -> str:
+    """Get current investments for an organization.
+
+    Args:
+        org_id: The organization ID
+    """
+    # Construct the URL with the org_id parameter
+    url = f"{ALLSTACKS_BASE_URL}organization/{org_id}/ai_summary/currentInvestments"
+    
+    # Set up headers with the API token
+    headers = {
+        "Authorization": f"Bearer {ALLSTACKS_API_TOKEN}",
+        "Content-Type": "application/json"
+    }
+    
+    try:
+        # Make the POST request using requests library
+        response = requests.post(url, headers=headers)
+        
+        # Check if the request was successful
+        if response.status_code == 200:
+            # Parse the response data
+            data = response.json()
+            return json.dumps(data, indent=2)
+        else:
+            # Handle error responses
+            error_text = response.text
+            return f"Error {response.status_code}: {error_text}"
+    except Exception as e:
+        # Handle any exceptions that occur during the request
+        return f"Failed to get organization investments: {str(e)}"
+
 if __name__ == "__main__":
-    # Initialize and run the server
+    # Set up argument parser
+    parser = argparse.ArgumentParser(description='Run server with API token and base URL')
+    parser.add_argument('--api-token', '-t', required=True, help='API token for authentication')
+    parser.add_argument('--base-url', '-u', default='https://api.allstacks.com/api/v1/', help='Base URL for the API (default: https://api.allstacks.com/api/v1/)')
+    
+    # Parse arguments
+    args = parser.parse_args()
+    
+    # Initialize and run the server with the provided parameters
+    ALLSTACKS_API_TOKEN = args.api_token
+    ALLSTACKS_BASE_URL = args.base_url
+    
+    # Pass parameters to your mcp module
     mcp.run(transport='stdio')
