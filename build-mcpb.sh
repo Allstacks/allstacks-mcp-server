@@ -50,83 +50,46 @@ httpx>=0.28.1
 mcp[cli]>=1.7.1
 EOF
 
-# Create mcp.json
-echo "⚙️ Creating mcp.json..."
-cat > $BUNDLE_DIR/mcp.json <<EOF
+# Copy or create mcp.json
+if [ -f "mcp.json" ]; then
+    echo "⚙️ Copying mcp.json..."
+    cp mcp.json $BUNDLE_DIR/
+else
+    echo "⚙️ Creating mcp.json..."
+    cat > $BUNDLE_DIR/mcp.json <<EOF
 {
   "name": "$BUNDLE_NAME",
   "version": "$VERSION",
-  "description": "MCP Server for Allstacks API - 79 tools across 14 categories for engineering intelligence",
+  "description": "MCP Server for Allstacks Analytics",
   "author": "Jeremy Freeman",
   "license": "MIT",
   "runtime": "python",
-  "main": "server.py",
-  "commands": {
-    "start": "uv run server.py"
-  },
-  "categories": [
-    "Metrics Data Retrieval (7 tools)",
-    "Service Items & Filtering (6 tools)",
-    "User & Team Management (4 tools)",
-    "Organization & Projects (4 tools)",
-    "AI & Analytics (4 tools)",
-    "Dashboards & Widgets (5 tools)",
-    "Employee & Productivity (5 tools)",
-    "Forecasting & Planning (5 tools)",
-    "Labels & Tagging (5 tools)",
-    "Alerts & Monitoring (5 tools)",
-    "Portfolio & Deliverables (5 tools)",
-    "Milestones & Pinned Milestones (6 tools)",
-    "Attainment & Goals (7 tools)",
-    "Portfolio Analytics (7 tools)"
-  ],
-  "requirements": {
-    "python": ">=3.13",
-    "uv": "recommended"
-  },
-  "authentication": {
-    "type": "http-basic",
-    "required": ["username", "password"]
-  },
-  "capabilities": {
-    "tools": 79,
-    "resources": false,
-    "prompts": false
-  }
+  "main": "server.py"
 }
 EOF
+fi
 
-# Create package.json
-echo "📦 Creating package.json..."
-cat > $BUNDLE_DIR/package.json <<EOF
+# Copy or create package.json
+if [ -f "package.json" ]; then
+    echo "📦 Copying package.json..."
+    cp package.json $BUNDLE_DIR/
+else
+    echo "📦 Creating package.json..."
+    cat > $BUNDLE_DIR/package.json <<EOF
 {
-  "name": "@allstacks/mcp-server",
+  "name": "@allstacks/$BUNDLE_NAME",
   "version": "$VERSION",
-  "description": "MCP Server for Allstacks Analytics - 79 AI-native engineering intelligence tools",
+  "description": "MCP Server for Allstacks Analytics",
   "author": "Jeremy Freeman",
   "license": "MIT",
-  "keywords": [
-    "mcp",
-    "allstacks",
-    "analytics",
-    "engineering-intelligence",
-    "metrics",
-    "portfolio-management",
-    "okr",
-    "devex"
-  ],
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/allstacks/allstacks-mcp.git"
-  },
   "mcp": {
     "type": "python",
     "runtime": "python3",
-    "entry": "server.py",
-    "manager": "uv"
+    "entry": "server.py"
   }
 }
 EOF
+fi
 
 # Create setup script for easy installation
 echo "🔧 Creating setup script..."

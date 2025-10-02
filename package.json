@@ -1,0 +1,29 @@
+{
+  "name": "@allstacks/allstacks-mcp",
+  "version": "2.0.0",
+  "description": "MCP Server for Allstacks Analytics - 208 tools for AI-native engineering intelligence",
+  "author": "Jeremy Freeman",
+  "license": "MIT",
+  "keywords": [
+    "mcp",
+    "allstacks",
+    "analytics",
+    "engineering-intelligence",
+    "metrics",
+    "forecasting",
+    "devops",
+    "ai-tools"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/allstacks/allstacks-mcp.git"
+  },
+  "mcp": {
+    "type": "python",
+    "runtime": "python3",
+    "entry": "server.py",
+    "tools": 208,
+    "categories": 12
+  }
+}
+

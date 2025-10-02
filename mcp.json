@@ -1,0 +1,40 @@
+{
+  "name": "allstacks-mcp",
+  "version": "2.0.0",
+  "description": "MCP Server for Allstacks API - 208 tools across 12 categories for engineering intelligence",
+  "author": "Jeremy Freeman",
+  "license": "MIT",
+  "runtime": "python",
+  "main": "server.py",
+  "commands": {
+    "start": "uv run server.py --username ${ALLSTACKS_USERNAME} --password ${ALLSTACKS_PASSWORD}"
+  },
+  "categories": [
+    "Metrics & Analytics (18 tools)",
+    "Service Items & Work (21 tools)",
+    "Users & Teams (23 tools)",
+    "Organizations & Projects (28 tools)",
+    "Dashboards & Widgets (20 tools)",
+    "Employee Analytics (9 tools)",
+    "Forecasting & Planning (11 tools)",
+    "Labels & Tagging (17 tools)",
+    "Alerts & Monitoring (16 tools)",
+    "AI & Intelligence (18 tools)",
+    "Work Bundles (13 tools)",
+    "Risk Management (14 tools)"
+  ],
+  "requirements": {
+    "python": ">=3.13",
+    "uv": "recommended"
+  },
+  "authentication": {
+    "type": "http-basic",
+    "required": ["username", "password"]
+  },
+  "capabilities": {
+    "tools": 208,
+    "resources": false,
+    "prompts": false
+  }
+}
+
