@@ -7,8 +7,10 @@
                 "/ABSOLUTE/PATH/TO/PARENT/FOLDER/allstacks-mcp",
                 "run",
                 "server.py",
-                "--api-token",
-                "YOUR_ALLSTACKS_API_TOKEN"
+                "--username",
+                "YOUR_USERNAME",
+                "--password",
+                "YOUR_PASSWORD"
             ]
         }
     }
