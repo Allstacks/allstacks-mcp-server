@@ -10,6 +10,10 @@ from . import employee
 from . import forecasting
 from . import labels
 from . import alerts
+from . import portfolio
+from . import milestones
+from . import attainment
+from . import portfolio_analytics
 
 __all__ = [
     "metrics",
@@ -21,6 +25,10 @@ __all__ = [
     "employee",
     "forecasting",
     "labels",
-    "alerts"
+    "alerts",
+    "portfolio",
+    "milestones",
+    "attainment",
+    "portfolio_analytics"
 ]
 

@@ -20,7 +20,11 @@ from allstacks_mcp.tools import (
     employee,
     forecasting,
     labels,
-    alerts
+    alerts,
+    portfolio,
+    milestones,
+    attainment,
+    portfolio_analytics
 )
 
 # Initialize FastMCP server
@@ -42,6 +46,10 @@ def register_all_tools():
     forecasting.register_tools(mcp, api_client)
     labels.register_tools(mcp, api_client)
     alerts.register_tools(mcp, api_client)
+    portfolio.register_tools(mcp, api_client)
+    milestones.register_tools(mcp, api_client)
+    attainment.register_tools(mcp, api_client)
+    portfolio_analytics.register_tools(mcp, api_client)
 
 
 if __name__ == "__main__":
