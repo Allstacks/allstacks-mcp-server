@@ -1,0 +1,15 @@
+{
+    "mcpServers": {
+        "allstacks": {
+            "command": "uv",
+            "args": [
+                "--directory",
+                "/ABSOLUTE/PATH/TO/PARENT/FOLDER/allstacks-mcp",
+                "run",
+                "server.py",
+                "--api-token",
+                "YOUR_ALLSTACKS_API_TOKEN"
+            ]
+        }
+    }
+}
