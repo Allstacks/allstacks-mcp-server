@@ -358,7 +358,7 @@ def register_tools(mcp, api_client):
         }
         
         if service_user_ids:
-            params["service_user_ids"] = service_user_ids
+            params["service_user_ids[]"] = service_user_ids.split(",")
         if ordering:
             params["ordering"] = ordering
         

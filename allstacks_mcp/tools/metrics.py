@@ -281,7 +281,7 @@ def register_tools(mcp, api_client):
         
         params = {}
         if item_types:
-            params["item_types"] = item_types
+            params["item_types[]"] = item_types.split(",")
         if search:
             params["search"] = search
         

@@ -39,9 +39,9 @@ def register_tools(mcp, api_client):
             "time_zone": time_zone
         }
         if work_bundle_ids:
-            params["work_bundle_ids"] = work_bundle_ids
+            params["work_bundle_ids[]"] = work_bundle_ids.split(",")
         if service_item_ids:
-            params["service_item_ids"] = service_item_ids
+            params["service_item_ids[]"] = service_item_ids.split(",")
         
         result = await api_client.request("GET", endpoint, params=params)
         return json.dumps(result, indent=2)
@@ -258,7 +258,7 @@ def register_tools(mcp, api_client):
             "end_date": end_date
         }
         if project_ids:
-            params["project_ids"] = project_ids
+            params["project_ids[]"] = project_ids.split(",")
         
         result = await api_client.request("GET", endpoint, params=params)
         return json.dumps(result, indent=2)

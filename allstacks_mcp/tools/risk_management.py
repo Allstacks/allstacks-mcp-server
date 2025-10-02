@@ -341,7 +341,7 @@ def register_tools(mcp, api_client):
         
         params = {}
         if project_ids:
-            params["project_ids"] = project_ids
+            params["project_ids[]"] = project_ids.split(",")
         
         result = await api_client.request("GET", endpoint, params=params)
         return json.dumps(result, indent=2)

@@ -153,12 +153,13 @@ def register_tools(mcp, api_client):
         
         params = {"time_zone": time_zone, "order_direction": order_direction}
         
+        # Handle array parameters - API expects fields[]=value format
         if parent_service_item_ids:
-            params["parent_service_item_ids"] = parent_service_item_ids
+            params["parent_service_item_ids[]"] = parent_service_item_ids.split(",")
         if parent_service_item_types:
-            params["parent_service_item_types"] = parent_service_item_types
+            params["parent_service_item_types[]"] = parent_service_item_types.split(",")
         if parent_service_item_groups:
-            params["parent_service_item_groups"] = parent_service_item_groups
+            params["parent_service_item_groups[]"] = parent_service_item_groups.split(",")
         if service_id:
             params["service_id"] = service_id
         if offset is not None:
@@ -174,7 +175,8 @@ def register_tools(mcp, api_client):
         if estimation_method_override:
             params["estimation_method_override"] = estimation_method_override
         if fields:
-            params["fields"] = fields
+            # Convert comma-separated fields to array format
+            params["fields[]"] = fields.split(",")
         
         result = await api_client.request("GET", endpoint, params=params)
         return json.dumps(result, indent=2)
@@ -197,7 +199,7 @@ def register_tools(mcp, api_client):
         
         params = {}
         if service_item_types:
-            params["service_item_types"] = service_item_types
+            params["service_item_types[]"] = service_item_types.split(",")
         
         result = await api_client.request("GET", endpoint, params=params)
         return json.dumps(result, indent=2)
@@ -257,7 +259,7 @@ def register_tools(mcp, api_client):
         
         params = {}
         if service_item_ids:
-            params["service_item_ids"] = service_item_ids
+            params["service_item_ids[]"] = service_item_ids.split(",")
         
         result = await api_client.request("GET", endpoint, params=params)
         return json.dumps(result, indent=2)
@@ -373,9 +375,9 @@ def register_tools(mcp, api_client):
         }
         
         if item_types:
-            params["item_types"] = item_types
+            params["item_types[]"] = item_types.split(",")
         if data_types:
-            params["data_types"] = data_types
+            params["data_types[]"] = data_types.split(",")
         
         result = await api_client.request("GET", endpoint, params=params)
         return json.dumps(result, indent=2)
@@ -426,9 +428,9 @@ def register_tools(mcp, api_client):
         if metric:
             params["metric"] = metric
         if item_types:
-            params["item_types"] = item_types
+            params["item_types[]"] = item_types.split(",")
         if data_types:
-            params["data_types"] = data_types
+            params["data_types[]"] = data_types.split(",")
         
         result = await api_client.request("GET", endpoint, params=params)
         return json.dumps(result, indent=2)
