@@ -1,45 +1,53 @@
 # Allstacks MCP Server
 
-A modular Model Context Protocol (MCP) server providing AI-ready access to the Allstacks API using HTTP Basic Authentication.
+A comprehensive Model Context Protocol (MCP) server providing AI-ready access to the Allstacks API using HTTP Basic Authentication.
 
 ## Overview
 
-This MCP server exposes **54 tools** organized into **10 categories** for comprehensive interaction with Allstacks:
+This MCP server exposes **208+ tools** organized into **12 categories** for comprehensive interaction with Allstacks:
 
 ### Tool Categories
 
-1. **Metrics Data Retrieval (7 tools)**: Access time-series metrics, V2 data explorer, and insight configurations
-2. **Service Items & Filtering (6 tools)**: List and search work items, PRs, commits with comprehensive filtering
-3. **User & Team Management (4 tools)**: Manage users, teams, and organizational hierarchies
-4. **Organization & Projects (4 tools)**: Access projects, services, and work bundles
-5. **AI & Analytics (4 tools)**: Get investment analysis, workflow insights, DevEx metrics, and capitalization reports
-6. **Dashboards & Widgets (5 tools)**: Manage dashboards, widgets, and shared links
-7. **Employee & Productivity (5 tools)**: Track employee metrics, activity periods, and user management
-8. **Forecasting & Planning (5 tools)**: Access forecasts, capacity planning, and chart analysis
-9. **Labels & Tagging (5 tools)**: Manage labels, tags, and user categorization
-10. **Alerts & Monitoring (5 tools)**: Monitor service health, alerts, risks, and audit logs
+1. **Metrics & Analytics (18 tools)**: GMDTS data, Metrics V2, insight configs, population benchmarks, company metrics
+2. **Service Items & Work Items (21 tools)**: Complete CRUD for work items, parent service items, property keys, estimation methods, notes, filter sets
+3. **Users & Teams (23 tools)**: Full user management, invites, roles, team tags, personal access tokens, service users
+4. **Organization & Projects (28 tools)**: Organizations, projects, settings, services, calendars, time periods, slots configuration
+5. **Dashboards & Widgets (20 tools)**: Complete dashboard/widget CRUD, shared links, cloning, widget management
+6. **Employee Analytics (9 tools)**: Employee metrics, cohorts, work items, timeline, summary, periods
+7. **Forecasting & Planning (11 tools)**: V3 forecasts, velocity, scenarios, capacity planning, chart analysis
+8. **Labels & Tagging (17 tools)**: Labels, label families, bulk operations, service item label assignment
+9. **Alerts & Monitoring (16 tools)**: Alert rules, active alerts, notifications, subscriptions, preferences
+10. **AI & Intelligence (18 tools)**: AI reports, Action AI code query, metric builder, pattern analysis, surveys, DX scores, AI tool usage
+11. **Work Bundles (13 tools)**: Selectable work bundle management, forecasting, metrics, cloning
+12. **Risk Management (14 tools)**: Risk definitions, project risks, assessment, trends, resolution
 
 ## Project Structure
 
 ```
 allstacks-mcp/
-├── server.py                    # Main entry point
+├── server.py                    # Main entry point - 208+ tools
 ├── allstacks_mcp/
 │   ├── __init__.py
 │   ├── client.py               # HTTP Basic Auth client
 │   └── tools/                  # Tool modules by category
 │       ├── __init__.py
-│       ├── metrics.py
-│       ├── service_items.py
-│       ├── users_teams.py
-│       ├── org_projects.py
-│       ├── ai_analytics.py
-│       ├── dashboards.py
-│       ├── employee.py
-│       ├── forecasting.py
-│       ├── labels.py
-│       └── alerts.py
+│       ├── metrics.py          # 18 metrics tools
+│       ├── service_items.py    # 21 service item tools
+│       ├── users_teams.py      # 23 user/team tools
+│       ├── org_projects.py     # 28 org/project tools
+│       ├── dashboards.py       # 20 dashboard tools
+│       ├── employee.py         # 9 employee analytics tools
+│       ├── forecasting.py      # 11 forecasting tools
+│       ├── labels.py           # 17 label management tools
+│       ├── alerts.py           # 16 alert/monitoring tools
+│       ├── ai_analytics.py     # 18 AI & analytics tools
+│       ├── work_bundles.py     # 13 work bundle tools
+│       └── risk_management.py  # 14 risk management tools
 ├── pyproject.toml
+├── uv.lock
+├── FILTERED_ENDPOINTS.md       # Endpoint verification document
+├── TOOLS_MAPPING.md            # Complete API mapping
+├── ENDPOINT_VERIFICATION.md    # Verification results
 └── README.md
 ```
 
@@ -81,7 +89,7 @@ Add to your MCP client configuration (e.g., Claude Desktop's `claude_desktop_con
             "command": "uv",
             "args": [
                 "--directory",
-                "/absolute/path/to/allstacks-mcp",
+                "/ABSOLUTE/PATH/TO/allstacks-mcp",
                 "run",
                 "server.py",
                 "--username",
@@ -94,100 +102,135 @@ Add to your MCP client configuration (e.g., Claude Desktop's `claude_desktop_con
 }
 ```
 
-## Available Tools
+**Important Notes:**
+- Replace `/ABSOLUTE/PATH/TO/allstacks-mcp` with the full path to this directory
+- Replace `YOUR_USERNAME` and `YOUR_PASSWORD` with your actual credentials
+- On macOS, `uv` is typically located at `~/.local/bin/uv` - ensure it's in your PATH or use the full path
+- Claude Desktop doesn't inherit your shell's PATH, so using the full path to `uv` is more reliable
 
-### 1. Metrics Data Retrieval (7 tools)
-- `list_metrics` - List all available metric types
-- `get_metric_info` - Get detailed metric information
-- `get_gmdts_data` - Fetch Generated Metric Data Time Series
-- `get_metrics_v2_data` - Fetch data using Metrics V2 configuration
-- `list_metrics_v2_configs` - List saved V2 configurations
-- `create_metrics_v2_config` - Create new V2 configuration
-- `get_insight_configs` - Get insight configurations
+### Alternative Configuration (Direct Python)
 
-### 2. Service Items & Filtering (6 tools)
-- `list_service_items` - List work items with filtering
-- `get_item_props` - Get available item properties
-- `get_configuration_options` - Get configuration options
-- `search_service_items` - Full-text search across items
-- `get_parent_service_items` - Get hierarchical parent items
-- `get_metrics_filter_sets` - Get saved filter sets
+If you prefer to use Python directly from a virtual environment:
 
-### 3. User & Team Management (4 tools)
-- `list_service_users` - List users with merge handling
-- `get_user_mapping` - Map user keys to names
-- `get_user_tags` - Get user categorization tags
-- `get_team_categories` - List team hierarchies
+```json
+{
+    "mcpServers": {
+        "allstacks": {
+            "command": "/ABSOLUTE/PATH/TO/allstacks-mcp/.venv/bin/python",
+            "args": [
+                "/ABSOLUTE/PATH/TO/allstacks-mcp/server.py",
+                "--username",
+                "YOUR_USERNAME",
+                "--password",
+                "YOUR_PASSWORD"
+            ]
+        }
+    }
+}
+```
 
-### 4. Organization & Projects (4 tools)
-- `get_organization_settings` - Get org configuration
-- `list_projects` - List all projects
-- `get_project_services` - Get connected services
-- `get_enabled_work_bundles` - List work bundles
+## Features
 
-### 5. AI & Analytics (4 tools)
-- `get_organization_investments` - Get investment analysis
-- `generate_workflow_analysis` - Generate AI workflow reports
-- `get_developer_experience_metrics` - Get DevEx metrics
-- `get_capitalization_report` - Get R&D capitalization report
+### Comprehensive API Coverage
 
-### 6. Dashboards & Widgets (5 tools)
-- `list_dashboards` - List dashboards
-- `get_dashboard_widgets` - Get dashboard widgets
-- `create_dashboard_widget` - Create new widget
-- `get_shared_links` - Get shared dashboard links
-- `create_shared_link` - Create shared dashboard link
+All tools are verified against the official Allstacks OpenAPI specification:
+- ✅ All endpoints use correct paths and parameters
+- ✅ Detailed parameter descriptions from official API docs
+- ✅ Proper error handling and validation
+- ✅ HTTP Basic Auth support
+- ✅ Async/await for performance
 
-### 7. Employee & Productivity (5 tools)
-- `get_employee_metrics` - Get employee productivity metrics
-- `get_employee_periods` - Get employee activity periods
-- `get_employee_users` - Get employee user list
-- `get_employee_metric_data` - Get detailed employee metrics
-- `merge_service_users` - Merge multiple service users
+### Modular Architecture
 
-### 8. Forecasting & Planning (5 tools)
-- `get_forecast_v3` - Get v3 forecast data
-- `get_slots` - Get resource slots/capacity
-- `analyze_chart_data` - Analyze chart data
-- `get_chart_analysis` - Get AI analysis for charts
-- `get_company_metrics` - Get company-level metrics
+Tools are organized into logical categories matching the Allstacks API structure:
+- Easy to navigate and understand
+- Clear separation of concerns
+- Consistent patterns across all tools
+- Well-documented with OpenAPI references
 
-### 9. Labels & Tagging (5 tools)
-- `list_labels` - List all labels
-- `create_label` - Create new label
-- `add_service_user_tags` - Add tags to users
-- `remove_service_user_tags` - Remove tags from users
-- `get_manageable_roles` - Get roles and permissions
+### Rich Tool Descriptions
 
-### 10. Alerts & Monitoring (5 tools)
-- `get_service_item_alerts` - Get service item alerts
-- `get_deliverable_risks` - Get deliverable risk assessment
-- `get_service_health` - Get service health status
-- `get_error_logs` - Get error logs
-- `get_audit_log` - Get audit log
+Every tool includes:
+- Purpose and use case
+- Required and optional parameters
+- Expected return formats
+- OpenAPI endpoint reference
+- Example usage patterns
+
+## Example Tool Usage
+
+### Get GMDTS Metrics Data
+```python
+# Get Generated Metric Data Time Series (GMDTS)
+get_gmdts_data(
+    project_id=123,
+    metric_type="Velocity",
+    start_date=1704067200000,
+    end_date=1706745600000
+)
+```
+
+### List Work Items with Filtering
+```python
+# List service items with filtering
+list_service_items(
+    item_type="CARD",
+    limit=100,
+    offset=0
+)
+```
+
+### Create AI Report
+```python
+# Generate AI analysis report
+create_ai_report(
+    org_id=456,
+    report_type="project_health",
+    project_id=123
+)
+```
+
+### Forecast Work Bundle
+```python
+# Get Monte Carlo forecast for work bundle
+get_work_bundle_forecast(
+    project_id=123,
+    bundle_id=789,
+    confidence_level=80
+)
+```
+
+## API Compatibility
+
+This server is built against the official Allstacks API v1 specification and includes:
+- Non-admin endpoints only (no destructive operations)
+- Full CRUD for resources where appropriate
+- Bulk operations for efficiency
+- Proper pagination support
+- Query parameter validation
 
 ## Development
 
 ### Adding New Tools
 
-1. Choose the appropriate category in `allstacks_mcp/tools/` or create a new module
-2. Add your tool function decorated with `@mcp.tool()`
-3. Register it in the module's `register_tools()` function
-4. Import and register the module in `server.py` if new
+1. Create or update a tool file in `allstacks_mcp/tools/`
+2. Follow the existing pattern for tool registration
+3. Include full docstrings with OpenAPI references
+4. Add the module to `allstacks_mcp/tools/__init__.py`
+5. Register it in `server.py`'s `register_all_tools()` function
 
-### Modular Structure Benefits
+### Testing
 
-- **Organized**: Tools grouped by functional category
-- **Maintainable**: Easy to find and update specific tools
-- **Extensible**: Simple to add new categories or tools
-- **Testable**: Each module can be tested independently
-
-## Requirements
-
-- Python 3.13+
-- httpx (async HTTP client)
-- mcp[cli] (Model Context Protocol)
+```bash
+# Run the server in development mode
+uv run server.py --username test_user --password test_pass --base-url https://api-dev.allstacks.com/api/v1/
+```
 
 ## License
 
 MIT
+
+## Support
+
+For issues or questions about the Allstacks API, contact the Allstacks team.
+For issues specific to this MCP server, please file an issue in the repository.

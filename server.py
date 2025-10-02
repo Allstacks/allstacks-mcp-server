@@ -2,7 +2,7 @@
 """
 Allstacks MCP Server - AI-ready interface to Allstacks API
 
-This modular MCP server provides 54 tools across 10 categories for interacting
+This modular MCP server provides 208+ tools across 12 categories for interacting
 with the Allstacks API using HTTP Basic Authentication.
 """
 
@@ -20,7 +20,9 @@ from allstacks_mcp.tools import (
     employee,
     forecasting,
     labels,
-    alerts
+    alerts,
+    work_bundles,
+    risk_management
 )
 
 # Initialize FastMCP server
@@ -42,6 +44,8 @@ def register_all_tools():
     forecasting.register_tools(mcp, api_client)
     labels.register_tools(mcp, api_client)
     alerts.register_tools(mcp, api_client)
+    work_bundles.register_tools(mcp, api_client)
+    risk_management.register_tools(mcp, api_client)
 
 
 if __name__ == "__main__":
