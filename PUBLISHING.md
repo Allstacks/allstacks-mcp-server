@@ -100,8 +100,14 @@ uv publish
 ### 4. Authenticate with MCP Registry
 
 ```bash
-# DNS authentication
-mcp-publisher login dns --domain allstacks.com --private-key-file mcp-key.pem
+# DNS authentication — mcp-publisher requires the private key as HEX, not a file path.
+# Example (local/manual):
+# 1. Generate keypair (if you haven't already):
+openssl genpkey -algorithm Ed25519 -out mcp-key.pem
+# 2. Convert PEM -> DER -> extract 32-byte seed -> hex:
+PRIVATE_KEY_HEX=$(openssl pkey -in mcp-key.pem -outform DER | tail -c 32 | xxd -p -u -c 9999)
+# 3. Login using hex:
+mcp-publisher login dns --domain allstacks.com --private-key $PRIVATE_KEY_HEX
 ```
 
 ### 5. Publish to MCP Registry
@@ -267,8 +273,9 @@ openssl genpkey -algorithm Ed25519 -out mcp-key-new.pem
 # Update DNS TXT record with new public key
 # Update MCP_PRIVATE_KEY secret in GitHub
 
-# Test with new key
-mcp-publisher login dns --domain allstacks.com --private-key-file mcp-key-new.pem
+# Test with new key (convert PEM to hex then login)
+# PRIVATE_KEY_HEX=$(openssl pkey -in mcp-key-new.pem -outform DER | tail -c 32 | xxd -p -u -c 9999)
+# mcp-publisher login dns --domain allstacks.com --private-key $PRIVATE_KEY_HEX
 
 # Once verified, delete old key
 rm mcp-key.pem

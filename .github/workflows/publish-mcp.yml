@@ -51,8 +51,12 @@ jobs:
 
       - name: Login to MCP Registry (DNS Auth)
         run: |
+          # Write PEM from secret to disk
           echo "${{ secrets.MCP_PRIVATE_KEY }}" > key.pem
-          ./mcp-publisher login dns --domain allstacks.com --private-key-file key.pem
+          # Convert PEM -> DER -> take last 32 bytes (Ed25519 seed) -> hex encode
+          PRIVATE_KEY_HEX=$(openssl pkey -in key.pem -outform DER | tail -c 32 | xxd -p -u -c 9999)
+          # Pass private key as hex (mcp-publisher expects hex, not a file path)
+          ./mcp-publisher login dns --domain allstacks.com --private-key "$PRIVATE_KEY_HEX"
 
       - name: Publish to MCP Registry
         run: ./mcp-publisher publish

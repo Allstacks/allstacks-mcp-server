@@ -72,8 +72,9 @@ uv build
 # Publish to PyPI
 uv publish
 
-# Authenticate with MCP Registry
-mcp-publisher login dns --domain allstacks.com --private-key-file mcp-key.pem
+# Authenticate with MCP Registry (convert PEM to hex and pass with --private-key)
+PRIVATE_KEY_HEX=$(openssl pkey -in mcp-key.pem -outform DER | tail -c 32 | xxd -p -u -c 9999)
+mcp-publisher login dns --domain allstacks.com --private-key $PRIVATE_KEY_HEX
 
 # Publish to MCP Registry
 mcp-publisher publish
@@ -232,7 +233,9 @@ openssl genpkey -algorithm Ed25519 -out mcp-key.pem
 # 3. Publish
 uv build
 uv publish
-mcp-publisher login dns --domain allstacks.com --private-key-file mcp-key.pem
+# Convert PEM -> hex and login (mcp-publisher expects hex for the private key)
+PRIVATE_KEY_HEX=$(openssl pkey -in mcp-key.pem -outform DER | tail -c 32 | xxd -p -u -c 9999)
+mcp-publisher login dns --domain allstacks.com --private-key $PRIVATE_KEY_HEX
 mcp-publisher publish
 
 # 4. For future releases
