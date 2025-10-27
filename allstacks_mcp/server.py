@@ -9,8 +9,8 @@ with the Allstacks API using HTTP Basic Authentication.
 import argparse
 from mcp.server.fastmcp import FastMCP
 
-from allstacks_mcp.client import AllstacksAPIClient
-from allstacks_mcp.tools import (
+from .client import AllstacksAPIClient
+from .tools import (
     metrics,
     service_items,
     users_teams,

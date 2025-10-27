@@ -11,7 +11,7 @@ dependencies = [
 ]
 
 [project.scripts]
-allstacks-mcp = "server:main"
+allstacks-mcp = "allstacks_mcp.server:main"
 
 [tool.mcp]
 name = "com.allstacks/allstacks-mcp"
