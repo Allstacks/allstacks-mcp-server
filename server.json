@@ -3,7 +3,7 @@
   "name": "com.allstacks/allstacks-mcp",
   "title": "Allstacks Analytics MCP Server",
   "description": "Provides 208+ tools for AI-native engineering intelligence via Allstacks API.",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "homepage": "https://github.com/allstacks/allstacks-mcp",
   "license": "MIT",
   "keywords": ["allstacks", "analytics", "engineering-intelligence", "metrics", "forecasting", "devops", "ai-tools", "project-management", "risk-management"],
@@ -11,7 +11,7 @@
     {
       "registryType": "pypi",
       "identifier": "allstacks-mcp",
-      "version": "0.1.0",
+      "version": "0.1.1",
       "transport": {
         "type": "stdio",
         "command": "python",
