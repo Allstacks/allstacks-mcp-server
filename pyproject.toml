@@ -10,5 +10,8 @@ dependencies = [
     "mcp[cli]>=1.7.1",
 ]
 
+[project.scripts]
+allstacks-mcp = "server:main"
+
 [tool.mcp]
 name = "com.allstacks/allstacks-mcp"

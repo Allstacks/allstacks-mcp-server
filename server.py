@@ -48,7 +48,10 @@ def register_all_tools():
     risk_management.register_tools(mcp, api_client)
 
 
-if __name__ == "__main__":
+def main():
+    """Main entry point for the Allstacks MCP server"""
+    global api_client
+    
     # Set up argument parser
     parser = argparse.ArgumentParser(
         description='Allstacks MCP Server - AI-ready interface to Allstacks API'
@@ -80,4 +83,8 @@ if __name__ == "__main__":
     
     # Run the MCP server
     mcp.run(transport='stdio')
+
+
+if __name__ == "__main__":
+    main()
 
