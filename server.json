@@ -1,0 +1,40 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-10-17/server.schema.json",
+  "name": "com.allstacks/allstacks-mcp",
+  "title": "Allstacks Analytics MCP Server",
+  "description": "Comprehensive MCP server providing 208+ tools for AI-native engineering intelligence via Allstacks API. Access metrics, forecasting, risk management, work items, dashboards, AI analytics, and more. Requires HTTP Basic Auth credentials for Allstacks API.",
+  "version": "0.1.0",
+  "homepage": "https://github.com/allstacks/allstacks-mcp",
+  "license": "MIT",
+  "keywords": ["allstacks", "analytics", "engineering-intelligence", "metrics", "forecasting", "devops", "ai-tools", "project-management", "risk-management"],
+  "packages": [
+    {
+      "registryType": "pypi",
+      "identifier": "allstacks-mcp",
+      "version": "0.1.0",
+      "transport": {
+        "type": "stdio",
+        "command": "python",
+        "args": ["-m", "allstacks_mcp.server"],
+        "env": {
+          "ALLSTACKS_USERNAME": {
+            "description": "Username or email for Allstacks HTTP Basic Auth",
+            "isRequired": true,
+            "isSecret": false
+          },
+          "ALLSTACKS_PASSWORD": {
+            "description": "Password or API key for Allstacks HTTP Basic Auth",
+            "isRequired": true,
+            "isSecret": true
+          },
+          "ALLSTACKS_BASE_URL": {
+            "description": "Base URL for Allstacks API (default: https://api.allstacks.com/api/v1/)",
+            "isRequired": false,
+            "isSecret": false
+          }
+        }
+      }
+    }
+  ]
+}
+

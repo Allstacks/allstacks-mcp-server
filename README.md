@@ -1,5 +1,7 @@
 # Allstacks MCP Server
 
+<!-- mcp-name: com.allstacks/allstacks-mcp -->
+
 A comprehensive Model Context Protocol (MCP) server providing AI-ready access to the Allstacks API using HTTP Basic Authentication.
 
 ## Overview
@@ -59,11 +61,58 @@ allstacks-mcp/
    uv sync
    ```
 
-## Authentication
+## Authentication & Security
 
-The server uses **HTTP Basic Authentication**. You'll need:
-- A valid Allstacks username
-- A corresponding password or API key
+### Required Credentials
+
+The server uses **HTTP Basic Authentication** to connect to the Allstacks API. You'll need:
+- **Username**: Your Allstacks username or email address
+- **Password**: Your Allstacks password or API key
+- **Base URL**: (Optional) Default is `https://api.allstacks.com/api/v1/`
+
+### 🔒 Security Best Practices
+
+#### Credential Management
+
+**⚠️ IMPORTANT**: Your credentials provide full access to your Allstacks account.
+
+1. **Use Environment Variables** (Recommended)
+   ```bash
+   export ALLSTACKS_USERNAME="your-username"
+   export ALLSTACKS_PASSWORD="your-api-key"
+   ```
+
+2. **Use Allstacks API Keys** instead of passwords when possible
+   - Generate API keys from your Allstacks account settings
+   - API keys can be revoked without changing your password
+
+3. **Never commit credentials** to version control
+   - The MCP client config file may contain credentials
+   - Keep config files in `.gitignore`
+
+4. **Rotate credentials regularly** for enhanced security
+
+#### Process Security
+
+**Note**: Command-line arguments (`--username`, `--password`) are visible in process lists. For production use:
+- Use environment variables
+- Use secure configuration files
+- Consider using a secrets management system
+
+#### Data Access & Privacy
+
+This MCP server acts as a **pass-through** to the Allstacks API:
+- ✅ Does not store or log your credentials
+- ✅ Does not cache API responses
+- ✅ Does not persist any data locally
+- ✅ Returns API data as-is without modification
+
+**AI Access**: When used with AI assistants (e.g., Claude), the AI will have access to:
+- All data accessible via your Allstacks credentials
+- The same permissions as your Allstacks user account
+- Ability to create, modify, and delete resources (depending on your permissions)
+
+**Recommendation**: Consider using a dedicated Allstacks account with limited permissions for AI access.
 
 ## Usage
 

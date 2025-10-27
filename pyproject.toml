@@ -9,3 +9,6 @@ dependencies = [
     "httpx>=0.28.1",
     "mcp[cli]>=1.7.1",
 ]
+
+[tool.mcp]
+name = "com.allstacks/allstacks-mcp"
