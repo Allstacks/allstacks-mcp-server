@@ -25,8 +25,35 @@ from .tools import (
     risk_management,
 )
 
+# Shown in initialize.instructions for connected clients (token cost per turn).
+MCP_SERVER_INSTRUCTIONS = (
+    "This server wraps the Allstacks REST API (HTTP Basic auth at startup). "
+    "Tools return JSON strings; parse them before reasoning. Prefer narrow reads: "
+    "pagination (limit/offset), filters, and IDs from list endpoints. "
+    "Data is scoped by organization and project: most routes are under "
+    "organization/{org_id}/ or project/{project_id}/. A given login usually has one "
+    "org; projects are many per org and often align with team or department splits; "
+    "service user tags are another common way to segment people—get_metrics_v2_user_tags "
+    "for tag values used in Metrics V2 filters. "
+    "Happy paths: (1) Org/project context — list_organizations, list_projects, then "
+    "scoped calls. (2) Engineering work — list_service_items / get_service_item_* "
+    "with item_type (e.g. PULL_REQUEST, COMMIT, CARD); use get_service_item_property_keys "
+    "before complex filters. (3) Metrics — list_metrics or get_project_metrics_list, "
+    "get_metric_info / get_generated_metric, then get_project_metrics_v2_data or "
+    "get_org_metrics_v2_data for time series. AI-built Metrics V2 example: call "
+    "ai_metric_builder(project_id, prompt, stream=false), parse the JSON string, "
+    "take inner = obj['config'] if isinstance(obj.get('config'), dict) else obj, "
+    "then get_project_metrics_v2_data(project_id, json.dumps(inner)); use "
+    "previous_config as a JSON string to refine the builder across turns. "
+    "Org-scoped charts use get_org_metrics_v2_data(org_id, config) with the same "
+    "inner config shape. (4) Dashboards — list_org_dashboards, "
+    "get_org_dashboard, list_dashboard_widgets. (5) AI insights — list_ai_reports, "
+    "get_insights, get_developer_experience_score as appropriate. "
+    "Errors may appear as JSON with error/status_code instead of exceptions."
+)
+
 # Initialize FastMCP server
-mcp = FastMCP("Allstacks-MCP")
+mcp = FastMCP("Allstacks-MCP", instructions=MCP_SERVER_INSTRUCTIONS)
 
 # Global API client
 api_client = None
