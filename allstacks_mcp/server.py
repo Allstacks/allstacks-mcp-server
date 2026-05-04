@@ -2,7 +2,7 @@
 """
 Allstacks MCP Server - AI-ready interface to Allstacks API
 
-This modular MCP server provides 208+ tools across 12 categories for interacting
+This modular MCP server provides 194+ tools across 12 categories for interacting
 with the Allstacks API using HTTP Basic Authentication.
 """
 
@@ -22,7 +22,7 @@ from .tools import (
     labels,
     alerts,
     work_bundles,
-    risk_management
+    risk_management,
 )
 
 # Initialize FastMCP server
@@ -51,40 +51,36 @@ def register_all_tools():
 def main():
     """Main entry point for the Allstacks MCP server"""
     global api_client
-    
+
     # Set up argument parser
     parser = argparse.ArgumentParser(
-        description='Allstacks MCP Server - AI-ready interface to Allstacks API'
+        description="Allstacks MCP Server - AI-ready interface to Allstacks API"
     )
     parser.add_argument(
-        '--username', '-u',
-        required=True,
-        help='Username for HTTP Basic authentication'
+        "--username", "-u", required=True, help="Username for HTTP Basic authentication"
     )
     parser.add_argument(
-        '--password', '-p',
-        required=True,
-        help='Password for HTTP Basic authentication'
+        "--password", "-p", required=True, help="Password for HTTP Basic authentication"
     )
     parser.add_argument(
-        '--base-url', '-b',
-        default='https://api.allstacks.com/api/v1/',
-        help='Base URL for the API (default: https://api.allstacks.com/api/v1/)'
+        "--base-url",
+        "-b",
+        default="https://api.allstacks.com/api/v1/",
+        help="Base URL for the API (default: https://api.allstacks.com/api/v1/)",
     )
-    
+
     # Parse arguments
     args = parser.parse_args()
-    
+
     # Initialize the API client with HTTP Basic Auth
     api_client = AllstacksAPIClient(args.username, args.password, args.base_url)
-    
+
     # Register all tools from the various modules
     register_all_tools()
-    
+
     # Run the MCP server
-    mcp.run(transport='stdio')
+    mcp.run(transport="stdio")
 
 
 if __name__ == "__main__":
     main()
-
