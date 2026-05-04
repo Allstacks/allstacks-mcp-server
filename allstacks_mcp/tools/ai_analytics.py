@@ -226,6 +226,59 @@ def register_tools(mcp, api_client):
         return json.dumps(result, indent=2)
 
     @mcp.tool()
+    async def ai_metric_builder(
+        project_id: int,
+        prompt: str,
+        previous_config: Optional[str] = None,
+        stream: bool = False,
+        data_source: Optional[str] = None,
+    ) -> str:
+        """
+        Run the AI metric builder (chart builder agent): natural language to metric/chart config and data.
+
+        From Django: POST /api/v1/project/{project_id}/actionai/ai-metric-builder/
+
+        One-shot: pass a single string in ``prompt`` (the API accepts string or list of strings; a string
+        is wrapped to a list server-side). Use ``previous_config`` to refine an existing chart/metric
+        configuration (JSON string). Set ``stream`` to true for SSE progress events (response is raw
+        text, not JSON). Optional ``data_source``: "default", "investment_hours", or "rnd_velocity".
+
+        Args:
+            project_id: Project identifier (path)
+            prompt: Raw question or instruction for the metric builder (REQUIRED)
+            previous_config: Optional JSON string of a prior chart/metric config to refine
+            stream: If true, request SSE streaming (returns raw response body under raw_body)
+            data_source: Optional data source override for the builder
+
+        Returns:
+            JSON from the metric builder, or with stream=true a JSON object with key raw_body (SSE text)
+        """
+        endpoint = f"project/{project_id}/actionai/ai-metric-builder/"
+
+        data: dict = {"prompt": prompt}
+
+        if previous_config is not None:
+            try:
+                data["previous_config"] = json.loads(previous_config)
+            except json.JSONDecodeError:
+                return json.dumps({"error": "Invalid JSON in previous_config parameter"})
+
+        if stream:
+            data["stream"] = True
+
+        if data_source is not None:
+            data["data_source"] = data_source
+
+        result = await api_client.request(
+            "POST",
+            endpoint,
+            data=data,
+            timeout_seconds=120.0,
+            expect_json=not stream,
+        )
+        return json.dumps(result, indent=2)
+
+    @mcp.tool()
     async def analyze_patterns(
         org_id: int,
         project_id: int,
