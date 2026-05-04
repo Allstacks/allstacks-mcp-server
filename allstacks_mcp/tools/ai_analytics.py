@@ -234,14 +234,34 @@ def register_tools(mcp, api_client):
         data_source: Optional[str] = None,
     ) -> str:
         """
-        Run the AI metric builder (chart builder agent): natural language to metric/chart config and data.
+        Run the AI metric builder (chart builder agent): natural language to a Metrics V2 chart/metric config.
 
         From Django: POST /api/v1/project/{project_id}/actionai/ai-metric-builder/
 
-        One-shot: pass a single string in ``prompt`` (the API accepts string or list of strings; a string
-        is wrapped to a list server-side). Use ``previous_config`` to refine an existing chart/metric
-        configuration (JSON string). Set ``stream`` to true for SSE progress events (response is raw
-        text, not JSON). Optional ``data_source``: "default", "investment_hours", or "rnd_velocity".
+        **Request body (what you send):**
+        - ``prompt`` (required): one-shot string, or the API also accepts a list of strings for multi-turn
+          content; a single string is wrapped to a one-element list server-side.
+        - ``previous_config`` (optional): JSON object (pass here as a JSON *string*); prior chart/metric
+          config to refine in a follow-up turn.
+        - ``stream`` (optional): when true, the HTTP response is SSE (progress events), not a single JSON
+          document; this client returns ``{"raw_body": "<SSE payload>"}`` instead of parsing JSON.
+        - ``data_source`` (optional): one of ``"default"``, ``"investment_hours"``, ``"rnd_velocity"``.
+
+        **Response shape (what you get back):**
+        - ``stream`` false: JSON from the builder. The payload is oriented around the **metric/chart
+          definition** the agent produced (filters, dimensions, metric selection, view metadata), not
+          the full Metrics V2 **data grid** result. Exact top-level keys follow the product API; use the
+          object that matches the Metrics V2 request shape your environment expects (sometimes the whole
+          body is that config, sometimes nested—use the same object you would hand-build for
+          ``POST .../metrics_v2/metrics``).
+        - ``stream`` true: ``{"raw_body": "..."}`` containing the raw SSE stream text; parse events per
+          your streaming contract until you hold the final config object, then continue with Metrics V2.
+
+        **Getting actual data (required next step):** The builder does **not** substitute for Metrics V2
+        data fetch. After you have the config JSON object from the response (or from the end of a stream),
+        call ``get_project_metrics_v2_data`` with the same ``project_id`` and pass that object as the
+        ``config`` JSON string. That POSTs to ``project/{project_id}/metrics_v2/metrics`` and returns
+        data, metadata, and pagination (tables, series, etc.) for chat or UI.
 
         Args:
             project_id: Project identifier (path)
@@ -251,7 +271,8 @@ def register_tools(mcp, api_client):
             data_source: Optional data source override for the builder
 
         Returns:
-            JSON from the metric builder, or with stream=true a JSON object with key raw_body (SSE text)
+            JSON from the metric builder (config-oriented), or with stream=true a JSON object with key
+            raw_body (SSE text). Use ``get_project_metrics_v2_data`` next to retrieve metric data.
         """
         endpoint = f"project/{project_id}/actionai/ai-metric-builder/"
 

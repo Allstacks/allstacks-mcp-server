@@ -174,6 +174,10 @@ def register_tools(mcp, api_client):
         
         From OpenAPI: POST /api/v1/project/{project_id}/metrics_v2/metrics
         
+        This is the standard **data** endpoint for a Metrics V2 configuration. After
+        ``ai_metric_builder`` returns a chart/metric config, pass that config object here (same
+        ``project_id``) as JSON in ``config`` to load rows, aggregates, and pagination metadata.
+        
         Supports complex queries with:
         - Pagination (limit, offset)
         - Advanced filters (property-based conditions with AND/OR logic)
