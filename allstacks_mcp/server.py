@@ -25,8 +25,24 @@ from .tools import (
     risk_management,
 )
 
+# Shown in initialize.instructions for connected clients (token cost per turn).
+MCP_SERVER_INSTRUCTIONS = (
+    "This server wraps the Allstacks REST API (HTTP Basic auth at startup). "
+    "Tools return JSON strings; parse them before reasoning. Prefer narrow reads: "
+    "pagination (limit/offset), filters, and IDs from list endpoints. "
+    "Happy paths: (1) Org/project context — list_organizations, list_projects, then "
+    "scoped calls. (2) Engineering work — list_service_items / get_service_item_* "
+    "with item_type (e.g. PULL_REQUEST, COMMIT, CARD); use get_service_item_property_keys "
+    "before complex filters. (3) Metrics — list_metrics or get_project_metrics_list, "
+    "get_metric_info / get_generated_metric, then get_project_metrics_v2_data or "
+    "get_org_metrics_v2_data for time series. (4) Dashboards — list_org_dashboards, "
+    "get_org_dashboard, list_dashboard_widgets. (5) AI insights — list_ai_reports, "
+    "get_insights, get_developer_experience_score as appropriate. "
+    "Errors may appear as JSON with error/status_code instead of exceptions."
+)
+
 # Initialize FastMCP server
-mcp = FastMCP("Allstacks-MCP")
+mcp = FastMCP("Allstacks-MCP", instructions=MCP_SERVER_INSTRUCTIONS)
 
 # Global API client
 api_client = None
