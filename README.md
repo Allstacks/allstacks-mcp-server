@@ -6,45 +6,45 @@ A comprehensive Model Context Protocol (MCP) server providing AI-ready access to
 
 ## Overview
 
-This MCP server exposes **208+ tools** organized into **12 categories** for comprehensive interaction with Allstacks:
+This MCP server exposes **194+ tools** organized into **12 categories** for comprehensive interaction with Allstacks:
 
 ### Tool Categories
 
-1. **Metrics & Analytics (18 tools)**: GMDTS data, Metrics V2, insight configs, population benchmarks, company metrics
-2. **Service Items & Work Items (21 tools)**: Complete CRUD for work items, parent service items, property keys, estimation methods, notes, filter sets
-3. **Users & Teams (23 tools)**: Full user management, invites, roles, team tags, personal access tokens, service users
-4. **Organization & Projects (28 tools)**: Organizations, projects, settings, services, calendars, time periods, slots configuration
-5. **Dashboards & Widgets (20 tools)**: Complete dashboard/widget CRUD, shared links, cloning, widget management
-6. **Employee Analytics (9 tools)**: Employee metrics, cohorts, work items, timeline, summary, periods
-7. **Forecasting & Planning (11 tools)**: V3 forecasts, velocity, scenarios, capacity planning, chart analysis
-8. **Labels & Tagging (17 tools)**: Labels, label families, bulk operations, service item label assignment
-9. **Alerts & Monitoring (16 tools)**: Alert rules, active alerts, notifications, subscriptions, preferences
-10. **AI & Intelligence (18 tools)**: AI reports, Action AI code query, metric builder, pattern analysis, surveys, DX scores, AI tool usage
-11. **Work Bundles (13 tools)**: Selectable work bundle management, forecasting, metrics, cloning
-12. **Risk Management (14 tools)**: Risk definitions, project risks, assessment, trends, resolution
+1. **Metrics & Analytics (20 tools)**: GMDTS data, Metrics V2 (including capitalization preview), templates, insight configs, population benchmarks, company metrics
+2. **Service Items & Work Items (18 tools)**: Complete CRUD for work items, parent service items, property keys, estimation methods, notes, filter sets
+3. **Users & Teams (20 tools)**: Full user management, invites, roles, team tags, personal access tokens, service users
+4. **Organization & Projects (31 tools)**: Organizations, projects, settings, services, calendars, time periods, slots, capitalization reports (V2)
+5. **Dashboards & Widgets (18 tools)**: Complete dashboard/widget CRUD, shared links, cloning, widget management
+6. **Employee Analytics (8 tools)**: Employee metrics, cohorts, work items, timeline, summary, periods
+7. **Forecasting & Planning (10 tools)**: V3 forecasts, velocity, scenarios, capacity planning, chart analysis
+8. **Labels & Tagging (15 tools)**: Labels, label families, bulk operations, service item label assignment
+9. **Alerts & Monitoring (14 tools)**: Alert rules, active alerts, notifications, subscriptions, preferences
+10. **AI & Intelligence (16 tools)**: AI reports, Action AI code query, metric builder, AI metric builder (project), pattern analysis, surveys, DX scores, AI tool usage
+11. **Work Bundles (12 tools)**: Selectable work bundle management, forecasting, metrics, cloning
+12. **Risk Management (12 tools)**: Risk definitions, project risks, assessment, trends, resolution
 
 ## Project Structure
 
 ```
 allstacks-mcp/
-├── server.py                    # Main entry point - 208+ tools
+├── server.py                    # Main entry point - 194+ tools
 ├── allstacks_mcp/
 │   ├── __init__.py
 │   ├── client.py               # HTTP Basic Auth client
 │   └── tools/                  # Tool modules by category
 │       ├── __init__.py
-│       ├── metrics.py          # 18 metrics tools
-│       ├── service_items.py    # 21 service item tools
-│       ├── users_teams.py      # 23 user/team tools
-│       ├── org_projects.py     # 28 org/project tools
-│       ├── dashboards.py       # 20 dashboard tools
-│       ├── employee.py         # 9 employee analytics tools
-│       ├── forecasting.py      # 11 forecasting tools
-│       ├── labels.py           # 17 label management tools
-│       ├── alerts.py           # 16 alert/monitoring tools
-│       ├── ai_analytics.py     # 18 AI & analytics tools
-│       ├── work_bundles.py     # 13 work bundle tools
-│       └── risk_management.py  # 14 risk management tools
+│       ├── metrics.py          # 20 metrics tools
+│       ├── service_items.py    # 18 service item tools
+│       ├── users_teams.py      # 20 user/team tools
+│       ├── org_projects.py     # 31 org/project tools
+│       ├── dashboards.py       # 18 dashboard tools
+│       ├── employee.py         # 8 employee analytics tools
+│       ├── forecasting.py      # 10 forecasting tools
+│       ├── labels.py           # 15 label management tools
+│       ├── alerts.py           # 14 alert/monitoring tools
+│       ├── ai_analytics.py     # 16 AI & analytics tools
+│       ├── work_bundles.py     # 12 work bundle tools
+│       └── risk_management.py  # 12 risk management tools
 ├── pyproject.toml
 ├── uv.lock
 ├── FILTERED_ENDPOINTS.md       # Endpoint verification document
