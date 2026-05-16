@@ -2,7 +2,7 @@
 
 <!-- mcp-name: com.allstacks/allstacks-mcp -->
 
-A comprehensive Model Context Protocol (MCP) server providing AI-ready access to the Allstacks API using HTTP Basic Authentication.
+A comprehensive Model Context Protocol (MCP) server providing AI-ready access to the Allstacks API. Authenticate with either HTTP Basic (username + password) or a Bearer Personal Access Token.
 
 ## Overview
 
@@ -26,11 +26,12 @@ This MCP server exposes **194+ tools** organized into **12 categories** for comp
 ## Project Structure
 
 ```
-allstacks-mcp/
-├── server.py                    # Main entry point - 194+ tools
+allstacks-mcp-server/
 ├── allstacks_mcp/
 │   ├── __init__.py
-│   ├── client.py               # HTTP Basic Auth client
+│   ├── __main__.py             # python -m allstacks_mcp entry point
+│   ├── server.py               # Main entry — 194+ tools, arg parsing
+│   ├── client.py               # HTTP client (Basic + Bearer auth)
 │   └── tools/                  # Tool modules by category
 │       ├── __init__.py
 │       ├── metrics.py          # 20 metrics tools
@@ -63,12 +64,36 @@ allstacks-mcp/
 
 ## Authentication & Security
 
-### Required Credentials
+### Authentication Modes
 
-The server uses **HTTP Basic Authentication** to connect to the Allstacks API. You'll need:
-- **Username**: Your Allstacks username or email address
-- **Password**: Your Allstacks password or API key
-- **Base URL**: (Optional) Default is `https://api.allstacks.com/api/v1/`
+The server supports two authentication modes. Pick **one** — they are not interchangeable in the same slot.
+
+#### Option A — Bearer auth with a Personal Access Token (recommended; required for SSO users)
+
+Generate a PAT in the Allstacks UI under **Personal Access Tokens** and pass it with `--token`:
+
+```bash
+uv run python -m allstacks_mcp.server \
+  --token YOUR_PAT \
+  --base-url https://app.allstacks.com/api/v1/
+```
+
+- Works for SSO-only accounts (which have no usable password).
+- Tokens can be revoked from the UI without changing any account credentials.
+- The token is sent as `Authorization: Bearer <token>`.
+
+#### Option B — HTTP Basic auth with username + password
+
+Only works for **local accounts** that have a real password — i.e., not SSO-only users. If you sign in to Allstacks through SSO, this mode will return 401.
+
+```bash
+uv run python -m allstacks_mcp.server \
+  --username your-email@example.com \
+  --password your-password \
+  --base-url https://app.allstacks.com/api/v1/
+```
+
+- **Base URL**: (Optional) Default is `https://api.allstacks.com/api/v1/`. Many deployments require `https://app.allstacks.com/api/v1/` instead.
 
 ### 🔒 Security Best Practices
 
@@ -76,15 +101,15 @@ The server uses **HTTP Basic Authentication** to connect to the Allstacks API. Y
 
 **⚠️ IMPORTANT**: Your credentials provide full access to your Allstacks account.
 
-1. **Use Environment Variables** (Recommended)
-   ```bash
-   export ALLSTACKS_USERNAME="your-username"
-   export ALLSTACKS_PASSWORD="your-api-key"
-   ```
+1. **Prefer Personal Access Tokens over passwords** — revocable, scoped, and the only option for SSO users.
 
-2. **Use Allstacks API Keys** instead of passwords when possible
-   - Generate API keys from your Allstacks account settings
-   - API keys can be revoked without changing your password
+2. **Use Environment Variables** when possible
+   ```bash
+   export ALLSTACKS_TOKEN="your-pat"
+   # or, for Basic auth:
+   export ALLSTACKS_USERNAME="your-username"
+   export ALLSTACKS_PASSWORD="your-password"
+   ```
 
 3. **Never commit credentials** to version control
    - The MCP client config file may contain credentials
@@ -94,7 +119,7 @@ The server uses **HTTP Basic Authentication** to connect to the Allstacks API. Y
 
 #### Process Security
 
-**Note**: Command-line arguments (`--username`, `--password`) are visible in process lists. For production use:
+**Note**: Command-line arguments (`--username`, `--password`, `--token`) are visible in process lists. For production use:
 - Use environment variables
 - Use secure configuration files
 - Consider using a secrets management system
@@ -118,19 +143,29 @@ This MCP server acts as a **pass-through** to the Allstacks API:
 
 ### Running the Server
 
+Bearer / PAT (recommended; required for SSO users):
 ```bash
-uv run server.py --username YOUR_USERNAME --password YOUR_PASSWORD
+uv run python -m allstacks_mcp.server --token YOUR_PAT
+```
+
+Basic / username + password (local accounts only):
+```bash
+uv run python -m allstacks_mcp.server --username YOUR_USERNAME --password YOUR_PASSWORD
 ```
 
 **Command-line options:**
-- `--username` or `-u`: Username for HTTP Basic authentication (required)
-- `--password` or `-p`: Password for HTTP Basic authentication (required)
+- `--token` or `-t`: Personal Access Token / API Token for Bearer auth (alternative to username/password)
+- `--username` or `-u`: Username for HTTP Basic auth (paired with `--password`)
+- `--password` or `-p`: Password for HTTP Basic auth (paired with `--username`)
 - `--base-url` or `-b`: Override the default API base URL (default: `https://api.allstacks.com/api/v1/`)
+
+Pass either `--token` OR both `--username` and `--password` — not both modes at once.
 
 ### MCP Client Configuration
 
-Add to your MCP client configuration (e.g., Claude Desktop's `claude_desktop_config.json`):
+Add to your MCP client configuration (e.g., Claude Desktop's `claude_desktop_config.json`).
 
+PAT / Bearer (recommended; required for SSO users):
 ```json
 {
     "mcpServers": {
@@ -138,9 +173,32 @@ Add to your MCP client configuration (e.g., Claude Desktop's `claude_desktop_con
             "command": "uv",
             "args": [
                 "--directory",
-                "/ABSOLUTE/PATH/TO/allstacks-mcp",
+                "/ABSOLUTE/PATH/TO/allstacks-mcp-server",
                 "run",
-                "server.py",
+                "python",
+                "-m",
+                "allstacks_mcp.server",
+                "--token",
+                "YOUR_PAT"
+            ]
+        }
+    }
+}
+```
+
+Username + password (local accounts only):
+```json
+{
+    "mcpServers": {
+        "allstacks": {
+            "command": "uv",
+            "args": [
+                "--directory",
+                "/ABSOLUTE/PATH/TO/allstacks-mcp-server",
+                "run",
+                "python",
+                "-m",
+                "allstacks_mcp.server",
                 "--username",
                 "YOUR_USERNAME",
                 "--password",
@@ -165,13 +223,12 @@ If you prefer to use Python directly from a virtual environment:
 {
     "mcpServers": {
         "allstacks": {
-            "command": "/ABSOLUTE/PATH/TO/allstacks-mcp/.venv/bin/python",
+            "command": "/ABSOLUTE/PATH/TO/allstacks-mcp-server/.venv/bin/python",
             "args": [
-                "/ABSOLUTE/PATH/TO/allstacks-mcp/server.py",
-                "--username",
-                "YOUR_USERNAME",
-                "--password",
-                "YOUR_PASSWORD"
+                "-m",
+                "allstacks_mcp.server",
+                "--token",
+                "YOUR_PAT"
             ]
         }
     }
@@ -266,13 +323,13 @@ This server is built against the official Allstacks API v1 specification and inc
 2. Follow the existing pattern for tool registration
 3. Include full docstrings with OpenAPI references
 4. Add the module to `allstacks_mcp/tools/__init__.py`
-5. Register it in `server.py`'s `register_all_tools()` function
+5. Register it in `allstacks_mcp/server.py`'s `register_all_tools()` function
 
 ### Testing
 
 ```bash
 # Run the server in development mode
-uv run server.py --username test_user --password test_pass --base-url https://api-dev.allstacks.com/api/v1/
+uv run python -m allstacks_mcp.server --token YOUR_PAT --base-url https://api-dev.allstacks.com/api/v1/
 ```
 
 ## License
