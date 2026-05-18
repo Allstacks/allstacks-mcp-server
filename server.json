@@ -24,18 +24,8 @@
         ],
         "env": {
           "ALLSTACKS_TOKEN": {
-            "description": "Personal Access Token for Bearer auth (recommended; required for SSO-only users). Alternative: use ALLSTACKS_USERNAME + ALLSTACKS_PASSWORD for HTTP Basic auth.",
-            "isRequired": false,
-            "isSecret": true
-          },
-          "ALLSTACKS_USERNAME": {
-            "description": "Username or email for HTTP Basic Auth (only for local accounts, not SSO). Requires ALLSTACKS_PASSWORD. Alternative: use ALLSTACKS_TOKEN for Bearer auth.",
-            "isRequired": false,
-            "isSecret": false
-          },
-          "ALLSTACKS_PASSWORD": {
-            "description": "Password for HTTP Basic Auth (only for local accounts, not SSO). Requires ALLSTACKS_USERNAME. Alternative: use ALLSTACKS_TOKEN for Bearer auth.",
-            "isRequired": false,
+            "description": "Personal Access Token for Bearer auth (recommended; required for SSO-only users). Generate from Allstacks UI under Personal Access Tokens. For HTTP Basic auth alternative, see README.",
+            "isRequired": true,
             "isSecret": true
           },
           "ALLSTACKS_BASE_URL": {
