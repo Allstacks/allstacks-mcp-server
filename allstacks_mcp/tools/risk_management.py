@@ -161,31 +161,33 @@ def register_tools(mcp, api_client):
         project_id: int,
         risk_type: Optional[str] = None,
         severity: Optional[str] = None,
-        status: Optional[str] = None,
     ) -> str:
         """
-        Get active risks identified for a project.
+        Get the project-scoped risk definitions (the configured risk rules,
+        not active risk instances).
 
-        From OpenAPI: GET /api/v1/project/{project_id}/risks/
+        From OpenAPI: GET /api/v1/project/{project_id}/risk_definitions/
+
+        The deployed API does not expose an aggregate "active risks" endpoint
+        at /project/{id}/risks/. Use this tool to enumerate the definitions
+        configured for the project. For active risks tied to a single item,
+        see ``get_service_item_risks``.
 
         Args:
             project_id: Project identifier
             risk_type: Optional filter by risk type (delivery, quality, resource, technical_debt)
             severity: Optional filter by severity (low, medium, high, critical)
-            status: Optional filter by status (active, resolved, acknowledged)
 
         Returns:
-            JSON array of active risks with details and affected service items
+            JSON array of risk definitions
         """
-        endpoint = f"project/{project_id}/risks/"
+        endpoint = f"project/{project_id}/risk_definitions/"
 
         params = {}
         if risk_type:
             params["risk_type"] = risk_type
         if severity:
             params["severity"] = severity
-        if status:
-            params["status"] = status
 
         result = await api_client.request("GET", endpoint, params=params)
         return json.dumps(result, indent=2)

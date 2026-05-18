@@ -9,7 +9,12 @@ import unittest
 
 from mcp.server.fastmcp import FastMCP
 
-from allstacks_mcp.tools import ai_analytics, org_projects
+from allstacks_mcp.tools import (
+    ai_analytics,
+    org_projects,
+    risk_management,
+    work_bundles,
+)
 
 
 class _RecordingClient:
@@ -54,6 +59,61 @@ class ToolRouteTests(unittest.TestCase):
         mcp, client = self._build(org_projects.register_tools)
         _run(mcp.call_tool("get_project_services", {"project_id": 49816}))
         self.assertEqual(client.last["endpoint"], "project/49816/service/")
+
+    def test_get_project_configuration_uses_configuration_options(self):
+        mcp, client = self._build(org_projects.register_tools)
+        _run(mcp.call_tool("get_project_configuration", {"project_id": 49816}))
+        self.assertEqual(
+            client.last["endpoint"], "project/49816/configuration_options/"
+        )
+
+    def test_get_project_uses_flat_project_route(self):
+        mcp, client = self._build(org_projects.register_tools)
+        _run(mcp.call_tool("get_project", {"project_id": 49816}))
+        self.assertEqual(client.last["endpoint"], "project/49816/")
+
+    def test_list_work_bundles_uses_initial_route(self):
+        mcp, client = self._build(work_bundles.register_tools)
+        _run(mcp.call_tool("list_work_bundles", {"project_id": 49816}))
+        self.assertEqual(client.last["endpoint"], "project/49816/work_bundles/initial/")
+
+    def test_get_project_risks_uses_risk_definitions_route(self):
+        mcp, client = self._build(risk_management.register_tools)
+        _run(mcp.call_tool("get_project_risks", {"project_id": 49816}))
+        self.assertEqual(client.last["endpoint"], "project/49816/risk_definitions/")
+
+
+class DeadToolRemovalTests(unittest.TestCase):
+    """Tools that targeted nonexistent endpoints must not be re-registered."""
+
+    def _names(self, register) -> set:
+        mcp = FastMCP("Test")
+
+        class _NoopClient:
+            async def request(self, *a, **kw):
+                return {}
+
+        register(mcp, _NoopClient())
+        return {t.name for t in asyncio.run(mcp.list_tools())}
+
+    def test_dead_tools_unregistered(self):
+        ai_names = self._names(ai_analytics.register_tools)
+        op_names = self._names(org_projects.register_tools)
+        from allstacks_mcp.tools import alerts, forecasting
+
+        alert_names = self._names(alerts.register_tools)
+        forecast_names = self._names(forecasting.register_tools)
+
+        for name, present_in in [
+            ("get_project_time_periods", op_names),
+            ("get_time_periods_by_type", op_names),
+            ("update_project_configuration", op_names),
+            ("get_velocity_data", forecast_names),
+            ("list_active_alerts", alert_names),
+            ("get_developer_experience_score", ai_names),
+            ("get_insights", ai_names),
+        ]:
+            self.assertNotIn(name, present_in, f"{name} should be removed")
 
 
 if __name__ == "__main__":

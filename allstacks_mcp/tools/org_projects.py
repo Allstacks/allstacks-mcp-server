@@ -16,12 +16,17 @@ def register_tools(mcp, api_client):
     @mcp.tool()
     async def list_organizations() -> str:
         """
-        List all organizations accessible to the current user.
+        Return the current user's organization ("MyCompany" view).
 
-        From OpenAPI: GET /api/v1/organization/
+        From OpenAPI: GET /api/v1/organization/ (singular)
+
+        The deployed API scopes this to the authenticated user's single
+        organization rather than returning a true cross-org list, despite
+        the plural-sounding tool name. Use the returned ``id`` as the
+        ``org_id`` argument for downstream tools.
 
         Returns:
-            JSON array of organizations with metadata
+            JSON describing the current user's organization
         """
         endpoint = "organization/"
 
@@ -212,42 +217,41 @@ def register_tools(mcp, api_client):
         return json.dumps(result, indent=2)
 
     @mcp.tool()
-    async def get_project(org_id: int, project_id: int) -> str:
+    async def get_project(project_id: int) -> str:
         """
         Get detailed information about a specific project.
 
-        From OpenAPI: GET /api/v1/organization/{org_id}/projects/{id}/
+        From OpenAPI: GET /api/v1/project/{project_id}/
+
+        The deployed API exposes project detail under the flat ``/project/{id}/``
+        route, not nested beneath the organization.
 
         Args:
-            org_id: Organization identifier
             project_id: Project identifier
 
         Returns:
             JSON with project details and configuration
         """
-        endpoint = f"organization/{org_id}/projects/{project_id}/"
+        endpoint = f"project/{project_id}/"
 
         result = await api_client.request("GET", endpoint)
         return json.dumps(result, indent=2)
 
     @mcp.tool()
-    async def update_project(
-        org_id: int, project_id: int, project_data: JsonInput
-    ) -> str:
+    async def update_project(project_id: int, project_data: JsonInput) -> str:
         """
         Update project settings and configuration.
 
-        From OpenAPI: PUT/PATCH /api/v1/organization/{org_id}/projects/{id}/
+        From OpenAPI: PATCH /api/v1/project/{project_id}/
 
         Args:
-            org_id: Organization identifier
             project_id: Project identifier
             project_data: JSON string or object with project updates
 
         Returns:
             Updated project details
         """
-        endpoint = f"organization/{org_id}/projects/{project_id}/"
+        endpoint = f"project/{project_id}/"
 
         try:
             data = parse_json_input(project_data, name="project_data")
@@ -260,45 +264,20 @@ def register_tools(mcp, api_client):
     @mcp.tool()
     async def get_project_configuration(project_id: int) -> str:
         """
-        Get project configuration details.
+        Get the project's configurable options (the schema of what can be
+        configured per project, e.g. metric-builder options).
 
-        From OpenAPI: GET /api/v1/project/{project_id}/configuration/
+        From OpenAPI: GET /api/v1/project/{project_id}/configuration_options/
 
         Args:
             project_id: Project identifier
 
         Returns:
-            JSON with project configuration
+            JSON with available configuration options for the project
         """
-        endpoint = f"project/{project_id}/configuration/"
+        endpoint = f"project/{project_id}/configuration_options/"
 
         result = await api_client.request("GET", endpoint)
-        return json.dumps(result, indent=2)
-
-    @mcp.tool()
-    async def update_project_configuration(
-        project_id: int, config_data: JsonInput
-    ) -> str:
-        """
-        Update project configuration.
-
-        From OpenAPI: POST /api/v1/project/{project_id}/configuration/
-
-        Args:
-            project_id: Project identifier
-            config_data: JSON string or object with configuration updates
-
-        Returns:
-            Updated configuration
-        """
-        endpoint = f"project/{project_id}/configuration/"
-
-        try:
-            data = parse_json_input(config_data, name="config_data")
-        except ValueError as e:
-            return json.dumps({"error": str(e)})
-
-        result = await api_client.request("POST", endpoint, data=data)
         return json.dumps(result, indent=2)
 
     @mcp.tool()

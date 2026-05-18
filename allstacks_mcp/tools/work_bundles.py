@@ -12,39 +12,37 @@ def register_tools(mcp, api_client):
     @mcp.tool()
     async def list_work_bundles(
         project_id: int,
-        include_completed: bool = False,
-        ordering: Optional[str] = None,
-        limit: int = 100,
-        offset: int = 0,
+        work_bundle_limit: int = 3,
+        group_limit: Optional[int] = None,
+        group_offset: int = 0,
     ) -> str:
         """
-        List work bundles (selectable work bundles) for a project.
+        List initial (most recent) work bundles for a project, grouped by
+        type / service.
 
-        From OpenAPI: GET /api/v1/project/{project_id}/work_bundles/
+        From OpenAPI: GET /api/v1/project/{project_id}/work_bundles/initial/
 
-        Work bundles are collections of work items that can be selected together
-        for planning, forecasting, and tracking.
+        Mirrors the ``get_initial_service_items`` shape. The flat
+        ``/work_bundles/`` listing does not exist on the deployed API; this
+        ``/initial/`` endpoint is the project-scoped lister.
 
         Args:
             project_id: Project identifier
-            include_completed: Include completed work bundles (default: False)
-            ordering: Optional ordering field
-            limit: Number of results per page (default: 100)
-            offset: Pagination offset (default: 0)
+            work_bundle_limit: Number of bundles to return per group (default: 3)
+            group_limit: Optional number of groups to return
+            group_offset: Offset for groups (default: 0)
 
         Returns:
-            JSON array of work bundles with metadata and item counts
+            JSON with grouped work bundles and ``has_more_groups``
         """
-        endpoint = f"project/{project_id}/work_bundles/"
+        endpoint = f"project/{project_id}/work_bundles/initial/"
 
         params = {
-            "include_completed": include_completed,
-            "limit": limit,
-            "offset": offset,
+            "work_bundle_limit": work_bundle_limit,
+            "group_offset": group_offset,
         }
-
-        if ordering:
-            params["ordering"] = ordering
+        if group_limit is not None:
+            params["group_limit"] = group_limit
 
         result = await api_client.request("GET", endpoint, params=params)
         return json.dumps(result, indent=2)
