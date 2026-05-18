@@ -3,6 +3,8 @@
 import json
 from typing import Optional
 
+from .._json_input import JsonInput, parse_json_input
+
 
 def register_tools(mcp, api_client):
     """Register all service items-related tools with the MCP server"""
@@ -455,7 +457,7 @@ def register_tools(mcp, api_client):
 
     @mcp.tool()
     async def create_metrics_filter_set(
-        project_id: int, name: Optional[str] = None, filter_set: str = "{}"
+        project_id: int, name: Optional[str] = None, filter_set: JsonInput = "{}"
     ) -> str:
         """
         Create a new metrics filter set.
@@ -465,7 +467,7 @@ def register_tools(mcp, api_client):
         Args:
             project_id: Project identifier
             name: Optional name for the filter set
-            filter_set: JSON string of filter configuration (required)
+            filter_set: JSON string or object of filter configuration (required)
 
         Returns:
             Created filter set with ID
@@ -473,11 +475,11 @@ def register_tools(mcp, api_client):
         endpoint = f"project/{project_id}/metrics_filter_sets/"
 
         try:
-            filter_dict = (
-                json.loads(filter_set) if isinstance(filter_set, str) else filter_set
-            )
-        except json.JSONDecodeError:
-            return json.dumps({"error": "Invalid JSON in filter_set parameter"})
+            filter_dict = parse_json_input(filter_set, name="filter_set")
+        except ValueError as e:
+            return json.dumps({"error": str(e)})
+        if not isinstance(filter_dict, dict):
+            return json.dumps({"error": "filter_set must be a JSON object"})
 
         data = {"filter_set": filter_dict}
         if name:
@@ -510,7 +512,7 @@ def register_tools(mcp, api_client):
         project_id: int,
         filter_set_id: int,
         name: Optional[str] = None,
-        filter_set: Optional[str] = None,
+        filter_set: Optional[JsonInput] = None,
     ) -> str:
         """
         Update a metrics filter set.
@@ -521,7 +523,7 @@ def register_tools(mcp, api_client):
             project_id: Project identifier
             filter_set_id: Filter set ID
             name: Optional new name
-            filter_set: Optional JSON string of updated filter configuration
+            filter_set: Optional JSON string or object of updated filter configuration
 
         Returns:
             Updated filter set
@@ -531,15 +533,14 @@ def register_tools(mcp, api_client):
         data = {}
         if name:
             data["name"] = name
-        if filter_set:
+        if filter_set is not None:
             try:
-                data["filter_set"] = (
-                    json.loads(filter_set)
-                    if isinstance(filter_set, str)
-                    else filter_set
-                )
-            except json.JSONDecodeError:
-                return json.dumps({"error": "Invalid JSON in filter_set parameter"})
+                parsed_filter_set = parse_json_input(filter_set, name="filter_set")
+            except ValueError as e:
+                return json.dumps({"error": str(e)})
+            if not isinstance(parsed_filter_set, dict):
+                return json.dumps({"error": "filter_set must be a JSON object"})
+            data["filter_set"] = parsed_filter_set
 
         result = await api_client.request("PATCH", endpoint, data=data)
         return json.dumps(result, indent=2)

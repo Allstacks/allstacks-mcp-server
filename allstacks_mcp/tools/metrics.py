@@ -3,6 +3,7 @@
 import json
 from typing import Optional
 
+from .._json_input import JsonInput, parse_json_input
 from ..metrics_v2_payload import build_metrics_v2_post_body
 
 
@@ -169,9 +170,9 @@ def register_tools(mcp, api_client):
     @mcp.tool()
     async def get_project_metrics_v2_data(
         project_id: int,
-        config: str,
+        config: JsonInput,
         get_count_only: bool = False,
-        variables: Optional[str] = None,
+        variables: Optional[JsonInput] = None,
         use_cache: bool = True,
     ) -> str:
         """
@@ -180,20 +181,21 @@ def register_tools(mcp, api_client):
         From API: POST /api/v1/project/{project_id}/metrics_v2/metrics
 
         **Request body:** ``{"config": {...}, "get_count_only": false, "variables": {}}``. Pass
-        ``config`` as JSON of either the **inner** config object or the full envelope (keys only
-        ``config``, ``get_count_only``, ``variables``). Optional query ``use_cache`` (default true).
+        ``config`` as the **inner** config object or the full envelope (keys only ``config``,
+        ``get_count_only``, ``variables``). Either form may be a JSON string or the already-parsed
+        object. Optional query ``use_cache`` (default true).
 
         **Response:** JSON with ``results``, ``ignored_filters``, ``next``, ``previous``. Count-only:
         ``{"count", "ignored_filters"}``. Cached responses may include ``from_cache``. If ``config.as_csv``
         is true, CSV is returned as ``raw_body`` by this client.
 
-        After ``ai_metric_builder``, pass the inner config as this ``config`` string.
+        After ``ai_metric_builder``, pass the inner config as this ``config``.
 
         Args:
             project_id: Project identifier
-            config: JSON string — inner config or full envelope
+            config: JSON string or object — inner config or full envelope
             get_count_only: If true, request only row count
-            variables: Optional JSON string of variables for ``{{var}}`` substitution
+            variables: Optional JSON string or object of variables for ``{{var}}`` substitution
             use_cache: Query param; false bypasses response cache
 
         Returns:
@@ -225,9 +227,9 @@ def register_tools(mcp, api_client):
     @mcp.tool()
     async def get_org_metrics_v2_data(
         org_id: int,
-        config: str,
+        config: JsonInput,
         get_count_only: bool = False,
-        variables: Optional[str] = None,
+        variables: Optional[JsonInput] = None,
         use_cache: bool = True,
     ) -> str:
         """
@@ -239,9 +241,9 @@ def register_tools(mcp, api_client):
 
         Args:
             org_id: Organization identifier
-            config: JSON string — inner config or full envelope
+            config: JSON string or object — inner config or full envelope
             get_count_only: If true, request only row count
-            variables: Optional JSON string of variables dict
+            variables: Optional JSON string or object of variables dict
             use_cache: Query param; false bypasses cache
 
         Returns:
@@ -273,9 +275,9 @@ def register_tools(mcp, api_client):
     @mcp.tool()
     async def get_org_metrics_v2_capitalization_data(
         org_id: int,
-        config: str,
+        config: JsonInput,
         get_count_only: bool = False,
-        variables: Optional[str] = None,
+        variables: Optional[JsonInput] = None,
         use_cache: bool = True,
     ) -> str:
         """
@@ -288,9 +290,9 @@ def register_tools(mcp, api_client):
 
         Args:
             org_id: Organization identifier
-            config: JSON string — inner capitalization config or full envelope
+            config: JSON string or object — inner capitalization config or full envelope
             get_count_only: If true, request only row count
-            variables: Optional JSON string of variables dict
+            variables: Optional JSON string or object of variables dict
             use_cache: Query param; false bypasses cache
 
         Returns:
@@ -547,7 +549,7 @@ def register_tools(mcp, api_client):
         return json.dumps(result, indent=2)
 
     @mcp.tool()
-    async def create_company_metrics(org_id: int, metrics_config: str) -> str:
+    async def create_company_metrics(org_id: int, metrics_config: JsonInput) -> str:
         """
         Create company metrics configuration.
 
@@ -555,7 +557,7 @@ def register_tools(mcp, api_client):
 
         Args:
             org_id: Organization identifier
-            metrics_config: JSON string of metrics configuration
+            metrics_config: JSON string or object of metrics configuration
 
         Returns:
             Created metrics configuration
@@ -563,13 +565,11 @@ def register_tools(mcp, api_client):
         endpoint = f"organization/{org_id}/company_metrics/"
 
         try:
-            config_dict = (
-                json.loads(metrics_config)
-                if isinstance(metrics_config, str)
-                else metrics_config
-            )
-        except json.JSONDecodeError:
-            return json.dumps({"error": "Invalid JSON in metrics_config parameter"})
+            config_dict = parse_json_input(metrics_config, name="metrics_config")
+        except ValueError as e:
+            return json.dumps({"error": str(e)})
+        if not isinstance(config_dict, dict):
+            return json.dumps({"error": "metrics_config must decode to a JSON object"})
 
         result = await api_client.request("POST", endpoint, data=config_dict)
         return json.dumps(result, indent=2)

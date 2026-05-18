@@ -3,6 +3,8 @@
 import json
 from typing import Optional
 
+from .._json_input import JsonInput, parse_json_input
+
 
 def register_tools(mcp, api_client):
     """Register all AI and analytics tools with the MCP server"""
@@ -23,7 +25,7 @@ def register_tools(mcp, api_client):
         """
         List AI-generated reports for analysis and insights.
 
-        From OpenAPI: GET /api/v1/organization/{org_id}/ai_reports/
+        From OpenAPI: GET /api/v1/organization/{org_id}/ai-reports/
 
         AI Reports provide automated analysis of project health, team performance,
         and risk factors using machine learning.
@@ -39,7 +41,7 @@ def register_tools(mcp, api_client):
         Returns:
             JSON array of AI reports with summaries and insights
         """
-        endpoint = f"organization/{org_id}/ai_reports/"
+        endpoint = f"organization/{org_id}/ai-reports/"
 
         params = {"limit": limit, "offset": offset}
 
@@ -55,33 +57,34 @@ def register_tools(mcp, api_client):
 
     @mcp.tool()
     async def create_ai_report(
-        org_id: int, report_type: str, project_id: int, config: Optional[str] = None
+        org_id: int,
+        report_type: str,
+        project_id: int,
+        config: Optional[JsonInput] = None,
     ) -> str:
         """
         Generate a new AI report for a project.
 
-        From OpenAPI: POST /api/v1/organization/{org_id}/ai_reports/
+        From OpenAPI: POST /api/v1/organization/{org_id}/ai-reports/
 
         Args:
             org_id: Organization identifier
             report_type: Type of report to generate (REQUIRED)
             project_id: Project to analyze (REQUIRED)
-            config: Optional JSON string with report configuration
+            config: Optional JSON string or object with report configuration
 
         Returns:
             Created report with ID and generation status
         """
-        endpoint = f"organization/{org_id}/ai_reports/"
+        endpoint = f"organization/{org_id}/ai-reports/"
 
         data = {"report_type": report_type, "project_id": project_id}
 
-        if config:
+        if config is not None:
             try:
-                data["config"] = (
-                    json.loads(config) if isinstance(config, str) else config
-                )
-            except json.JSONDecodeError:
-                return json.dumps({"error": "Invalid JSON in config parameter"})
+                data["config"] = parse_json_input(config, name="config")
+            except ValueError as e:
+                return json.dumps({"error": str(e)})
 
         result = await api_client.request("POST", endpoint, data=data)
         return json.dumps(result, indent=2)
@@ -91,7 +94,7 @@ def register_tools(mcp, api_client):
         """
         Get detailed AI report results and insights.
 
-        From OpenAPI: GET /api/v1/organization/{org_id}/ai_reports/{id}/
+        From OpenAPI: GET /api/v1/organization/{org_id}/ai-reports/{id}/
 
         Args:
             org_id: Organization identifier
@@ -100,7 +103,7 @@ def register_tools(mcp, api_client):
         Returns:
             JSON with complete report including AI-generated insights, recommendations, and data
         """
-        endpoint = f"organization/{org_id}/ai_reports/{report_id}/"
+        endpoint = f"organization/{org_id}/ai-reports/{report_id}/"
 
         result = await api_client.request("GET", endpoint)
         return json.dumps(result, indent=2)
@@ -110,7 +113,7 @@ def register_tools(mcp, api_client):
         """
         Delete an AI report.
 
-        From OpenAPI: DELETE /api/v1/organization/{org_id}/ai_reports/{id}/
+        From OpenAPI: DELETE /api/v1/organization/{org_id}/ai-reports/{id}/
 
         Args:
             org_id: Organization identifier
@@ -119,7 +122,7 @@ def register_tools(mcp, api_client):
         Returns:
             Deletion confirmation
         """
-        endpoint = f"organization/{org_id}/ai_reports/{report_id}/"
+        endpoint = f"organization/{org_id}/ai-reports/{report_id}/"
 
         result = await api_client.request("DELETE", endpoint)
         return json.dumps(result, indent=2)
@@ -129,7 +132,7 @@ def register_tools(mcp, api_client):
         """
         Regenerate an existing AI report with latest data.
 
-        From OpenAPI: POST /api/v1/organization/{org_id}/ai_reports/{id}/regenerate/
+        From OpenAPI: POST /api/v1/organization/{org_id}/ai-reports/{id}/regenerate/
 
         Args:
             org_id: Organization identifier
@@ -138,7 +141,7 @@ def register_tools(mcp, api_client):
         Returns:
             Updated report generation status
         """
-        endpoint = f"organization/{org_id}/ai_reports/{report_id}/regenerate/"
+        endpoint = f"organization/{org_id}/ai-reports/{report_id}/regenerate/"
 
         result = await api_client.request("POST", endpoint)
         return json.dumps(result, indent=2)
@@ -210,7 +213,7 @@ def register_tools(mcp, api_client):
     async def ai_metric_builder(
         project_id: int,
         prompt: str,
-        previous_config: Optional[str] = None,
+        previous_config: Optional[JsonInput] = None,
         stream: bool = False,
         data_source: Optional[str] = None,
     ) -> str:
@@ -222,8 +225,8 @@ def register_tools(mcp, api_client):
         **Request body (what you send):**
         - ``prompt`` (required): one-shot string, or the API also accepts a list of strings for multi-turn
           content; a single string is wrapped to a one-element list by the API.
-        - ``previous_config`` (optional): JSON object (pass here as a JSON *string*); prior chart/metric
-          config to refine in a follow-up turn.
+        - ``previous_config`` (optional): prior chart/metric config as a JSON object, or as a JSON string
+          encoding that object, to refine in a follow-up turn.
         - ``stream`` (optional): when true, the HTTP response is SSE (progress events), not a single JSON
           document; this client returns ``{"raw_body": "<SSE payload>"}`` instead of parsing JSON.
         - ``data_source`` (optional): one of ``"default"``, ``"investment_hours"``, ``"rnd_velocity"``.
@@ -241,7 +244,7 @@ def register_tools(mcp, api_client):
         Args:
             project_id: Project identifier (path)
             prompt: Raw question or instruction for the metric builder (REQUIRED)
-            previous_config: Optional JSON string of a prior chart/metric config to refine
+            previous_config: Optional JSON string or object of a prior chart/metric config to refine
             stream: If true, request SSE streaming (returns raw response body under raw_body)
             data_source: Optional data source override for the builder
 
@@ -255,11 +258,11 @@ def register_tools(mcp, api_client):
 
         if previous_config is not None:
             try:
-                data["previous_config"] = json.loads(previous_config)
-            except json.JSONDecodeError:
-                return json.dumps(
-                    {"error": "Invalid JSON in previous_config parameter"}
+                data["previous_config"] = parse_json_input(
+                    previous_config, name="previous_config"
                 )
+            except ValueError as e:
+                return json.dumps({"error": str(e)})
 
         if stream:
             data["stream"] = True
@@ -358,38 +361,6 @@ def register_tools(mcp, api_client):
         result = await api_client.request("GET", endpoint)
         return json.dumps(result, indent=2)
 
-    @mcp.tool()
-    async def get_developer_experience_score(
-        org_id: int,
-        project_id: int,
-        start_date: Optional[str] = None,
-        end_date: Optional[str] = None,
-    ) -> str:
-        """
-        Get developer experience (DX) score and breakdown.
-
-        From OpenAPI: GET /api/v1/organization/{org_id}/developer_experience/score/
-
-        Args:
-            org_id: Organization identifier
-            project_id: Project identifier (query parameter)
-            start_date: Optional start date (ISO format)
-            end_date: Optional end date (ISO format)
-
-        Returns:
-            JSON with DX score, component scores, and trends
-        """
-        endpoint = f"organization/{org_id}/developer_experience/score/"
-
-        params = {"project_id": project_id}
-        if start_date:
-            params["start_date"] = start_date
-        if end_date:
-            params["end_date"] = end_date
-
-        result = await api_client.request("GET", endpoint, params=params)
-        return json.dumps(result, indent=2)
-
     # ============================================================================
     # AI Tool Usage (Cursor, Q, etc.)
     # ============================================================================
@@ -461,32 +432,6 @@ def register_tools(mcp, api_client):
     # ============================================================================
     # Insights & Recommendations
     # ============================================================================
-
-    @mcp.tool()
-    async def get_insights(
-        org_id: int, project_id: int, category: Optional[str] = None
-    ) -> str:
-        """
-        Get AI-generated insights and recommendations for a project.
-
-        From OpenAPI: GET /api/v1/organization/{org_id}/insights/
-
-        Args:
-            org_id: Organization identifier
-            project_id: Project identifier (query parameter)
-            category: Optional category filter (performance, quality, delivery, team)
-
-        Returns:
-            JSON array of insights with severity, recommendations, and actionable steps
-        """
-        endpoint = f"organization/{org_id}/insights/"
-
-        params = {"project_id": project_id}
-        if category:
-            params["category"] = category
-
-        result = await api_client.request("GET", endpoint, params=params)
-        return json.dumps(result, indent=2)
 
     @mcp.tool()
     async def dismiss_insight(
