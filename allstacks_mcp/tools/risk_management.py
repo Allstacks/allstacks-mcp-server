@@ -157,13 +157,13 @@ def register_tools(mcp, api_client):
     # ============================================================================
 
     @mcp.tool()
-    async def get_project_risks(
+    async def list_project_risk_definitions(
         project_id: int,
         risk_type: Optional[str] = None,
         severity: Optional[str] = None,
     ) -> str:
         """
-        Get the project-scoped risk definitions (the configured risk rules,
+        List the project-scoped risk definitions (the configured risk rules,
         not active risk instances).
 
         From OpenAPI: GET /api/v1/project/{project_id}/risk_definitions/
@@ -171,7 +171,8 @@ def register_tools(mcp, api_client):
         The deployed API does not expose an aggregate "active risks" endpoint
         at /project/{id}/risks/. Use this tool to enumerate the definitions
         configured for the project. For active risks tied to a single item,
-        see ``get_service_item_risks``.
+        see ``get_service_item_risks``. For org-scoped definitions, see
+        ``list_risk_definitions``.
 
         Args:
             project_id: Project identifier

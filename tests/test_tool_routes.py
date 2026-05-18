@@ -11,6 +11,8 @@ from mcp.server.fastmcp import FastMCP
 
 from allstacks_mcp.tools import (
     ai_analytics,
+    alerts,
+    forecasting,
     org_projects,
     risk_management,
     work_bundles,
@@ -77,9 +79,9 @@ class ToolRouteTests(unittest.TestCase):
         _run(mcp.call_tool("list_work_bundles", {"project_id": 49816}))
         self.assertEqual(client.last["endpoint"], "project/49816/work_bundles/initial/")
 
-    def test_get_project_risks_uses_risk_definitions_route(self):
+    def test_list_project_risk_definitions_uses_risk_definitions_route(self):
         mcp, client = self._build(risk_management.register_tools)
-        _run(mcp.call_tool("get_project_risks", {"project_id": 49816}))
+        _run(mcp.call_tool("list_project_risk_definitions", {"project_id": 49816}))
         self.assertEqual(client.last["endpoint"], "project/49816/risk_definitions/")
 
 
@@ -99,11 +101,10 @@ class DeadToolRemovalTests(unittest.TestCase):
     def test_dead_tools_unregistered(self):
         ai_names = self._names(ai_analytics.register_tools)
         op_names = self._names(org_projects.register_tools)
-        from allstacks_mcp.tools import alerts, forecasting
-
         alert_names = self._names(alerts.register_tools)
         forecast_names = self._names(forecasting.register_tools)
 
+        risk_names = self._names(risk_management.register_tools)
         for name, present_in in [
             ("get_project_time_periods", op_names),
             ("get_time_periods_by_type", op_names),
@@ -112,6 +113,9 @@ class DeadToolRemovalTests(unittest.TestCase):
             ("list_active_alerts", alert_names),
             ("get_developer_experience_score", ai_names),
             ("get_insights", ai_names),
+            # Renamed to list_project_risk_definitions; the old name described
+            # active risks but the URL returns definitions.
+            ("get_project_risks", risk_names),
         ]:
             self.assertNotIn(name, present_in, f"{name} should be removed")
 
