@@ -478,6 +478,8 @@ def register_tools(mcp, api_client):
             filter_dict = parse_json_input(filter_set, name="filter_set")
         except ValueError as e:
             return json.dumps({"error": str(e)})
+        if not isinstance(filter_dict, dict):
+            return json.dumps({"error": "filter_set must be a JSON object"})
 
         data = {"filter_set": filter_dict}
         if name:
@@ -533,9 +535,12 @@ def register_tools(mcp, api_client):
             data["name"] = name
         if filter_set is not None:
             try:
-                data["filter_set"] = parse_json_input(filter_set, name="filter_set")
+                parsed_filter_set = parse_json_input(filter_set, name="filter_set")
             except ValueError as e:
                 return json.dumps({"error": str(e)})
+            if not isinstance(parsed_filter_set, dict):
+                return json.dumps({"error": "filter_set must be a JSON object"})
+            data["filter_set"] = parsed_filter_set
 
         result = await api_client.request("PATCH", endpoint, data=data)
         return json.dumps(result, indent=2)

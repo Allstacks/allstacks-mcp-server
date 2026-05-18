@@ -81,6 +81,18 @@ class ClientErrorHandlingTests(unittest.TestCase):
         result = _run(client.request("GET", "good/"))
         self.assertEqual(result, {"ok": True})
 
+    def test_request_error_returns_none_status_code(self):
+        """Transport-layer failures surface as a structured error with status_code=None."""
+
+        def handler(request: httpx.Request) -> httpx.Response:
+            raise httpx.ConnectError("network down", request=request)
+
+        client = self._build_client(httpx.MockTransport(handler))
+        result = _run(client.request("GET", "offline/"))
+        self.assertTrue(result.get("error"))
+        self.assertIsNone(result["status_code"])
+        self.assertIn("Request failed", result["message"])
+
 
 if __name__ == "__main__":
     unittest.main()

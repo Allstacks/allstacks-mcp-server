@@ -29,7 +29,7 @@ def parse_json_input(value: JsonInput, *, name: str = "value") -> Any:
         try:
             return json.loads(value)
         except json.JSONDecodeError as e:
-            raise ValueError(f"Invalid JSON in {name} parameter: {e}") from e
+            raise ValueError(f"Invalid JSON in {name} parameter") from e
     raise ValueError(
         f"{name} must be a JSON string, object, or array (got {type(value).__name__})"
     )

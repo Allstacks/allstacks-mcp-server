@@ -355,6 +355,10 @@ def register_tools(mcp, api_client):
             channels_list = parse_json_input(channels, name="channels")
         except ValueError as e:
             return json.dumps({"error": str(e)})
+        if not isinstance(channels_list, list) or not all(
+            isinstance(channel, str) for channel in channels_list
+        ):
+            return json.dumps({"error": "channels must be a JSON array of strings"})
 
         data = {"rule_id": rule_id, "user_id": user_id, "channels": channels_list}
 

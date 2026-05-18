@@ -405,9 +405,12 @@ def register_tools(mcp, api_client):
         data = {}
         if tag_data is not None:
             try:
-                data = parse_json_input(tag_data, name="tag_data")
+                parsed_tag_data = parse_json_input(tag_data, name="tag_data")
             except ValueError as e:
                 return json.dumps({"error": str(e)})
+            if not isinstance(parsed_tag_data, dict):
+                return json.dumps({"error": "tag_data must be a JSON object"})
+            data = parsed_tag_data
 
         result = await api_client.request("POST", endpoint, data=data)
         return json.dumps(result, indent=2)

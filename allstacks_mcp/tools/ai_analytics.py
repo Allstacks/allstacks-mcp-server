@@ -225,8 +225,8 @@ def register_tools(mcp, api_client):
         **Request body (what you send):**
         - ``prompt`` (required): one-shot string, or the API also accepts a list of strings for multi-turn
           content; a single string is wrapped to a one-element list by the API.
-        - ``previous_config`` (optional): JSON object (pass here as a JSON *string*); prior chart/metric
-          config to refine in a follow-up turn.
+        - ``previous_config`` (optional): prior chart/metric config as a JSON object, or as a JSON string
+          encoding that object, to refine in a follow-up turn.
         - ``stream`` (optional): when true, the HTTP response is SSE (progress events), not a single JSON
           document; this client returns ``{"raw_body": "<SSE payload>"}`` instead of parsing JSON.
         - ``data_source`` (optional): one of ``"default"``, ``"investment_hours"``, ``"rnd_velocity"``.

@@ -122,6 +122,8 @@ def register_tools(mcp, api_client):
             data = parse_json_input(bundle_data, name="bundle_data")
         except ValueError as e:
             return json.dumps({"error": str(e)})
+        if not isinstance(data, dict):
+            return json.dumps({"error": "bundle_data must be a JSON object"})
 
         result = await api_client.request("PATCH", endpoint, data=data)
         return json.dumps(result, indent=2)

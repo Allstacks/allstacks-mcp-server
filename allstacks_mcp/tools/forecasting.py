@@ -240,6 +240,8 @@ def register_tools(mcp, api_client):
             scenarios_list = parse_json_input(scenarios, name="scenarios")
         except ValueError as e:
             return json.dumps({"error": str(e)})
+        if not isinstance(scenarios_list, list):
+            return json.dumps({"error": "scenarios must be a JSON array"})
 
         data = {"work_bundle_ids": work_bundle_ids, "scenarios": scenarios_list}
 

@@ -24,6 +24,8 @@ def build_metrics_v2_post_body(
 
     allowed_envelope_keys = {"config", "get_count_only", "variables"}
     if "config" in parsed and set(parsed.keys()) <= allowed_envelope_keys:
+        if not isinstance(parsed.get("config"), dict):
+            raise ValueError("config must decode to a JSON object")
         body: Dict[str, Any] = {
             "get_count_only": bool(parsed.get("get_count_only", False))
             or get_count_only,
@@ -33,7 +35,10 @@ def build_metrics_v2_post_body(
             "config": parsed["config"],
         }
         if variables is not None:
-            body["variables"] = parse_json_input(variables, name="variables")
+            parsed_variables = parse_json_input(variables, name="variables")
+            if not isinstance(parsed_variables, dict):
+                raise ValueError("variables must decode to a JSON object")
+            body["variables"] = parsed_variables
         return body
 
     body = {
@@ -42,5 +47,8 @@ def build_metrics_v2_post_body(
         "variables": {},
     }
     if variables is not None:
-        body["variables"] = parse_json_input(variables, name="variables")
+        parsed_variables = parse_json_input(variables, name="variables")
+        if not isinstance(parsed_variables, dict):
+            raise ValueError("variables must decode to a JSON object")
+        body["variables"] = parsed_variables
     return body

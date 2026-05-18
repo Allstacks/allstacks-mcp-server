@@ -568,6 +568,8 @@ def register_tools(mcp, api_client):
             config_dict = parse_json_input(metrics_config, name="metrics_config")
         except ValueError as e:
             return json.dumps({"error": str(e)})
+        if not isinstance(config_dict, dict):
+            return json.dumps({"error": "metrics_config must decode to a JSON object"})
 
         result = await api_client.request("POST", endpoint, data=config_dict)
         return json.dumps(result, indent=2)

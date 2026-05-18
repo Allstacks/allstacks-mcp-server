@@ -45,7 +45,9 @@ class AllstacksAPIClient:
         self.token = token
         self.base_url = base_url.rstrip("/")
 
-        self.auth: Optional[Tuple[str, str]] = (username, password) if token is None else None
+        self.auth: Optional[Tuple[str, str]] = (
+            (username, password) if token is None else None
+        )
         self.headers = {
             "Content-Type": "application/json",
             "Accept": "application/json",
