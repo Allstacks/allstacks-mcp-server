@@ -414,47 +414,6 @@ def register_tools(mcp, api_client):
         result = await api_client.request("POST", endpoint, data=data)
         return json.dumps(result, indent=2)
 
-    # ============================================================================
-    # Time Periods
-    # ============================================================================
-
-    @mcp.tool()
-    async def get_project_time_periods(project_id: int) -> str:
-        """
-        Get configured time periods for the project (sprints, releases, quarters).
-
-        From OpenAPI: GET /api/v1/project/{project_id}/time_periods/
-
-        Args:
-            project_id: Project identifier
-
-        Returns:
-            JSON with time period configuration
-        """
-        endpoint = f"project/{project_id}/time_periods/"
-
-        result = await api_client.request("GET", endpoint)
-        return json.dumps(result, indent=2)
-
-    @mcp.tool()
-    async def get_time_periods_by_type(project_id: int, period_type: str) -> str:
-        """
-        Get time periods of a specific type.
-
-        From OpenAPI: GET /api/v1/project/{project_id}/time_periods/{type}/
-
-        Args:
-            project_id: Project identifier
-            period_type: Period type (sprint, release, quarter, etc.)
-
-        Returns:
-            JSON array of time periods
-        """
-        endpoint = f"project/{project_id}/time_periods/{period_type}/"
-
-        result = await api_client.request("GET", endpoint)
-        return json.dumps(result, indent=2)
-
     @mcp.tool()
     async def get_calendars(org_id: int) -> str:
         """

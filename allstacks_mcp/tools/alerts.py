@@ -160,47 +160,8 @@ def register_tools(mcp, api_client):
         return json.dumps(result, indent=2)
 
     # ============================================================================
-    # Active Alerts & Notifications
+    # Alert History & Notifications
     # ============================================================================
-
-    @mcp.tool()
-    async def list_active_alerts(
-        org_id: int,
-        project_id: Optional[int] = None,
-        alert_type: Optional[str] = None,
-        severity: Optional[str] = None,
-        limit: int = 100,
-        offset: int = 0,
-    ) -> str:
-        """
-        List currently active/triggered alerts across the organization.
-
-        From OpenAPI: GET /api/v1/organization/{org_id}/alerts/active/
-
-        Args:
-            org_id: Organization identifier
-            project_id: Optional filter by project
-            alert_type: Optional filter by alert type
-            severity: Optional filter by severity (low, medium, high, critical)
-            limit: Number of results per page (default: 100)
-            offset: Pagination offset (default: 0)
-
-        Returns:
-            JSON array of active alerts with timestamps and details
-        """
-        endpoint = f"organization/{org_id}/alerts/active/"
-
-        params = {"limit": limit, "offset": offset}
-
-        if project_id:
-            params["project_id"] = project_id
-        if alert_type:
-            params["alert_type"] = alert_type
-        if severity:
-            params["severity"] = severity
-
-        result = await api_client.request("GET", endpoint, params=params)
-        return json.dumps(result, indent=2)
 
     @mcp.tool()
     async def get_alert_history(

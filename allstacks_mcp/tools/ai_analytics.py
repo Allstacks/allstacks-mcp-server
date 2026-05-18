@@ -361,38 +361,6 @@ def register_tools(mcp, api_client):
         result = await api_client.request("GET", endpoint)
         return json.dumps(result, indent=2)
 
-    @mcp.tool()
-    async def get_developer_experience_score(
-        org_id: int,
-        project_id: int,
-        start_date: Optional[str] = None,
-        end_date: Optional[str] = None,
-    ) -> str:
-        """
-        Get developer experience (DX) score and breakdown.
-
-        From OpenAPI: GET /api/v1/organization/{org_id}/developer_experience/score/
-
-        Args:
-            org_id: Organization identifier
-            project_id: Project identifier (query parameter)
-            start_date: Optional start date (ISO format)
-            end_date: Optional end date (ISO format)
-
-        Returns:
-            JSON with DX score, component scores, and trends
-        """
-        endpoint = f"organization/{org_id}/developer_experience/score/"
-
-        params = {"project_id": project_id}
-        if start_date:
-            params["start_date"] = start_date
-        if end_date:
-            params["end_date"] = end_date
-
-        result = await api_client.request("GET", endpoint, params=params)
-        return json.dumps(result, indent=2)
-
     # ============================================================================
     # AI Tool Usage (Cursor, Q, etc.)
     # ============================================================================
@@ -464,32 +432,6 @@ def register_tools(mcp, api_client):
     # ============================================================================
     # Insights & Recommendations
     # ============================================================================
-
-    @mcp.tool()
-    async def get_insights(
-        org_id: int, project_id: int, category: Optional[str] = None
-    ) -> str:
-        """
-        Get AI-generated insights and recommendations for a project.
-
-        From OpenAPI: GET /api/v1/organization/{org_id}/insights/
-
-        Args:
-            org_id: Organization identifier
-            project_id: Project identifier (query parameter)
-            category: Optional category filter (performance, quality, delivery, team)
-
-        Returns:
-            JSON array of insights with severity, recommendations, and actionable steps
-        """
-        endpoint = f"organization/{org_id}/insights/"
-
-        params = {"project_id": project_id}
-        if category:
-            params["category"] = category
-
-        result = await api_client.request("GET", endpoint, params=params)
-        return json.dumps(result, indent=2)
 
     @mcp.tool()
     async def dismiss_insight(

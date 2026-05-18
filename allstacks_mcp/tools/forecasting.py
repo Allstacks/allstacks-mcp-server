@@ -142,38 +142,6 @@ def register_tools(mcp, api_client):
         return json.dumps(result, indent=2)
 
     @mcp.tool()
-    async def get_velocity_data(
-        project_id: int,
-        start_date: Optional[int] = None,
-        end_date: Optional[int] = None,
-        time_zone: str = "UTC",
-    ) -> str:
-        """
-        Get team velocity data used for forecasting calculations.
-
-        From OpenAPI: GET /api/v1/forecasting/{project_id}/velocity/
-
-        Args:
-            project_id: Project identifier
-            start_date: Optional unix timestamp in milliseconds
-            end_date: Optional unix timestamp in milliseconds
-            time_zone: Timezone string (default: UTC)
-
-        Returns:
-            JSON with velocity time series data
-        """
-        endpoint = f"forecasting/{project_id}/velocity/"
-
-        params = {"time_zone": time_zone}
-        if start_date:
-            params["start_date"] = start_date
-        if end_date:
-            params["end_date"] = end_date
-
-        result = await api_client.request("GET", endpoint, params=params)
-        return json.dumps(result, indent=2)
-
-    @mcp.tool()
     async def analyze_chart_data(data: JsonInput, analysis_type: str = "trends") -> str:
         """
         Analyze chart data for patterns, trends, and insights using AI.

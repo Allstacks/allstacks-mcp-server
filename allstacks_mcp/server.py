@@ -47,8 +47,8 @@ MCP_SERVER_INSTRUCTIONS = (
     "previous_config as a JSON string to refine the builder across turns. "
     "Org-scoped charts use get_org_metrics_v2_data(org_id, config) with the same "
     "inner config shape. (4) Dashboards — list_org_dashboards, "
-    "get_org_dashboard, list_dashboard_widgets. (5) AI insights — list_ai_reports, "
-    "get_insights, get_developer_experience_score as appropriate. "
+    "get_org_dashboard, list_dashboard_widgets. (5) AI insights — list_ai_reports "
+    "as appropriate. "
     "Errors may appear as JSON with error/status_code instead of exceptions."
 )
 
