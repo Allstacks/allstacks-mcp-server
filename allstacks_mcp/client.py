@@ -22,6 +22,17 @@ class AllstacksAPIClient:
         base_url: str = "https://app.allstacks.com/api/v1/",
         token: Optional[str] = None,
     ):
+        """Initialize the Allstacks API client with authentication credentials.
+
+        Args:
+            username: Username for HTTP Basic auth (requires password).
+            password: Password for HTTP Basic auth (requires username).
+            base_url: Base URL for the Allstacks API.
+            token: Personal Access Token for Bearer auth (mutually exclusive with username/password).
+
+        Raises:
+            ValueError: If both auth modes are provided or neither is provided.
+        """
         if token and (username or password):
             raise ValueError("Provide either token OR username+password, not both")
         if not token and not (username and password):

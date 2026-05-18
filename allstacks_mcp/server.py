@@ -100,8 +100,8 @@ def main():
     parser.add_argument(
         "--base-url",
         "-b",
-        default="https://api.allstacks.com/api/v1/",
-        help="Base URL for the API (default: https://api.allstacks.com/api/v1/)",
+        default="https://app.allstacks.com/api/v1/",
+        help="Base URL for the API (default: https://app.allstacks.com/api/v1/)",
     )
 
     # Parse arguments
