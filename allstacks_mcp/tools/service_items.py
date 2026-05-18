@@ -185,12 +185,6 @@ def register_tools(mcp, api_client):
 
         From OpenAPI: GET /api/v1/project/{project_id}/service_items/types/
 
-        WARNING: The deployed API is currently known to return org-wide aggregate
-        counts for this endpoint, ignoring the project scope. Treat the counts as
-        org-wide totals rather than per-project until the backend fix lands. Use
-        project-scoped metrics (e.g. ``get_project_metrics_v2_data``) for any
-        per-project breakdown an LLM consumer plans to reason about.
-
         Args:
             project_id: Project identifier
             service_item_types: Optional comma-separated list of service item types to return
