@@ -84,23 +84,38 @@ def main():
         description="Allstacks MCP Server - AI-ready interface to Allstacks API"
     )
     parser.add_argument(
-        "--username", "-u", required=True, help="Username for HTTP Basic authentication"
+        "--username", "-u", help="Username for HTTP Basic auth (paired with --password)"
     )
     parser.add_argument(
-        "--password", "-p", required=True, help="Password for HTTP Basic authentication"
+        "--password", "-p", help="Password for HTTP Basic auth (paired with --username)"
+    )
+    parser.add_argument(
+        "--token",
+        "-t",
+        help=(
+            "Personal Access Token / API Token for Bearer auth. "
+            "Required for SSO-only users; alternative to --username/--password."
+        ),
     )
     parser.add_argument(
         "--base-url",
         "-b",
-        default="https://api.allstacks.com/api/v1/",
-        help="Base URL for the API (default: https://api.allstacks.com/api/v1/)",
+        default="https://app.allstacks.com/api/v1/",
+        help="Base URL for the API (default: https://app.allstacks.com/api/v1/)",
     )
 
     # Parse arguments
     args = parser.parse_args()
 
-    # Initialize the API client with HTTP Basic Auth
-    api_client = AllstacksAPIClient(args.username, args.password, args.base_url)
+    if args.token and (args.username or args.password):
+        parser.error("--token cannot be combined with --username/--password")
+    if not args.token and not (args.username and args.password):
+        parser.error("must provide --token, or both --username and --password")
+
+    if args.token:
+        api_client = AllstacksAPIClient(base_url=args.base_url, token=args.token)
+    else:
+        api_client = AllstacksAPIClient(args.username, args.password, args.base_url)
 
     # Register all tools from the various modules
     register_all_tools()

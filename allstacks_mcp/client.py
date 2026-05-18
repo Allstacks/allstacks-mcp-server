@@ -1,22 +1,57 @@
 """HTTP client for Allstacks API communication"""
 
 import json
-from typing import Dict
+from typing import Dict, Optional, Tuple
+
 import httpx
 
 
 class AllstacksAPIClient:
-    """HTTP client for Allstacks API communication using HTTP Basic Auth"""
+    """HTTP client for Allstacks API communication.
 
-    def __init__(self, username: str, password: str, base_url: str):
+    Supports two authentication modes:
+    - HTTP Basic with username + password (local account credentials only;
+      SSO-only users do not have a working password and must use a token)
+    - Bearer token (Personal Access Token / API Token from the Allstacks UI)
+
+    Pass either (username, password) OR token — not both.
+    """
+
+    def __init__(
+        self,
+        username: Optional[str] = None,
+        password: Optional[str] = None,
+        base_url: str = "https://app.allstacks.com/api/v1/",
+        token: Optional[str] = None,
+    ):
+        """Initialize the Allstacks API client with authentication credentials.
+
+        Args:
+            username: Username for HTTP Basic auth (requires password).
+            password: Password for HTTP Basic auth (requires username).
+            base_url: Base URL for the Allstacks API.
+            token: Personal Access Token for Bearer auth (mutually exclusive with username/password).
+
+        Raises:
+            ValueError: If both auth modes are provided or neither is provided.
+        """
+        if token and (username or password):
+            raise ValueError("Provide either token OR username+password, not both")
+        if not token and not (username and password):
+            raise ValueError("Must provide token, or both username and password")
+
         self.username = username
         self.password = password
+        self.token = token
         self.base_url = base_url.rstrip("/")
-        self.auth = (username, password)  # HTTP Basic Auth tuple
+
+        self.auth: Optional[Tuple[str, str]] = (username, password) if token is None else None
         self.headers = {
             "Content-Type": "application/json",
             "Accept": "application/json",
         }
+        if token is not None:
+            self.headers["Authorization"] = f"Bearer {token}"
 
     async def request(
         self,
@@ -35,7 +70,7 @@ class AllstacksAPIClient:
                 response = await client.request(
                     method=method,
                     url=url,
-                    auth=self.auth,  # HTTP Basic Auth
+                    auth=self.auth,
                     headers=self.headers,
                     params=params,
                     json=data,
