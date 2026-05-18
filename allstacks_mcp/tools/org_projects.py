@@ -306,7 +306,7 @@ def register_tools(mcp, api_client):
         """
         Get services configured for a project.
 
-        From OpenAPI: GET /api/v1/project/{project_id}/services/
+        From OpenAPI: GET /api/v1/project/{project_id}/service/
 
         Args:
             project_id: Project identifier
@@ -314,7 +314,7 @@ def register_tools(mcp, api_client):
         Returns:
             JSON array of project services (Jira, GitHub, Bitbucket, etc.)
         """
-        endpoint = f"project/{project_id}/services/"
+        endpoint = f"project/{project_id}/service/"
 
         result = await api_client.request("GET", endpoint)
         return json.dumps(result, indent=2)

@@ -25,7 +25,7 @@ def register_tools(mcp, api_client):
         """
         List AI-generated reports for analysis and insights.
 
-        From OpenAPI: GET /api/v1/organization/{org_id}/ai_reports/
+        From OpenAPI: GET /api/v1/organization/{org_id}/ai-reports/
 
         AI Reports provide automated analysis of project health, team performance,
         and risk factors using machine learning.
@@ -41,7 +41,7 @@ def register_tools(mcp, api_client):
         Returns:
             JSON array of AI reports with summaries and insights
         """
-        endpoint = f"organization/{org_id}/ai_reports/"
+        endpoint = f"organization/{org_id}/ai-reports/"
 
         params = {"limit": limit, "offset": offset}
 
@@ -65,7 +65,7 @@ def register_tools(mcp, api_client):
         """
         Generate a new AI report for a project.
 
-        From OpenAPI: POST /api/v1/organization/{org_id}/ai_reports/
+        From OpenAPI: POST /api/v1/organization/{org_id}/ai-reports/
 
         Args:
             org_id: Organization identifier
@@ -76,7 +76,7 @@ def register_tools(mcp, api_client):
         Returns:
             Created report with ID and generation status
         """
-        endpoint = f"organization/{org_id}/ai_reports/"
+        endpoint = f"organization/{org_id}/ai-reports/"
 
         data = {"report_type": report_type, "project_id": project_id}
 
@@ -94,7 +94,7 @@ def register_tools(mcp, api_client):
         """
         Get detailed AI report results and insights.
 
-        From OpenAPI: GET /api/v1/organization/{org_id}/ai_reports/{id}/
+        From OpenAPI: GET /api/v1/organization/{org_id}/ai-reports/{id}/
 
         Args:
             org_id: Organization identifier
@@ -103,7 +103,7 @@ def register_tools(mcp, api_client):
         Returns:
             JSON with complete report including AI-generated insights, recommendations, and data
         """
-        endpoint = f"organization/{org_id}/ai_reports/{report_id}/"
+        endpoint = f"organization/{org_id}/ai-reports/{report_id}/"
 
         result = await api_client.request("GET", endpoint)
         return json.dumps(result, indent=2)
@@ -113,7 +113,7 @@ def register_tools(mcp, api_client):
         """
         Delete an AI report.
 
-        From OpenAPI: DELETE /api/v1/organization/{org_id}/ai_reports/{id}/
+        From OpenAPI: DELETE /api/v1/organization/{org_id}/ai-reports/{id}/
 
         Args:
             org_id: Organization identifier
@@ -122,7 +122,7 @@ def register_tools(mcp, api_client):
         Returns:
             Deletion confirmation
         """
-        endpoint = f"organization/{org_id}/ai_reports/{report_id}/"
+        endpoint = f"organization/{org_id}/ai-reports/{report_id}/"
 
         result = await api_client.request("DELETE", endpoint)
         return json.dumps(result, indent=2)
@@ -132,7 +132,7 @@ def register_tools(mcp, api_client):
         """
         Regenerate an existing AI report with latest data.
 
-        From OpenAPI: POST /api/v1/organization/{org_id}/ai_reports/{id}/regenerate/
+        From OpenAPI: POST /api/v1/organization/{org_id}/ai-reports/{id}/regenerate/
 
         Args:
             org_id: Organization identifier
@@ -141,7 +141,7 @@ def register_tools(mcp, api_client):
         Returns:
             Updated report generation status
         """
-        endpoint = f"organization/{org_id}/ai_reports/{report_id}/regenerate/"
+        endpoint = f"organization/{org_id}/ai-reports/{report_id}/regenerate/"
 
         result = await api_client.request("POST", endpoint)
         return json.dumps(result, indent=2)
