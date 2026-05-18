@@ -2,33 +2,44 @@
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-10-17/server.schema.json",
   "name": "com.allstacks/allstacks-mcp",
   "title": "Allstacks Analytics MCP Server",
-  "description": "Provides 208+ tools for AI-native engineering intelligence via Allstacks API.",
-  "version": "0.1.1",
+  "description": "Provides 194+ tools for AI-native engineering intelligence via Allstacks API. Supports Bearer token (PAT) or HTTP Basic authentication.",
+  "version": "0.1.3",
   "homepage": "https://github.com/allstacks/allstacks-mcp",
   "license": "MIT",
-  "keywords": ["allstacks", "analytics", "engineering-intelligence", "metrics", "forecasting", "devops", "ai-tools", "project-management", "risk-management"],
+  "keywords": ["allstacks", "analytics", "engineering-intelligence", "metrics", "forecasting", "devops", "ai-tools", "project-management", "risk-management", "bearer-auth", "sso"],
   "packages": [
     {
       "registryType": "pypi",
       "identifier": "allstacks-mcp",
-      "version": "0.1.1",
+      "version": "0.1.3",
       "transport": {
         "type": "stdio",
-        "command": "python",
-        "args": ["-m", "allstacks_mcp.server"],
+        "command": "uvx",
+        "args": [
+          "allstacks-mcp",
+          "--token",
+          "${ALLSTACKS_TOKEN}",
+          "--base-url",
+          "${ALLSTACKS_BASE_URL:-https://app.allstacks.com/api/v1/}"
+        ],
         "env": {
+          "ALLSTACKS_TOKEN": {
+            "description": "Personal Access Token for Bearer auth (recommended; required for SSO-only users). Alternative: use ALLSTACKS_USERNAME + ALLSTACKS_PASSWORD for HTTP Basic auth.",
+            "isRequired": false,
+            "isSecret": true
+          },
           "ALLSTACKS_USERNAME": {
-            "description": "Username or email for Allstacks HTTP Basic Auth",
-            "isRequired": true,
+            "description": "Username or email for HTTP Basic Auth (only for local accounts, not SSO). Requires ALLSTACKS_PASSWORD. Alternative: use ALLSTACKS_TOKEN for Bearer auth.",
+            "isRequired": false,
             "isSecret": false
           },
           "ALLSTACKS_PASSWORD": {
-            "description": "Password or API key for Allstacks HTTP Basic Auth",
-            "isRequired": true,
+            "description": "Password for HTTP Basic Auth (only for local accounts, not SSO). Requires ALLSTACKS_USERNAME. Alternative: use ALLSTACKS_TOKEN for Bearer auth.",
+            "isRequired": false,
             "isSecret": true
           },
           "ALLSTACKS_BASE_URL": {
-            "description": "Base URL for Allstacks API (default: https://api.allstacks.com/api/v1/)",
+            "description": "Base URL for Allstacks API (default: https://app.allstacks.com/api/v1/)",
             "isRequired": false,
             "isSecret": false
           }
