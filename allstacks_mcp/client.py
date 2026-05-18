@@ -1,5 +1,6 @@
 """HTTP client for Allstacks API communication"""
 
+import json
 from typing import Dict
 import httpx
 
@@ -40,14 +41,28 @@ class AllstacksAPIClient:
                     json=data,
                 )
                 response.raise_for_status()
-                if expect_json:
+                if not expect_json:
+                    return {"raw_body": response.text}
+                # Some 2xx responses (e.g. proxy / SSO interstitials) are not JSON.
+                # Surface the body verbatim with the status code rather than crashing.
+                try:
                     return response.json()
-                return {"raw_body": response.text}
+                except json.JSONDecodeError as e:
+                    return {
+                        "error": True,
+                        "status_code": response.status_code,
+                        "message": f"Expected JSON but failed to decode: {e}",
+                        "raw_body": response.text,
+                    }
             except httpx.HTTPStatusError as e:
                 return {
                     "error": True,
                     "status_code": e.response.status_code,
                     "message": f"HTTP error: {e.response.text}",
                 }
-            except Exception as e:
-                return {"error": True, "message": f"Request failed: {str(e)}"}
+            except httpx.RequestError as e:
+                return {
+                    "error": True,
+                    "status_code": None,
+                    "message": f"Request failed: {str(e)}",
+                }
