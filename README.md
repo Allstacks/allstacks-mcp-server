@@ -47,9 +47,6 @@ allstacks-mcp/
 │       └── risk_management.py  # 12 risk management tools
 ├── pyproject.toml
 ├── uv.lock
-├── FILTERED_ENDPOINTS.md       # Endpoint verification document
-├── TOOLS_MAPPING.md            # Complete API mapping
-├── ENDPOINT_VERIFICATION.md    # Verification results
 └── README.md
 ```
 
