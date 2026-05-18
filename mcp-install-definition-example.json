@@ -1,16 +1,13 @@
 {
     "mcpServers": {
         "allstacks": {
-            "command": "uv",
+            "command": "uvx",
             "args": [
-                "--directory",
-                "/ABSOLUTE/PATH/TO/PARENT/FOLDER/allstacks-mcp",
-                "run",
-                "server.py",
-                "--username",
-                "YOUR_USERNAME",
-                "--password",
-                "YOUR_PASSWORD"
+                "allstacks-mcp",
+                "--token",
+                "YOUR_PERSONAL_ACCESS_TOKEN",
+                "--base-url",
+                "https://app.allstacks.com/api/v1/"
             ]
         }
     }
