@@ -1,31 +1,26 @@
 """Build JSON bodies for Metrics V2 POST .../metrics_v2/metrics (no HTTP dependencies)."""
 
-import json
 from typing import Any, Dict, Optional
+
+from ._json_input import JsonInput, parse_json_input
 
 
 def build_metrics_v2_post_body(
-    config_or_envelope: str,
+    config_or_envelope: JsonInput,
     get_count_only: bool = False,
-    variables: Optional[str] = None,
+    variables: Optional[JsonInput] = None,
 ) -> Dict[str, Any]:
     """
     Build the JSON body for POST .../metrics_v2/metrics.
 
     The API expects: {"config": {...}, "get_count_only": bool, "variables": dict}.
-    Callers may pass either (1) a JSON string of the inner config object only, or
-    (2) a JSON string of the full envelope with keys among config, get_count_only, variables.
+    Callers may pass either (1) the inner config object only, or (2) the full
+    envelope with keys among config, get_count_only, variables. Either form may
+    be supplied as a JSON string or as the already-parsed Python object.
     """
-    try:
-        parsed = (
-            json.loads(config_or_envelope)
-            if isinstance(config_or_envelope, str)
-            else config_or_envelope
-        )
-    except json.JSONDecodeError as e:
-        raise ValueError(f"Invalid JSON: {e}") from e
+    parsed = parse_json_input(config_or_envelope, name="config")
     if not isinstance(parsed, dict):
-        raise ValueError("config_or_envelope must decode to a JSON object")
+        raise ValueError("config must decode to a JSON object")
 
     allowed_envelope_keys = {"config", "get_count_only", "variables"}
     if "config" in parsed and set(parsed.keys()) <= allowed_envelope_keys:
@@ -38,12 +33,7 @@ def build_metrics_v2_post_body(
             "config": parsed["config"],
         }
         if variables is not None:
-            try:
-                body["variables"] = (
-                    json.loads(variables) if isinstance(variables, str) else variables
-                )
-            except json.JSONDecodeError as e:
-                raise ValueError(f"Invalid JSON in variables: {e}") from e
+            body["variables"] = parse_json_input(variables, name="variables")
         return body
 
     body = {
@@ -52,10 +42,5 @@ def build_metrics_v2_post_body(
         "variables": {},
     }
     if variables is not None:
-        try:
-            body["variables"] = (
-                json.loads(variables) if isinstance(variables, str) else variables
-            )
-        except json.JSONDecodeError as e:
-            raise ValueError(f"Invalid JSON in variables: {e}") from e
+        body["variables"] = parse_json_input(variables, name="variables")
     return body

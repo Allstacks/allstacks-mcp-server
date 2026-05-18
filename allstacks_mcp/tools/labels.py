@@ -3,6 +3,8 @@
 import json
 from typing import Optional
 
+from .._json_input import JsonInput, parse_json_input
+
 
 def register_tools(mcp, api_client):
     """Register all labels-related tools with the MCP server"""
@@ -110,7 +112,7 @@ def register_tools(mcp, api_client):
         return json.dumps(result, indent=2)
 
     @mcp.tool()
-    async def update_label(org_id: int, label_id: int, label_data: str) -> str:
+    async def update_label(org_id: int, label_id: int, label_data: JsonInput) -> str:
         """
         Update label properties.
 
@@ -119,7 +121,7 @@ def register_tools(mcp, api_client):
         Args:
             org_id: Organization identifier
             label_id: Label identifier
-            label_data: JSON string with label updates (name, description, color, etc.)
+            label_data: JSON string or object with label updates (name, description, color, etc.)
 
         Returns:
             Updated label details
@@ -127,9 +129,9 @@ def register_tools(mcp, api_client):
         endpoint = f"organization/{org_id}/labels/{label_id}/"
 
         try:
-            data = json.loads(label_data) if isinstance(label_data, str) else label_data
-        except json.JSONDecodeError:
-            return json.dumps({"error": "Invalid JSON in label_data parameter"})
+            data = parse_json_input(label_data, name="label_data")
+        except ValueError as e:
+            return json.dumps({"error": str(e)})
 
         result = await api_client.request("PATCH", endpoint, data=data)
         return json.dumps(result, indent=2)
@@ -252,7 +254,9 @@ def register_tools(mcp, api_client):
         return json.dumps(result, indent=2)
 
     @mcp.tool()
-    async def update_label_family(org_id: int, family_id: int, family_data: str) -> str:
+    async def update_label_family(
+        org_id: int, family_id: int, family_data: JsonInput
+    ) -> str:
         """
         Update label family properties.
 
@@ -261,7 +265,7 @@ def register_tools(mcp, api_client):
         Args:
             org_id: Organization identifier
             family_id: Label family identifier
-            family_data: JSON string with family updates (name, description, etc.)
+            family_data: JSON string or object with family updates (name, description, etc.)
 
         Returns:
             Updated label family details
@@ -269,11 +273,9 @@ def register_tools(mcp, api_client):
         endpoint = f"organization/{org_id}/labels/label_families/{family_id}/"
 
         try:
-            data = (
-                json.loads(family_data) if isinstance(family_data, str) else family_data
-            )
-        except json.JSONDecodeError:
-            return json.dumps({"error": "Invalid JSON in family_data parameter"})
+            data = parse_json_input(family_data, name="family_data")
+        except ValueError as e:
+            return json.dumps({"error": str(e)})
 
         result = await api_client.request("PATCH", endpoint, data=data)
         return json.dumps(result, indent=2)

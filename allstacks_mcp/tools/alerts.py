@@ -3,6 +3,8 @@
 import json
 from typing import Optional
 
+from .._json_input import JsonInput, parse_json_input
+
 
 def register_tools(mcp, api_client):
     """Register all alerts and monitoring tools with the MCP server"""
@@ -53,7 +55,7 @@ def register_tools(mcp, api_client):
     async def create_alert_rule(
         org_id: int,
         name: str,
-        condition: str,
+        condition: JsonInput,
         alert_type: str,
         project_id: Optional[int] = None,
         enabled: bool = True,
@@ -66,7 +68,7 @@ def register_tools(mcp, api_client):
         Args:
             org_id: Organization identifier
             name: Alert rule name (REQUIRED)
-            condition: JSON string defining alert conditions (REQUIRED)
+            condition: JSON string or object defining alert conditions (REQUIRED)
             alert_type: Type of alert (metric_threshold, pattern_detection, etc.) (REQUIRED)
             project_id: Optional project to scope the alert to
             enabled: Whether the alert is active (default: True)
@@ -77,11 +79,9 @@ def register_tools(mcp, api_client):
         endpoint = f"organization/{org_id}/alert_rules/"
 
         try:
-            condition_dict = (
-                json.loads(condition) if isinstance(condition, str) else condition
-            )
-        except json.JSONDecodeError:
-            return json.dumps({"error": "Invalid JSON in condition parameter"})
+            condition_dict = parse_json_input(condition, name="condition")
+        except ValueError as e:
+            return json.dumps({"error": str(e)})
 
         data = {
             "name": name,
@@ -116,7 +116,7 @@ def register_tools(mcp, api_client):
         return json.dumps(result, indent=2)
 
     @mcp.tool()
-    async def update_alert_rule(org_id: int, rule_id: int, rule_data: str) -> str:
+    async def update_alert_rule(org_id: int, rule_id: int, rule_data: JsonInput) -> str:
         """
         Update an alert rule's configuration.
 
@@ -125,7 +125,7 @@ def register_tools(mcp, api_client):
         Args:
             org_id: Organization identifier
             rule_id: Alert rule identifier
-            rule_data: JSON string with rule updates (name, condition, enabled, etc.)
+            rule_data: JSON string or object with rule updates (name, condition, enabled, etc.)
 
         Returns:
             Updated alert rule details
@@ -133,9 +133,9 @@ def register_tools(mcp, api_client):
         endpoint = f"organization/{org_id}/alert_rules/{rule_id}/"
 
         try:
-            data = json.loads(rule_data) if isinstance(rule_data, str) else rule_data
-        except json.JSONDecodeError:
-            return json.dumps({"error": "Invalid JSON in rule_data parameter"})
+            data = parse_json_input(rule_data, name="rule_data")
+        except ValueError as e:
+            return json.dumps({"error": str(e)})
 
         result = await api_client.request("PATCH", endpoint, data=data)
         return json.dumps(result, indent=2)
@@ -316,7 +316,9 @@ def register_tools(mcp, api_client):
         return json.dumps(result, indent=2)
 
     @mcp.tool()
-    async def update_notification_preferences(org_id: int, preferences: str) -> str:
+    async def update_notification_preferences(
+        org_id: int, preferences: JsonInput
+    ) -> str:
         """
         Update notification preferences for alerts.
 
@@ -324,7 +326,7 @@ def register_tools(mcp, api_client):
 
         Args:
             org_id: Organization identifier
-            preferences: JSON string with notification preferences
+            preferences: JSON string or object with notification preferences
 
         Returns:
             Updated preferences
@@ -332,11 +334,9 @@ def register_tools(mcp, api_client):
         endpoint = f"organization/{org_id}/notification_preferences/"
 
         try:
-            data = (
-                json.loads(preferences) if isinstance(preferences, str) else preferences
-            )
-        except json.JSONDecodeError:
-            return json.dumps({"error": "Invalid JSON in preferences parameter"})
+            data = parse_json_input(preferences, name="preferences")
+        except ValueError as e:
+            return json.dumps({"error": str(e)})
 
         result = await api_client.request("POST", endpoint, data=data)
         return json.dumps(result, indent=2)
@@ -372,7 +372,7 @@ def register_tools(mcp, api_client):
 
     @mcp.tool()
     async def subscribe_to_alert(
-        org_id: int, rule_id: int, user_id: int, channels: str
+        org_id: int, rule_id: int, user_id: int, channels: JsonInput
     ) -> str:
         """
         Subscribe a user to an alert rule.
@@ -383,7 +383,7 @@ def register_tools(mcp, api_client):
             org_id: Organization identifier
             rule_id: Alert rule ID to subscribe to (REQUIRED)
             user_id: User ID to subscribe (REQUIRED)
-            channels: JSON string array of notification channels (email, slack, etc.) (REQUIRED)
+            channels: JSON string or array of notification channels (email, slack, etc.) (REQUIRED)
 
         Returns:
             Created subscription details
@@ -391,11 +391,9 @@ def register_tools(mcp, api_client):
         endpoint = f"organization/{org_id}/alert_subscriptions/"
 
         try:
-            channels_list = (
-                json.loads(channels) if isinstance(channels, str) else channels
-            )
-        except json.JSONDecodeError:
-            return json.dumps({"error": "Invalid JSON in channels parameter"})
+            channels_list = parse_json_input(channels, name="channels")
+        except ValueError as e:
+            return json.dumps({"error": str(e)})
 
         data = {"rule_id": rule_id, "user_id": user_id, "channels": channels_list}
 

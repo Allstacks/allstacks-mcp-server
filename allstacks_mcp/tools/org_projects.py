@@ -3,6 +3,8 @@
 import json
 from typing import Optional
 
+from .._json_input import JsonInput, parse_json_input
+
 
 def register_tools(mcp, api_client):
     """Register all organization and project management tools with the MCP server"""
@@ -45,7 +47,7 @@ def register_tools(mcp, api_client):
         return json.dumps(result, indent=2)
 
     @mcp.tool()
-    async def update_organization(org_id: int, org_data: str) -> str:
+    async def update_organization(org_id: int, org_data: JsonInput) -> str:
         """
         Update organization settings.
 
@@ -53,7 +55,7 @@ def register_tools(mcp, api_client):
 
         Args:
             org_id: Organization identifier
-            org_data: JSON string with organization updates
+            org_data: JSON string or object with organization updates
 
         Returns:
             Updated organization details
@@ -61,9 +63,9 @@ def register_tools(mcp, api_client):
         endpoint = f"organization/{org_id}/"
 
         try:
-            data = json.loads(org_data) if isinstance(org_data, str) else org_data
-        except json.JSONDecodeError:
-            return json.dumps({"error": "Invalid JSON in org_data parameter"})
+            data = parse_json_input(org_data, name="org_data")
+        except ValueError as e:
+            return json.dumps({"error": str(e)})
 
         result = await api_client.request("PATCH", endpoint, data=data)
         return json.dumps(result, indent=2)
@@ -87,7 +89,7 @@ def register_tools(mcp, api_client):
         return json.dumps(result, indent=2)
 
     @mcp.tool()
-    async def update_organization_settings(org_id: int, settings: str) -> str:
+    async def update_organization_settings(org_id: int, settings: JsonInput) -> str:
         """
         Update organization settings.
 
@@ -95,7 +97,7 @@ def register_tools(mcp, api_client):
 
         Args:
             org_id: Organization identifier
-            settings: JSON string with settings updates
+            settings: JSON string or object with settings updates
 
         Returns:
             Updated settings
@@ -103,9 +105,9 @@ def register_tools(mcp, api_client):
         endpoint = f"organization/{org_id}/settings/"
 
         try:
-            data = json.loads(settings) if isinstance(settings, str) else settings
-        except json.JSONDecodeError:
-            return json.dumps({"error": "Invalid JSON in settings parameter"})
+            data = parse_json_input(settings, name="settings")
+        except ValueError as e:
+            return json.dumps({"error": str(e)})
 
         result = await api_client.request("POST", endpoint, data=data)
         return json.dumps(result, indent=2)
@@ -186,7 +188,7 @@ def register_tools(mcp, api_client):
         return json.dumps(result, indent=2)
 
     @mcp.tool()
-    async def create_project(org_id: int, project_data: str) -> str:
+    async def create_project(org_id: int, project_data: JsonInput) -> str:
         """
         Create a new project in the organization.
 
@@ -194,7 +196,7 @@ def register_tools(mcp, api_client):
 
         Args:
             org_id: Organization identifier
-            project_data: JSON string with project configuration (name, description, etc.)
+            project_data: JSON string or object with project configuration (name, description, etc.)
 
         Returns:
             Created project details
@@ -202,13 +204,9 @@ def register_tools(mcp, api_client):
         endpoint = f"organization/{org_id}/projects/"
 
         try:
-            data = (
-                json.loads(project_data)
-                if isinstance(project_data, str)
-                else project_data
-            )
-        except json.JSONDecodeError:
-            return json.dumps({"error": "Invalid JSON in project_data parameter"})
+            data = parse_json_input(project_data, name="project_data")
+        except ValueError as e:
+            return json.dumps({"error": str(e)})
 
         result = await api_client.request("POST", endpoint, data=data)
         return json.dumps(result, indent=2)
@@ -233,7 +231,9 @@ def register_tools(mcp, api_client):
         return json.dumps(result, indent=2)
 
     @mcp.tool()
-    async def update_project(org_id: int, project_id: int, project_data: str) -> str:
+    async def update_project(
+        org_id: int, project_id: int, project_data: JsonInput
+    ) -> str:
         """
         Update project settings and configuration.
 
@@ -242,7 +242,7 @@ def register_tools(mcp, api_client):
         Args:
             org_id: Organization identifier
             project_id: Project identifier
-            project_data: JSON string with project updates
+            project_data: JSON string or object with project updates
 
         Returns:
             Updated project details
@@ -250,13 +250,9 @@ def register_tools(mcp, api_client):
         endpoint = f"organization/{org_id}/projects/{project_id}/"
 
         try:
-            data = (
-                json.loads(project_data)
-                if isinstance(project_data, str)
-                else project_data
-            )
-        except json.JSONDecodeError:
-            return json.dumps({"error": "Invalid JSON in project_data parameter"})
+            data = parse_json_input(project_data, name="project_data")
+        except ValueError as e:
+            return json.dumps({"error": str(e)})
 
         result = await api_client.request("PATCH", endpoint, data=data)
         return json.dumps(result, indent=2)
@@ -280,7 +276,9 @@ def register_tools(mcp, api_client):
         return json.dumps(result, indent=2)
 
     @mcp.tool()
-    async def update_project_configuration(project_id: int, config_data: str) -> str:
+    async def update_project_configuration(
+        project_id: int, config_data: JsonInput
+    ) -> str:
         """
         Update project configuration.
 
@@ -288,7 +286,7 @@ def register_tools(mcp, api_client):
 
         Args:
             project_id: Project identifier
-            config_data: JSON string with configuration updates
+            config_data: JSON string or object with configuration updates
 
         Returns:
             Updated configuration
@@ -296,11 +294,9 @@ def register_tools(mcp, api_client):
         endpoint = f"project/{project_id}/configuration/"
 
         try:
-            data = (
-                json.loads(config_data) if isinstance(config_data, str) else config_data
-            )
-        except json.JSONDecodeError:
-            return json.dumps({"error": "Invalid JSON in config_data parameter"})
+            data = parse_json_input(config_data, name="config_data")
+        except ValueError as e:
+            return json.dumps({"error": str(e)})
 
         result = await api_client.request("POST", endpoint, data=data)
         return json.dumps(result, indent=2)
@@ -393,7 +389,7 @@ def register_tools(mcp, api_client):
 
     @mcp.tool()
     async def update_slot_configuration(
-        project_id: int, slot_type: str, slot_config: str
+        project_id: int, slot_type: str, slot_config: JsonInput
     ) -> str:
         """
         Update a slot's configuration or template.
@@ -403,7 +399,7 @@ def register_tools(mcp, api_client):
         Args:
             project_id: Project identifier
             slot_type: Slot type identifier
-            slot_config: JSON string with slot configuration
+            slot_config: JSON string or object with slot configuration
 
         Returns:
             Updated slot configuration
@@ -411,11 +407,9 @@ def register_tools(mcp, api_client):
         endpoint = f"project/{project_id}/slots/{slot_type}/"
 
         try:
-            data = (
-                json.loads(slot_config) if isinstance(slot_config, str) else slot_config
-            )
-        except json.JSONDecodeError:
-            return json.dumps({"error": "Invalid JSON in slot_config parameter"})
+            data = parse_json_input(slot_config, name="slot_config")
+        except ValueError as e:
+            return json.dumps({"error": str(e)})
 
         result = await api_client.request("POST", endpoint, data=data)
         return json.dumps(result, indent=2)
@@ -480,7 +474,7 @@ def register_tools(mcp, api_client):
         return json.dumps(result, indent=2)
 
     @mcp.tool()
-    async def create_calendar(org_id: int, calendar_data: str) -> str:
+    async def create_calendar(org_id: int, calendar_data: JsonInput) -> str:
         """
         Create a new organization calendar.
 
@@ -488,7 +482,7 @@ def register_tools(mcp, api_client):
 
         Args:
             org_id: Organization identifier
-            calendar_data: JSON string with calendar configuration
+            calendar_data: JSON string or object with calendar configuration
 
         Returns:
             Created calendar details
@@ -496,13 +490,9 @@ def register_tools(mcp, api_client):
         endpoint = f"organization/{org_id}/calendars/"
 
         try:
-            data = (
-                json.loads(calendar_data)
-                if isinstance(calendar_data, str)
-                else calendar_data
-            )
-        except json.JSONDecodeError:
-            return json.dumps({"error": "Invalid JSON in calendar_data parameter"})
+            data = parse_json_input(calendar_data, name="calendar_data")
+        except ValueError as e:
+            return json.dumps({"error": str(e)})
 
         result = await api_client.request("POST", endpoint, data=data)
         return json.dumps(result, indent=2)
@@ -527,7 +517,9 @@ def register_tools(mcp, api_client):
         return json.dumps(result, indent=2)
 
     @mcp.tool()
-    async def update_calendar(org_id: int, calendar_id: int, calendar_data: str) -> str:
+    async def update_calendar(
+        org_id: int, calendar_id: int, calendar_data: JsonInput
+    ) -> str:
         """
         Update a calendar.
 
@@ -536,7 +528,7 @@ def register_tools(mcp, api_client):
         Args:
             org_id: Organization identifier
             calendar_id: Calendar identifier
-            calendar_data: JSON string with calendar updates
+            calendar_data: JSON string or object with calendar updates
 
         Returns:
             Updated calendar details
@@ -544,13 +536,9 @@ def register_tools(mcp, api_client):
         endpoint = f"organization/{org_id}/calendars/{calendar_id}/"
 
         try:
-            data = (
-                json.loads(calendar_data)
-                if isinstance(calendar_data, str)
-                else calendar_data
-            )
-        except json.JSONDecodeError:
-            return json.dumps({"error": "Invalid JSON in calendar_data parameter"})
+            data = parse_json_input(calendar_data, name="calendar_data")
+        except ValueError as e:
+            return json.dumps({"error": str(e)})
 
         result = await api_client.request("PATCH", endpoint, data=data)
         return json.dumps(result, indent=2)
@@ -581,7 +569,7 @@ def register_tools(mcp, api_client):
     @mcp.tool()
     async def send_v2_capitalization_report(
         org_id: int,
-        config: str,
+        config: JsonInput,
         debug: bool = False,
     ) -> str:
         """
@@ -598,7 +586,7 @@ def register_tools(mcp, api_client):
 
         Args:
             org_id: Organization identifier
-            config: JSON string — ``{"config": {...}}`` or inner config only
+            config: JSON string or object — ``{"config": {...}}`` or inner config only
             debug: If true, append ``debug=true`` query parameter
 
         Returns:
@@ -608,9 +596,9 @@ def register_tools(mcp, api_client):
         params = {"debug": "true"} if debug else None
 
         try:
-            parsed = json.loads(config) if isinstance(config, str) else config
-        except json.JSONDecodeError:
-            return json.dumps({"error": "Invalid JSON in config parameter"})
+            parsed = parse_json_input(config, name="config")
+        except ValueError as e:
+            return json.dumps({"error": str(e)})
 
         if not isinstance(parsed, dict):
             return json.dumps({"error": "config must be a JSON object"})
@@ -648,7 +636,7 @@ def register_tools(mcp, api_client):
     @mcp.tool()
     async def save_capitalization_report_config(
         org_id: int,
-        config_body: str,
+        config_body: JsonInput,
         report_type: str = "capitalization",
     ) -> str:
         """
@@ -658,7 +646,7 @@ def register_tools(mcp, api_client):
 
         Args:
             org_id: Organization identifier
-            config_body: JSON string as required by the API
+            config_body: JSON string or object as required by the API
             report_type: Query ``report_type`` (default ``capitalization``)
 
         Returns:
@@ -667,11 +655,9 @@ def register_tools(mcp, api_client):
         endpoint = f"organization/{org_id}/capitalization_reports/capitalization_report_config/"
         params = {"report_type": report_type}
         try:
-            data = (
-                json.loads(config_body) if isinstance(config_body, str) else config_body
-            )
-        except json.JSONDecodeError:
-            return json.dumps({"error": "Invalid JSON in config_body parameter"})
+            data = parse_json_input(config_body, name="config_body")
+        except ValueError as e:
+            return json.dumps({"error": str(e)})
 
         result = await api_client.request("POST", endpoint, params=params, data=data)
         return json.dumps(result, indent=2)

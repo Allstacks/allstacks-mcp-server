@@ -3,6 +3,8 @@
 import json
 from typing import Optional
 
+from .._json_input import JsonInput, parse_json_input
+
 
 def register_tools(mcp, api_client):
     """Register all user and team management tools with the MCP server"""
@@ -59,7 +61,7 @@ def register_tools(mcp, api_client):
         return json.dumps(result, indent=2)
 
     @mcp.tool()
-    async def update_org_user(org_id: int, user_id: int, user_data: str) -> str:
+    async def update_org_user(org_id: int, user_id: int, user_data: JsonInput) -> str:
         """
         Update user information in the organization.
 
@@ -68,7 +70,7 @@ def register_tools(mcp, api_client):
         Args:
             org_id: Organization identifier
             user_id: User identifier
-            user_data: JSON string with user updates
+            user_data: JSON string or object with user updates
 
         Returns:
             Updated user information
@@ -76,9 +78,9 @@ def register_tools(mcp, api_client):
         endpoint = f"organization/{org_id}/users/{user_id}/"
 
         try:
-            data = json.loads(user_data) if isinstance(user_data, str) else user_data
-        except json.JSONDecodeError:
-            return json.dumps({"error": "Invalid JSON in user_data parameter"})
+            data = parse_json_input(user_data, name="user_data")
+        except ValueError as e:
+            return json.dumps({"error": str(e)})
 
         result = await api_client.request("PATCH", endpoint, data=data)
         return json.dumps(result, indent=2)
@@ -138,7 +140,7 @@ def register_tools(mcp, api_client):
         org_id: int,
         email: str,
         role_id: Optional[int] = None,
-        projects: Optional[str] = None,
+        projects: Optional[JsonInput] = None,
     ) -> str:
         """
         Create a new user invitation.
@@ -149,7 +151,7 @@ def register_tools(mcp, api_client):
             org_id: Organization identifier
             email: Email address of the person to invite (REQUIRED)
             role_id: Optional role ID to assign
-            projects: Optional JSON string of project assignments
+            projects: Optional JSON string or object of project assignments
 
         Returns:
             Created invite details
@@ -160,13 +162,11 @@ def register_tools(mcp, api_client):
 
         if role_id:
             data["role_id"] = role_id
-        if projects:
+        if projects is not None:
             try:
-                data["projects"] = (
-                    json.loads(projects) if isinstance(projects, str) else projects
-                )
-            except json.JSONDecodeError:
-                return json.dumps({"error": "Invalid JSON in projects parameter"})
+                data["projects"] = parse_json_input(projects, name="projects")
+            except ValueError as e:
+                return json.dumps({"error": str(e)})
 
         result = await api_client.request("POST", endpoint, data=data)
         return json.dumps(result, indent=2)
@@ -191,7 +191,9 @@ def register_tools(mcp, api_client):
         return json.dumps(result, indent=2)
 
     @mcp.tool()
-    async def update_user_invite(org_id: int, invite_id: int, invite_data: str) -> str:
+    async def update_user_invite(
+        org_id: int, invite_id: int, invite_data: JsonInput
+    ) -> str:
         """
         Update a pending user invitation.
 
@@ -200,7 +202,7 @@ def register_tools(mcp, api_client):
         Args:
             org_id: Organization identifier
             invite_id: Invite identifier
-            invite_data: JSON string with invite updates
+            invite_data: JSON string or object with invite updates
 
         Returns:
             Updated invite details
@@ -208,11 +210,9 @@ def register_tools(mcp, api_client):
         endpoint = f"organization/{org_id}/user_invites/{invite_id}/"
 
         try:
-            data = (
-                json.loads(invite_data) if isinstance(invite_data, str) else invite_data
-            )
-        except json.JSONDecodeError:
-            return json.dumps({"error": "Invalid JSON in invite_data parameter"})
+            data = parse_json_input(invite_data, name="invite_data")
+        except ValueError as e:
+            return json.dumps({"error": str(e)})
 
         result = await api_client.request("PATCH", endpoint, data=data)
         return json.dumps(result, indent=2)
@@ -385,7 +385,7 @@ def register_tools(mcp, api_client):
 
     @mcp.tool()
     async def add_team_tag(
-        project_id: int, tag_id: int, tag_data: Optional[str] = None
+        project_id: int, tag_id: int, tag_data: Optional[JsonInput] = None
     ) -> str:
         """
         Add/update a tag to a team.
@@ -395,7 +395,7 @@ def register_tools(mcp, api_client):
         Args:
             project_id: Project identifier
             tag_id: Service User Tag ID
-            tag_data: Optional JSON string with tag configuration
+            tag_data: Optional JSON string or object with tag configuration
 
         Returns:
             Created/updated tag details
@@ -403,11 +403,11 @@ def register_tools(mcp, api_client):
         endpoint = f"project/{project_id}/tag/{tag_id}"
 
         data = {}
-        if tag_data:
+        if tag_data is not None:
             try:
-                data = json.loads(tag_data) if isinstance(tag_data, str) else tag_data
-            except json.JSONDecodeError:
-                return json.dumps({"error": "Invalid JSON in tag_data parameter"})
+                data = parse_json_input(tag_data, name="tag_data")
+            except ValueError as e:
+                return json.dumps({"error": str(e)})
 
         result = await api_client.request("POST", endpoint, data=data)
         return json.dumps(result, indent=2)

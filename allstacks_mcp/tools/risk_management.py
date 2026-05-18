@@ -3,6 +3,8 @@
 import json
 from typing import Optional
 
+from .._json_input import JsonInput, parse_json_input
+
 
 def register_tools(mcp, api_client):
     """Register all risk management tools with the MCP server"""
@@ -47,7 +49,7 @@ def register_tools(mcp, api_client):
         org_id: int,
         name: str,
         description: str,
-        condition: str,
+        condition: JsonInput,
         severity: str,
         risk_type: str,
     ) -> str:
@@ -60,7 +62,7 @@ def register_tools(mcp, api_client):
             org_id: Organization identifier
             name: Risk definition name (REQUIRED)
             description: Description of what the risk identifies (REQUIRED)
-            condition: JSON string defining risk detection conditions (REQUIRED)
+            condition: JSON string or object defining risk detection conditions (REQUIRED)
             severity: Risk severity (low, medium, high, critical) (REQUIRED)
             risk_type: Type of risk (delivery, quality, resource, technical_debt, etc.) (REQUIRED)
 
@@ -70,11 +72,9 @@ def register_tools(mcp, api_client):
         endpoint = f"organization/{org_id}/risk_definitions/"
 
         try:
-            condition_dict = (
-                json.loads(condition) if isinstance(condition, str) else condition
-            )
-        except json.JSONDecodeError:
-            return json.dumps({"error": "Invalid JSON in condition parameter"})
+            condition_dict = parse_json_input(condition, name="condition")
+        except ValueError as e:
+            return json.dumps({"error": str(e)})
 
         data = {
             "name": name,
@@ -108,7 +108,7 @@ def register_tools(mcp, api_client):
 
     @mcp.tool()
     async def update_risk_definition(
-        org_id: int, definition_id: int, definition_data: str
+        org_id: int, definition_id: int, definition_data: JsonInput
     ) -> str:
         """
         Update a risk definition's configuration.
@@ -118,7 +118,7 @@ def register_tools(mcp, api_client):
         Args:
             org_id: Organization identifier
             definition_id: Risk definition identifier
-            definition_data: JSON string with definition updates (name, condition, severity, etc.)
+            definition_data: JSON string or object with definition updates (name, condition, severity, etc.)
 
         Returns:
             Updated risk definition details
@@ -126,13 +126,9 @@ def register_tools(mcp, api_client):
         endpoint = f"organization/{org_id}/risk_definitions/{definition_id}/"
 
         try:
-            data = (
-                json.loads(definition_data)
-                if isinstance(definition_data, str)
-                else definition_data
-            )
-        except json.JSONDecodeError:
-            return json.dumps({"error": "Invalid JSON in definition_data parameter"})
+            data = parse_json_input(definition_data, name="definition_data")
+        except ValueError as e:
+            return json.dumps({"error": str(e)})
 
         result = await api_client.request("PATCH", endpoint, data=data)
         return json.dumps(result, indent=2)

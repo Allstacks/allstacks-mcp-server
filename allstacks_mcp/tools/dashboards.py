@@ -3,6 +3,8 @@
 import json
 from typing import Optional
 
+from .._json_input import JsonInput, parse_json_input
+
 
 def register_tools(mcp, api_client):
     """Register all dashboard-related tools with the MCP server"""
@@ -43,7 +45,7 @@ def register_tools(mcp, api_client):
         return json.dumps(result, indent=2)
 
     @mcp.tool()
-    async def create_org_dashboard(org_id: int, dashboard_data: str) -> str:
+    async def create_org_dashboard(org_id: int, dashboard_data: JsonInput) -> str:
         """
         Create a new dashboard for the organization.
 
@@ -51,7 +53,7 @@ def register_tools(mcp, api_client):
 
         Args:
             org_id: Organization identifier
-            dashboard_data: JSON string with dashboard configuration (name, description, etc.)
+            dashboard_data: JSON string or object with dashboard configuration (name, description, etc.)
 
         Returns:
             Created dashboard with ID
@@ -59,13 +61,9 @@ def register_tools(mcp, api_client):
         endpoint = f"organization/{org_id}/dashboards/"
 
         try:
-            data = (
-                json.loads(dashboard_data)
-                if isinstance(dashboard_data, str)
-                else dashboard_data
-            )
-        except json.JSONDecodeError:
-            return json.dumps({"error": "Invalid JSON in dashboard_data parameter"})
+            data = parse_json_input(dashboard_data, name="dashboard_data")
+        except ValueError as e:
+            return json.dumps({"error": str(e)})
 
         result = await api_client.request("POST", endpoint, data=data)
         return json.dumps(result, indent=2)
@@ -114,7 +112,7 @@ def register_tools(mcp, api_client):
 
     @mcp.tool()
     async def update_org_dashboard(
-        org_id: int, dashboard_id: int, dashboard_data: str
+        org_id: int, dashboard_id: int, dashboard_data: JsonInput
     ) -> str:
         """
         Update a dashboard's configuration.
@@ -124,7 +122,7 @@ def register_tools(mcp, api_client):
         Args:
             org_id: Organization identifier
             dashboard_id: Dashboard identifier
-            dashboard_data: JSON string with dashboard updates
+            dashboard_data: JSON string or object with dashboard updates
 
         Returns:
             Updated dashboard details
@@ -132,13 +130,9 @@ def register_tools(mcp, api_client):
         endpoint = f"organization/{org_id}/dashboards/{dashboard_id}/"
 
         try:
-            data = (
-                json.loads(dashboard_data)
-                if isinstance(dashboard_data, str)
-                else dashboard_data
-            )
-        except json.JSONDecodeError:
-            return json.dumps({"error": "Invalid JSON in dashboard_data parameter"})
+            data = parse_json_input(dashboard_data, name="dashboard_data")
+        except ValueError as e:
+            return json.dumps({"error": str(e)})
 
         result = await api_client.request("PATCH", endpoint, data=data)
         return json.dumps(result, indent=2)
@@ -255,7 +249,7 @@ def register_tools(mcp, api_client):
         org_id: int,
         dashboard_id: int,
         widget_type: str,
-        config: str,
+        config: JsonInput,
         title: str,
         description: Optional[str] = None,
     ) -> str:
@@ -268,7 +262,7 @@ def register_tools(mcp, api_client):
             org_id: Organization identifier
             dashboard_id: Dashboard to add widget to (REQUIRED)
             widget_type: Type of widget (REQUIRED)
-            config: JSON configuration for the widget (REQUIRED)
+            config: JSON string or object configuration for the widget (REQUIRED)
             title: Widget title (REQUIRED)
             description: Optional widget description
 
@@ -278,9 +272,9 @@ def register_tools(mcp, api_client):
         endpoint = f"organization/{org_id}/dashboard_widgets/"
 
         try:
-            config_dict = json.loads(config) if isinstance(config, str) else config
-        except json.JSONDecodeError:
-            return json.dumps({"error": "Invalid JSON in config parameter"})
+            config_dict = parse_json_input(config, name="config")
+        except ValueError as e:
+            return json.dumps({"error": str(e)})
 
         data = {
             "dashboard_id": dashboard_id,
@@ -316,7 +310,7 @@ def register_tools(mcp, api_client):
 
     @mcp.tool()
     async def update_dashboard_widget(
-        org_id: int, widget_id: int, widget_data: str
+        org_id: int, widget_id: int, widget_data: JsonInput
     ) -> str:
         """
         Update a dashboard widget's configuration.
@@ -326,7 +320,7 @@ def register_tools(mcp, api_client):
         Args:
             org_id: Organization identifier
             widget_id: Widget identifier
-            widget_data: JSON string with widget updates (config, title, description, etc.)
+            widget_data: JSON string or object with widget updates (config, title, description, etc.)
 
         Returns:
             Updated widget details
@@ -334,11 +328,9 @@ def register_tools(mcp, api_client):
         endpoint = f"organization/{org_id}/dashboard_widgets/{widget_id}/"
 
         try:
-            data = (
-                json.loads(widget_data) if isinstance(widget_data, str) else widget_data
-            )
-        except json.JSONDecodeError:
-            return json.dumps({"error": "Invalid JSON in widget_data parameter"})
+            data = parse_json_input(widget_data, name="widget_data")
+        except ValueError as e:
+            return json.dumps({"error": str(e)})
 
         result = await api_client.request("PATCH", endpoint, data=data)
         return json.dumps(result, indent=2)
@@ -446,7 +438,9 @@ def register_tools(mcp, api_client):
         return json.dumps(result, indent=2)
 
     @mcp.tool()
-    async def update_shared_link(org_id: int, link_id: int, link_data: str) -> str:
+    async def update_shared_link(
+        org_id: int, link_id: int, link_data: JsonInput
+    ) -> str:
         """
         Update a shared link's settings.
 
@@ -455,7 +449,7 @@ def register_tools(mcp, api_client):
         Args:
             org_id: Organization identifier
             link_id: Shared link identifier
-            link_data: JSON string with link updates (expires_at, password, etc.)
+            link_data: JSON string or object with link updates (expires_at, password, etc.)
 
         Returns:
             Updated shared link details
@@ -463,9 +457,9 @@ def register_tools(mcp, api_client):
         endpoint = f"organization/{org_id}/shared_links/{link_id}/"
 
         try:
-            data = json.loads(link_data) if isinstance(link_data, str) else link_data
-        except json.JSONDecodeError:
-            return json.dumps({"error": "Invalid JSON in link_data parameter"})
+            data = parse_json_input(link_data, name="link_data")
+        except ValueError as e:
+            return json.dumps({"error": str(e)})
 
         result = await api_client.request("PATCH", endpoint, data=data)
         return json.dumps(result, indent=2)

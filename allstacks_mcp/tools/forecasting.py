@@ -3,6 +3,8 @@
 import json
 from typing import Optional
 
+from .._json_input import JsonInput, parse_json_input
+
 
 def register_tools(mcp, api_client):
     """Register all forecasting-related tools with the MCP server"""
@@ -62,7 +64,7 @@ def register_tools(mcp, api_client):
         return json.dumps(result, indent=2)
 
     @mcp.tool()
-    async def update_forecasting_config(project_id: int, config_data: str) -> str:
+    async def update_forecasting_config(project_id: int, config_data: JsonInput) -> str:
         """
         Update forecasting configuration for a project.
 
@@ -70,7 +72,7 @@ def register_tools(mcp, api_client):
 
         Args:
             project_id: Project identifier
-            config_data: JSON string with configuration updates
+            config_data: JSON string or object with configuration updates
 
         Returns:
             Updated forecasting configuration
@@ -78,11 +80,9 @@ def register_tools(mcp, api_client):
         endpoint = f"forecasting/{project_id}/config/"
 
         try:
-            data = (
-                json.loads(config_data) if isinstance(config_data, str) else config_data
-            )
-        except json.JSONDecodeError:
-            return json.dumps({"error": "Invalid JSON in config_data parameter"})
+            data = parse_json_input(config_data, name="config_data")
+        except ValueError as e:
+            return json.dumps({"error": str(e)})
 
         result = await api_client.request("POST", endpoint, data=data)
         return json.dumps(result, indent=2)
@@ -174,14 +174,14 @@ def register_tools(mcp, api_client):
         return json.dumps(result, indent=2)
 
     @mcp.tool()
-    async def analyze_chart_data(data: str, analysis_type: str = "trends") -> str:
+    async def analyze_chart_data(data: JsonInput, analysis_type: str = "trends") -> str:
         """
         Analyze chart data for patterns, trends, and insights using AI.
 
         From OpenAPI: POST /api/v1/charts/analyze
 
         Args:
-            data: JSON string of chart data to analyze
+            data: JSON string or object of chart data to analyze
             analysis_type: Type of analysis to perform (trends, anomalies, patterns)
 
         Returns:
@@ -190,9 +190,9 @@ def register_tools(mcp, api_client):
         endpoint = "charts/analyze"
 
         try:
-            data_dict = json.loads(data) if isinstance(data, str) else data
-        except json.JSONDecodeError:
-            return json.dumps({"error": "Invalid JSON in data parameter"})
+            data_dict = parse_json_input(data, name="data")
+        except ValueError as e:
+            return json.dumps({"error": str(e)})
 
         request_data = {"data": data_dict, "analysis_type": analysis_type}
 
@@ -249,7 +249,7 @@ def register_tools(mcp, api_client):
 
     @mcp.tool()
     async def get_scenario_analysis(
-        project_id: int, work_bundle_ids: str, scenarios: str
+        project_id: int, work_bundle_ids: str, scenarios: JsonInput
     ) -> str:
         """
         Run what-if scenario analysis for forecasting.
@@ -261,7 +261,7 @@ def register_tools(mcp, api_client):
         Args:
             project_id: Project identifier
             work_bundle_ids: Comma-separated work bundle IDs to analyze
-            scenarios: JSON string array of scenario configurations (velocity adjustments, capacity changes, etc.)
+            scenarios: JSON string or array of scenario configurations (velocity adjustments, capacity changes, etc.)
 
         Returns:
             JSON with comparative scenario analysis
@@ -269,11 +269,9 @@ def register_tools(mcp, api_client):
         endpoint = f"forecasting/{project_id}/scenarios/"
 
         try:
-            scenarios_list = (
-                json.loads(scenarios) if isinstance(scenarios, str) else scenarios
-            )
-        except json.JSONDecodeError:
-            return json.dumps({"error": "Invalid JSON in scenarios parameter"})
+            scenarios_list = parse_json_input(scenarios, name="scenarios")
+        except ValueError as e:
+            return json.dumps({"error": str(e)})
 
         data = {"work_bundle_ids": work_bundle_ids, "scenarios": scenarios_list}
 

@@ -3,6 +3,8 @@
 import json
 from typing import Optional
 
+from .._json_input import JsonInput, parse_json_input
+
 
 def register_tools(mcp, api_client):
     """Register all work bundle tools with the MCP server"""
@@ -101,7 +103,7 @@ def register_tools(mcp, api_client):
 
     @mcp.tool()
     async def update_work_bundle(
-        project_id: int, bundle_id: int, bundle_data: str
+        project_id: int, bundle_id: int, bundle_data: JsonInput
     ) -> str:
         """
         Update work bundle properties.
@@ -111,7 +113,7 @@ def register_tools(mcp, api_client):
         Args:
             project_id: Project identifier
             bundle_id: Work bundle identifier
-            bundle_data: JSON string with bundle updates (name, description, etc.)
+            bundle_data: JSON string or object with bundle updates (name, description, etc.)
 
         Returns:
             Updated work bundle details
@@ -119,11 +121,9 @@ def register_tools(mcp, api_client):
         endpoint = f"project/{project_id}/work_bundles/{bundle_id}/"
 
         try:
-            data = (
-                json.loads(bundle_data) if isinstance(bundle_data, str) else bundle_data
-            )
-        except json.JSONDecodeError:
-            return json.dumps({"error": "Invalid JSON in bundle_data parameter"})
+            data = parse_json_input(bundle_data, name="bundle_data")
+        except ValueError as e:
+            return json.dumps({"error": str(e)})
 
         result = await api_client.request("PATCH", endpoint, data=data)
         return json.dumps(result, indent=2)

@@ -3,6 +3,8 @@
 import json
 from typing import Optional
 
+from .._json_input import JsonInput, parse_json_input
+
 
 def register_tools(mcp, api_client):
     """Register all AI and analytics tools with the MCP server"""
@@ -55,7 +57,10 @@ def register_tools(mcp, api_client):
 
     @mcp.tool()
     async def create_ai_report(
-        org_id: int, report_type: str, project_id: int, config: Optional[str] = None
+        org_id: int,
+        report_type: str,
+        project_id: int,
+        config: Optional[JsonInput] = None,
     ) -> str:
         """
         Generate a new AI report for a project.
@@ -66,7 +71,7 @@ def register_tools(mcp, api_client):
             org_id: Organization identifier
             report_type: Type of report to generate (REQUIRED)
             project_id: Project to analyze (REQUIRED)
-            config: Optional JSON string with report configuration
+            config: Optional JSON string or object with report configuration
 
         Returns:
             Created report with ID and generation status
@@ -75,13 +80,11 @@ def register_tools(mcp, api_client):
 
         data = {"report_type": report_type, "project_id": project_id}
 
-        if config:
+        if config is not None:
             try:
-                data["config"] = (
-                    json.loads(config) if isinstance(config, str) else config
-                )
-            except json.JSONDecodeError:
-                return json.dumps({"error": "Invalid JSON in config parameter"})
+                data["config"] = parse_json_input(config, name="config")
+            except ValueError as e:
+                return json.dumps({"error": str(e)})
 
         result = await api_client.request("POST", endpoint, data=data)
         return json.dumps(result, indent=2)
@@ -210,7 +213,7 @@ def register_tools(mcp, api_client):
     async def ai_metric_builder(
         project_id: int,
         prompt: str,
-        previous_config: Optional[str] = None,
+        previous_config: Optional[JsonInput] = None,
         stream: bool = False,
         data_source: Optional[str] = None,
     ) -> str:
@@ -241,7 +244,7 @@ def register_tools(mcp, api_client):
         Args:
             project_id: Project identifier (path)
             prompt: Raw question or instruction for the metric builder (REQUIRED)
-            previous_config: Optional JSON string of a prior chart/metric config to refine
+            previous_config: Optional JSON string or object of a prior chart/metric config to refine
             stream: If true, request SSE streaming (returns raw response body under raw_body)
             data_source: Optional data source override for the builder
 
@@ -255,11 +258,11 @@ def register_tools(mcp, api_client):
 
         if previous_config is not None:
             try:
-                data["previous_config"] = json.loads(previous_config)
-            except json.JSONDecodeError:
-                return json.dumps(
-                    {"error": "Invalid JSON in previous_config parameter"}
+                data["previous_config"] = parse_json_input(
+                    previous_config, name="previous_config"
                 )
+            except ValueError as e:
+                return json.dumps({"error": str(e)})
 
         if stream:
             data["stream"] = True
