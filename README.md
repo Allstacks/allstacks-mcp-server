@@ -6,20 +6,20 @@ A comprehensive Model Context Protocol (MCP) server providing AI-ready access to
 
 ## Overview
 
-This MCP server exposes **194+ tools** organized into **12 categories** for comprehensive interaction with Allstacks:
+This MCP server exposes **187 tools** organized into **12 categories** for comprehensive interaction with Allstacks:
 
 ### Tool Categories
 
 1. **Metrics & Analytics (20 tools)**: GMDTS data, Metrics V2 (including capitalization preview), templates, insight configs, population benchmarks, company metrics
 2. **Service Items & Work Items (18 tools)**: Complete CRUD for work items, parent service items, property keys, estimation methods, notes, filter sets
 3. **Users & Teams (20 tools)**: Full user management, invites, roles, team tags, personal access tokens, service users
-4. **Organization & Projects (31 tools)**: Organizations, projects, settings, services, calendars, time periods, slots, capitalization reports (V2)
+4. **Organization & Projects (28 tools)**: Organizations, projects, settings, services, calendars, time periods, slots, capitalization reports (V2)
 5. **Dashboards & Widgets (18 tools)**: Complete dashboard/widget CRUD, shared links, cloning, widget management
 6. **Employee Analytics (8 tools)**: Employee metrics, cohorts, work items, timeline, summary, periods
-7. **Forecasting & Planning (10 tools)**: V3 forecasts, velocity, scenarios, capacity planning, chart analysis
+7. **Forecasting & Planning (9 tools)**: V3 forecasts, velocity, scenarios, capacity planning, chart analysis
 8. **Labels & Tagging (15 tools)**: Labels, label families, bulk operations, service item label assignment
-9. **Alerts & Monitoring (14 tools)**: Alert rules, active alerts, notifications, subscriptions, preferences
-10. **AI & Intelligence (16 tools)**: AI reports, Action AI code query, metric builder, AI metric builder (project), pattern analysis, surveys, DX scores, AI tool usage
+9. **Alerts & Monitoring (13 tools)**: Alert rules, active alerts, notifications, subscriptions, preferences
+10. **AI & Intelligence (14 tools)**: AI reports, Action AI code query, metric builder, AI metric builder (project), pattern analysis, surveys, DX scores, AI tool usage
 11. **Work Bundles (12 tools)**: Selectable work bundle management, forecasting, metrics, cloning
 12. **Risk Management (12 tools)**: Risk definitions, project risks, assessment, trends, resolution
 
@@ -30,20 +30,20 @@ allstacks-mcp-server/
 ├── allstacks_mcp/
 │   ├── __init__.py
 │   ├── __main__.py             # python -m allstacks_mcp entry point
-│   ├── server.py               # Main entry — 194+ tools, arg parsing
+│   ├── server.py               # Main entry — 187 tools, arg parsing
 │   ├── client.py               # HTTP client (Basic + Bearer auth)
 │   └── tools/                  # Tool modules by category
 │       ├── __init__.py
 │       ├── metrics.py          # 20 metrics tools
 │       ├── service_items.py    # 18 service item tools
 │       ├── users_teams.py      # 20 user/team tools
-│       ├── org_projects.py     # 31 org/project tools
+│       ├── org_projects.py     # 28 org/project tools
 │       ├── dashboards.py       # 18 dashboard tools
 │       ├── employee.py         # 8 employee analytics tools
-│       ├── forecasting.py      # 10 forecasting tools
+│       ├── forecasting.py      # 9 forecasting tools
 │       ├── labels.py           # 15 label management tools
-│       ├── alerts.py           # 14 alert/monitoring tools
-│       ├── ai_analytics.py     # 16 AI & analytics tools
+│       ├── alerts.py           # 13 alert/monitoring tools
+│       ├── ai_analytics.py     # 14 AI & analytics tools
 │       ├── work_bundles.py     # 12 work bundle tools
 │       └── risk_management.py  # 12 risk management tools
 ├── pyproject.toml
@@ -65,19 +65,13 @@ allstacks-mcp-server/
 
 The simplest way to use the Allstacks MCP server is via `uvx`, which installs and runs the server in one command:
 
-**Option A — Bearer auth with Personal Access Token (recommended):**
 ```bash
 uvx allstacks-mcp --token YOUR_PAT --base-url https://app.allstacks.com/api/v1/
 ```
 
-**Option B — HTTP Basic auth (local accounts only):**
-```bash
-uvx allstacks-mcp --username your-email@example.com --password your-password --base-url https://app.allstacks.com/api/v1/
-```
-
 That's it! The server will start and be ready to accept MCP connections.
 
-> **For local development** or contributing to this project, see the [Local Development](#local-development) section below.
+> See [Authentication Modes](#authentication-modes) for the full set of supported auth options (PAT vs. HTTP Basic) and when to use each. For local development or contributing to this project, see the [Local Development](#local-development) section below.
 
 ## Authentication & Security
 
@@ -119,12 +113,15 @@ uvx allstacks-mcp --username your-email@example.com --password your-password --b
 
 1. **Prefer Personal Access Tokens over passwords** — revocable, scoped, and the only option for SSO users.
 
-2. **Use Environment Variables** when possible
+2. **Keep credentials out of shell history and config files** when possible. The server only reads credentials from CLI flags, so if you want to store them in environment variables, expand them into the flags at launch time:
    ```bash
    export ALLSTACKS_TOKEN="your-pat"
+   uvx allstacks-mcp --token "$ALLSTACKS_TOKEN"
+
    # or, for Basic auth:
    export ALLSTACKS_USERNAME="your-username"
    export ALLSTACKS_PASSWORD="your-password"
+   uvx allstacks-mcp --username "$ALLSTACKS_USERNAME" --password "$ALLSTACKS_PASSWORD"
    ```
 
 3. **Never commit credentials** to version control
@@ -135,10 +132,10 @@ uvx allstacks-mcp --username your-email@example.com --password your-password --b
 
 #### Process Security
 
-**Note**: Command-line arguments (`--username`, `--password`, `--token`) are visible in process lists. For production use:
-- Use environment variables
-- Use secure configuration files
-- Consider using a secrets management system
+**Note**: Command-line arguments (`--username`, `--password`, `--token`) are visible in process lists, including when expanded from environment variables at launch. For production use:
+- Restrict access to the host running the server so other users cannot read its process list
+- Store credentials in a secure secrets manager and inject them only at launch time
+- Use a dedicated Allstacks account or short-lived PAT that can be revoked quickly
 
 #### Data Access & Privacy
 
@@ -235,7 +232,7 @@ All tools are verified against the official Allstacks OpenAPI specification:
 - ✅ All endpoints use correct paths and parameters
 - ✅ Detailed parameter descriptions from official API docs
 - ✅ Proper error handling and validation
-- ✅ HTTP Basic Auth support
+- ✅ Authentication via Bearer token (PAT) or HTTP Basic
 - ✅ Async/await for performance
 
 ### Modular Architecture
