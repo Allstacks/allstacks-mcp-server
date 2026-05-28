@@ -13,6 +13,7 @@ from allstacks_mcp.tools import (
     ai_analytics,
     alerts,
     forecasting,
+    metrics,
     org_projects,
     risk_management,
     work_bundles,
@@ -33,6 +34,24 @@ class _RecordingClient:
             "data": data,
         }
         return {"ok": True}
+
+    async def request_text(
+        self,
+        method,
+        endpoint,
+        params=None,
+        data=None,
+        response_format="json",
+        **kwargs,
+    ):
+        self.last = {
+            "method": method,
+            "endpoint": endpoint,
+            "params": params,
+            "data": data,
+            "response_format": response_format,
+        }
+        return f"format={response_format}"
 
 
 def _run(coro):
@@ -74,10 +93,33 @@ class ToolRouteTests(unittest.TestCase):
         _run(mcp.call_tool("get_project", {"project_id": 49816}))
         self.assertEqual(client.last["endpoint"], "project/49816/")
 
+    def test_list_projects_forwards_toon_response_format(self):
+        mcp, client = self._build(org_projects.register_tools)
+        _run(mcp.call_tool("list_projects", {"org_id": 7, "response_format": "toon"}))
+        self.assertEqual(client.last["endpoint"], "organization/7/projects/")
+        self.assertEqual(client.last["response_format"], "toon")
+
     def test_list_work_bundles_uses_initial_route(self):
         mcp, client = self._build(work_bundles.register_tools)
         _run(mcp.call_tool("list_work_bundles", {"project_id": 49816}))
         self.assertEqual(client.last["endpoint"], "project/49816/work_bundles/initial/")
+
+    def test_time_series_tools_forward_toon_response_format(self):
+        mcp, client = self._build(metrics.register_tools)
+        _run(
+            mcp.call_tool(
+                "get_gmdts_data",
+                {
+                    "project_id": 49816,
+                    "metric_type": "Velocity",
+                    "response_format": "toon",
+                },
+            )
+        )
+        self.assertEqual(
+            client.last["endpoint"], "project/49816/generated_metric_data/Velocity"
+        )
+        self.assertEqual(client.last["response_format"], "toon")
 
     def test_list_project_risk_definitions_uses_risk_definitions_route(self):
         mcp, client = self._build(risk_management.register_tools)

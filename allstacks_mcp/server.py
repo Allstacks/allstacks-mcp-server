@@ -32,8 +32,10 @@ from .tools import (
 # Shown in initialize.instructions for connected clients (token cost per turn).
 MCP_SERVER_INSTRUCTIONS = (
     "This server wraps the Allstacks REST API (HTTP Basic auth at startup). "
-    "Tools return JSON strings; parse them before reasoning. Prefer narrow reads: "
-    "pagination (limit/offset), filters, and IDs from list endpoints. "
+    "Tools return JSON strings by default; parse them before reasoning. Prefer "
+    "narrow reads: pagination (limit/offset), filters, and IDs from list endpoints. "
+    "High-volume list and time-series tools accept response_format='toon' for "
+    "compact table-style output when you need to reduce context size. "
     "Data is scoped by organization and project: most routes are under "
     "organization/{org_id}/ or project/{project_id}/. A given login usually has one "
     "org; projects are many per org and often align with team or department splits; "

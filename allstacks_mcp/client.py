@@ -12,6 +12,10 @@ from .prompt_guard import (
     blocked_response,
     scan_response,
 )
+from .toon import encode_toon
+
+
+SUPPORTED_RESPONSE_FORMATS = ("json", "toon")
 
 
 class AllstacksAPIClient:
@@ -59,9 +63,12 @@ class AllstacksAPIClient:
         self.openapi_schema_url = openapi_schema_url or f"{self.base_url}/schema/"
         self.prompt_guard_config = prompt_guard_config or PromptGuardConfig()
 
-        self.auth: Optional[Tuple[str, str]] = (
-            (username, password) if token is None else None
-        )
+        if token is None:
+            assert username is not None
+            assert password is not None
+            self.auth: Optional[Tuple[str, str]] = (username, password)
+        else:
+            self.auth = None
         self.headers = {
             "Content-Type": "application/json",
             "Accept": "application/json",
@@ -73,8 +80,8 @@ class AllstacksAPIClient:
         self,
         method: str,
         endpoint: str,
-        params: Dict = None,
-        data: Dict = None,
+        params: Optional[Dict[str, Any]] = None,
+        data: Optional[Dict[str, Any]] = None,
         timeout_seconds: float = 30.0,
         expect_json: bool = True,
     ) -> Any:
@@ -93,8 +100,8 @@ class AllstacksAPIClient:
         self,
         method: str,
         url: str,
-        params: Dict = None,
-        data: Dict = None,
+        params: Optional[Dict[str, Any]] = None,
+        data: Optional[Dict[str, Any]] = None,
         timeout_seconds: float = 30.0,
         expect_json: bool = True,
         include_auth: bool = True,
@@ -155,6 +162,52 @@ class AllstacksAPIClient:
             "GET",
             self.openapi_schema_url,
             include_auth=same_origin,
+        )
+
+    async def request_text(
+        self,
+        method: str,
+        endpoint: str,
+        params: Optional[Dict[str, Any]] = None,
+        data: Optional[Dict[str, Any]] = None,
+        timeout_seconds: float = 30.0,
+        expect_json: bool = True,
+        response_format: Any = "json",
+    ) -> str:
+        """Make a request and encode the parsed response for MCP tool output."""
+        result = await self.request(
+            method,
+            endpoint,
+            params=params,
+            data=data,
+            timeout_seconds=timeout_seconds,
+            expect_json=expect_json,
+        )
+        try:
+            return self.format_response(result, response_format=response_format)
+        except ValueError as e:
+            return json.dumps({"error": str(e)}, indent=2)
+
+    @staticmethod
+    def format_response(payload: Any, response_format: Any = "json") -> str:
+        """Encode a JSON-compatible payload as pretty JSON or compact TOON."""
+        supported = ", ".join(SUPPORTED_RESPONSE_FORMATS)
+        if response_format is None:
+            normalized_format = "json"
+        elif isinstance(response_format, str):
+            normalized_format = response_format.lower()
+        else:
+            raise ValueError(
+                f"Unsupported response_format '{response_format}'. Use one of: {supported}."
+            )
+
+        if normalized_format == "json":
+            return json.dumps(payload, indent=2)
+        if normalized_format == "toon":
+            return encode_toon(payload)
+
+        raise ValueError(
+            f"Unsupported response_format '{response_format}'. Use one of: {supported}."
         )
 
     async def _scan_and_return(self, result: Any) -> Any:
