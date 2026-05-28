@@ -5,6 +5,13 @@ from typing import Any, Dict, Optional, Tuple
 
 import httpx
 
+from .prompt_guard import (
+    PromptGuardConfig,
+    ScanVerdict,
+    blocked_response,
+    scan_response,
+)
+
 
 class AllstacksAPIClient:
     """HTTP client for Allstacks API communication.
@@ -24,6 +31,7 @@ class AllstacksAPIClient:
         base_url: str = "https://app.allstacks.com/api/v1/",
         token: Optional[str] = None,
         openapi_schema_url: Optional[str] = None,
+        prompt_guard_config: Optional[PromptGuardConfig] = None,
     ):
         """Initialize the Allstacks API client with authentication credentials.
 
@@ -33,6 +41,7 @@ class AllstacksAPIClient:
             base_url: Base URL for the Allstacks API.
             token: Personal Access Token for Bearer auth (mutually exclusive with username/password).
             openapi_schema_url: Absolute URL for the published OpenAPI schema.
+            prompt_guard_config: Optional PromptGuard configuration for response scanning.
 
         Raises:
             ValueError: If both auth modes are provided or neither is provided.
@@ -47,6 +56,7 @@ class AllstacksAPIClient:
         self.token = token
         self.base_url = base_url.rstrip("/")
         self.openapi_schema_url = openapi_schema_url or f"{self.base_url}/schema/"
+        self.prompt_guard_config = prompt_guard_config or PromptGuardConfig()
 
         self.auth: Optional[Tuple[str, str]] = (
             (username, password) if token is None else None
@@ -100,11 +110,12 @@ class AllstacksAPIClient:
                 )
                 response.raise_for_status()
                 if not expect_json:
-                    return {"raw_body": response.text}
+                    result = {"raw_body": response.text}
+                    return await self._scan_and_return(result)
                 # Some 2xx responses (e.g. proxy / SSO interstitials) are not JSON.
                 # Surface the body verbatim with the status code rather than crashing.
                 try:
-                    return response.json()
+                    result = response.json()
                 except json.JSONDecodeError as e:
                     return {
                         "error": True,
@@ -112,6 +123,7 @@ class AllstacksAPIClient:
                         "message": f"Expected JSON but failed to decode: {e}",
                         "raw_body": response.text,
                     }
+                return await self._scan_and_return(result)
             except httpx.HTTPStatusError as e:
                 return {
                     "error": True,
@@ -128,3 +140,10 @@ class AllstacksAPIClient:
     async def get_openapi_schema(self) -> Any:
         """Fetch the published OpenAPI schema with the configured authentication."""
         return await self.request_url("GET", self.openapi_schema_url)
+
+    async def _scan_and_return(self, result: Any) -> Any:
+        """Run PromptGuard scanning on a successful response."""
+        scan = await scan_response(result, self.prompt_guard_config)
+        if scan.verdict != ScanVerdict.ALLOWED:
+            return blocked_response(scan)
+        return result
