@@ -131,7 +131,7 @@ class AllstacksAPIClient:
         data: Optional[Dict[str, Any]] = None,
         timeout_seconds: float = 30.0,
         expect_json: bool = True,
-        response_format: str = "json",
+        response_format: Any = "json",
     ) -> str:
         """Make a request and encode the parsed response for MCP tool output."""
         result = await self.request(
@@ -148,15 +148,23 @@ class AllstacksAPIClient:
             return json.dumps({"error": str(e)}, indent=2)
 
     @staticmethod
-    def format_response(payload: Any, response_format: str = "json") -> str:
+    def format_response(payload: Any, response_format: Any = "json") -> str:
         """Encode a JSON-compatible payload as pretty JSON or compact TOON."""
-        normalized_format = (response_format or "json").lower()
+        supported = ", ".join(SUPPORTED_RESPONSE_FORMATS)
+        if response_format is None:
+            normalized_format = "json"
+        elif isinstance(response_format, str):
+            normalized_format = response_format.lower()
+        else:
+            raise ValueError(
+                f"Unsupported response_format '{response_format}'. Use one of: {supported}."
+            )
+
         if normalized_format == "json":
             return json.dumps(payload, indent=2)
         if normalized_format == "toon":
             return encode_toon(payload)
 
-        supported = ", ".join(SUPPORTED_RESPONSE_FORMATS)
         raise ValueError(
             f"Unsupported response_format '{response_format}'. Use one of: {supported}."
         )
