@@ -28,7 +28,7 @@ def register_tools(mcp, api_client):
         """
         endpoint = f"employee/{project_id}/metrics/"
 
-        params = {"item_id": item_id}
+        params: dict[str, object] = {"item_id": item_id}
 
         result = await api_client.request("GET", endpoint, params=params)
         return json.dumps(result, indent=2)
@@ -49,7 +49,7 @@ def register_tools(mcp, api_client):
         """
         endpoint = f"employee/{project_id}/periods/"
 
-        params = {"item_id": item_id}
+        params: dict[str, object] = {"item_id": item_id}
 
         result = await api_client.request("GET", endpoint, params=params)
         return json.dumps(result, indent=2)
@@ -80,7 +80,7 @@ def register_tools(mcp, api_client):
         """
         endpoint = f"employee/{project_id}/users/"
 
-        params = {"include_disabled_users": include_disabled_users}
+        params: dict[str, object] = {"include_disabled_users": include_disabled_users}
 
         return await api_client.request_text(
             "GET", endpoint, params=params, response_format=response_format
@@ -117,7 +117,7 @@ def register_tools(mcp, api_client):
         """
         endpoint = f"employee/{project_id}/cohort/{item_id}/{metric_type}"
 
-        params = {"time_zone": time_zone}
+        params: dict[str, object] = {"time_zone": time_zone}
         if start_date:
             params["start_date"] = start_date
         if end_date:
@@ -158,7 +158,7 @@ def register_tools(mcp, api_client):
         """
         endpoint = f"employee/{project_id}/metric/{item_id}/{metric_type}"
 
-        params = {"time_zone": time_zone}
+        params: dict[str, object] = {"time_zone": time_zone}
         if start_date:
             params["start_date"] = start_date
         if end_date:
@@ -201,7 +201,11 @@ def register_tools(mcp, api_client):
         """
         endpoint = f"employee/{project_id}/work_items/{item_id}"
 
-        params = {"time_zone": time_zone, "limit": limit, "offset": offset}
+        params: dict[str, object] = {
+            "time_zone": time_zone,
+            "limit": limit,
+            "offset": offset,
+        }
         if start_date:
             params["start_date"] = start_date
         if end_date:
@@ -238,7 +242,7 @@ def register_tools(mcp, api_client):
         """
         endpoint = f"employee/{project_id}/timeline/{item_id}"
 
-        params = {"time_zone": time_zone}
+        params: dict[str, object] = {"time_zone": time_zone}
         if start_date:
             params["start_date"] = start_date
         if end_date:
@@ -273,7 +277,7 @@ def register_tools(mcp, api_client):
         """
         endpoint = f"employee/{project_id}/summary/{item_id}"
 
-        params = {"time_zone": time_zone}
+        params: dict[str, object] = {"time_zone": time_zone}
         if start_date:
             params["start_date"] = start_date
         if end_date:

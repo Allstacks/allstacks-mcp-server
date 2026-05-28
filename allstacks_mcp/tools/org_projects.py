@@ -142,7 +142,7 @@ def register_tools(mcp, api_client):
         """
         endpoint = f"organization/{org_id}/employee_list/"
 
-        params = {"include_disabled_users": include_disabled_users}
+        params: dict[str, object] = {"include_disabled_users": include_disabled_users}
 
         return await api_client.request_text(
             "GET", endpoint, params=params, response_format=response_format
@@ -171,7 +171,7 @@ def register_tools(mcp, api_client):
         """
         endpoint = f"organization/{org_id}/error_logs/"
 
-        params = {"limit": limit, "offset": offset}
+        params: dict[str, object] = {"limit": limit, "offset": offset}
 
         return await api_client.request_text(
             "GET", endpoint, params=params, response_format=response_format
@@ -206,7 +206,7 @@ def register_tools(mcp, api_client):
         """
         endpoint = f"organization/{org_id}/projects/"
 
-        params = {"limit": limit, "offset": offset}
+        params: dict[str, object] = {"limit": limit, "offset": offset}
 
         if ordering:
             params["ordering"] = ordering
@@ -346,7 +346,7 @@ def register_tools(mcp, api_client):
         """
         endpoint = f"project/{project_id}/service/{service_id}/service_users/"
 
-        params = {"limit": limit, "offset": offset}
+        params: dict[str, object] = {"limit": limit, "offset": offset}
 
         return await api_client.request_text(
             "GET", endpoint, params=params, response_format=response_format
@@ -560,7 +560,7 @@ def register_tools(mcp, api_client):
             JSON from the API
         """
         endpoint = f"organization/{org_id}/send_v2_cap_report/"
-        params = {"debug": "true"} if debug else None
+        params: dict[str, object] | None = {"debug": "true"} if debug else None
 
         try:
             parsed = parse_json_input(config, name="config")
@@ -596,7 +596,7 @@ def register_tools(mcp, api_client):
             JSON with saved configuration. Caller must be authorized like the HTTP API.
         """
         endpoint = f"organization/{org_id}/capitalization_reports/capitalization_report_config/"
-        params = {"report_type": report_type}
+        params: dict[str, object] = {"report_type": report_type}
         result = await api_client.request("GET", endpoint, params=params)
         return json.dumps(result, indent=2)
 
@@ -620,7 +620,7 @@ def register_tools(mcp, api_client):
             JSON with created or updated configuration
         """
         endpoint = f"organization/{org_id}/capitalization_reports/capitalization_report_config/"
-        params = {"report_type": report_type}
+        params: dict[str, object] = {"report_type": report_type}
         try:
             data = parse_json_input(config_body, name="config_body")
         except ValueError as e:
@@ -651,7 +651,7 @@ def register_tools(mcp, api_client):
             Generated report records
         """
         endpoint = f"organization/{org_id}/generated_capitalization_reports/"
-        params = {}
+        params: dict[str, object] = {}
         if report_type:
             params["report_type"] = report_type
         return await api_client.request_text(
@@ -683,7 +683,7 @@ def register_tools(mcp, api_client):
         endpoint = (
             f"organization/{org_id}/generated_capitalization_reports/{report_id}/"
         )
-        params = {}
+        params: dict[str, object] = {}
         if include_content:
             params["include_content"] = "true"
         result = await api_client.request(

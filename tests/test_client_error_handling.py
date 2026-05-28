@@ -31,7 +31,7 @@ class ClientErrorHandlingTests(unittest.TestCase):
             return original(*args, **kwargs)
 
         self._async_client_patch = original
-        httpx.AsyncClient = _factory  # type: ignore[assignment]
+        httpx.AsyncClient = _factory  # type: ignore[assignment,misc]
         self.addCleanup(self._restore_async_client)
         return client
 

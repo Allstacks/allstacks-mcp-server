@@ -38,7 +38,7 @@ def register_tools(mcp, api_client):
         """
         endpoint = f"organization/{org_id}/users/"
 
-        params = {"limit": limit, "offset": offset}
+        params: dict[str, object] = {"limit": limit, "offset": offset}
 
         if ordering:
             params["ordering"] = ordering
@@ -138,7 +138,7 @@ def register_tools(mcp, api_client):
         """
         endpoint = f"organization/{org_id}/user_invites/"
 
-        params = {"limit": limit, "offset": offset}
+        params: dict[str, object] = {"limit": limit, "offset": offset}
 
         if ordering:
             params["ordering"] = ordering
@@ -170,7 +170,7 @@ def register_tools(mcp, api_client):
         """
         endpoint = f"organization/{org_id}/user_invites/"
 
-        data = {"email": email}
+        data: dict[str, object] = {"email": email}
 
         if role_id:
             data["role_id"] = role_id
@@ -311,7 +311,7 @@ def register_tools(mcp, api_client):
         """
         endpoint = f"project/{project_id}/users/"
 
-        params = {"limit": limit, "offset": offset}
+        params: dict[str, object] = {"limit": limit, "offset": offset}
 
         if ordering:
             params["ordering"] = ordering
@@ -349,7 +349,11 @@ def register_tools(mcp, api_client):
         """
         endpoint = f"project/{project_id}/service_users_v2/"
 
-        params = {"limit": limit, "offset": offset, "only_enabled": only_enabled}
+        params: dict[str, object] = {
+            "limit": limit,
+            "offset": offset,
+            "only_enabled": only_enabled,
+        }
 
         if service_user_ids:
             params["service_user_ids[]"] = service_user_ids.split(",")
@@ -422,7 +426,7 @@ def register_tools(mcp, api_client):
         """
         endpoint = f"project/{project_id}/tag/{tag_id}"
 
-        data = {}
+        data: dict[str, object] = {}
         if tag_data is not None:
             try:
                 parsed_tag_data = parse_json_input(tag_data, name="tag_data")
@@ -499,7 +503,7 @@ def register_tools(mcp, api_client):
         """
         endpoint = f"organization/{org_id}/personal_access_tokens/"
 
-        data = {"name": name}
+        data: dict[str, object] = {"name": name}
         if expires_at:
             data["expires_at"] = expires_at
 

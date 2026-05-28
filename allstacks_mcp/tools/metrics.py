@@ -28,7 +28,7 @@ def register_tools(mcp, api_client):
             Available metrics with descriptions
         """
         endpoint = "metrics/"
-        params = {}
+        params: dict[str, object] = {}
         if project_id:
             params["project_id"] = project_id
 
@@ -153,7 +153,7 @@ def register_tools(mcp, api_client):
         """
         endpoint = f"project/{project_id}/generated_metric_data/{metric_type}"
 
-        params = {"aggregation": aggregation, "time_zone": time_zone}
+        params: dict[str, object] = {"aggregation": aggregation, "time_zone": time_zone}
 
         if x_axis:
             params["x_axis"] = x_axis
@@ -211,7 +211,7 @@ def register_tools(mcp, api_client):
             Encoded response string, or ``{"raw_body": "..."}`` JSON for CSV
         """
         endpoint = f"project/{project_id}/metrics_v2/metrics"
-        params = {"use_cache": str(use_cache).lower()}
+        params: dict[str, object] = {"use_cache": str(use_cache).lower()}
 
         try:
             body = build_metrics_v2_post_body(config, get_count_only, variables)
@@ -261,7 +261,7 @@ def register_tools(mcp, api_client):
             Encoded response string, or ``{"raw_body": "..."}`` JSON for CSV
         """
         endpoint = f"organization/{org_id}/metrics_v2/metrics"
-        params = {"use_cache": str(use_cache).lower()}
+        params: dict[str, object] = {"use_cache": str(use_cache).lower()}
 
         try:
             body = build_metrics_v2_post_body(config, get_count_only, variables)
@@ -312,7 +312,7 @@ def register_tools(mcp, api_client):
             Encoded response string, or ``{"raw_body": "..."}`` JSON for CSV
         """
         endpoint = f"organization/{org_id}/metrics_v2_capitalization/metrics"
-        params = {"use_cache": str(use_cache).lower()}
+        params: dict[str, object] = {"use_cache": str(use_cache).lower()}
 
         try:
             body = build_metrics_v2_post_body(config, get_count_only, variables)
@@ -349,7 +349,7 @@ def register_tools(mcp, api_client):
             JSON with template names and embedded config objects
         """
         endpoint = f"organization/{org_id}/metrics_v2/templates/"
-        params = {"tag": tag}
+        params: dict[str, object] = {"tag": tag}
         result = await api_client.request("GET", endpoint, params=params)
         return json.dumps(result, indent=2)
 
@@ -370,7 +370,7 @@ def register_tools(mcp, api_client):
             JSON with templates and embedded configs
         """
         endpoint = f"organization/{org_id}/metrics_v2/individual-scorecard-templates/"
-        params = {"tag": tag}
+        params: dict[str, object] = {"tag": tag}
         result = await api_client.request("GET", endpoint, params=params)
         return json.dumps(result, indent=2)
 
@@ -394,7 +394,7 @@ def register_tools(mcp, api_client):
             JSON object (e.g. ``allstacks_labels`` and related fields)
         """
         endpoint = f"project/{project_id}/metrics_v2/allstacks-labels/"
-        params = {}
+        params: dict[str, object] = {}
         if search is not None:
             params["search"] = search
         if limit is not None:
@@ -422,7 +422,7 @@ def register_tools(mcp, api_client):
             JSON object (e.g. ``user_tags`` and related fields)
         """
         endpoint = f"project/{project_id}/metrics_v2/user-tags/"
-        params = {}
+        params: dict[str, object] = {}
         if search is not None:
             params["search"] = search
         if limit is not None:
@@ -449,7 +449,7 @@ def register_tools(mcp, api_client):
         """
         endpoint = f"project/{project_id}/metrics_v2/item_props/"
 
-        params = {}
+        params: dict[str, object] = {}
         if item_types:
             params["item_types[]"] = item_types.split(",")
         if search:
@@ -504,7 +504,7 @@ def register_tools(mcp, api_client):
         """
         endpoint = f"project/{project_id}/insights/configs"
 
-        params = {}
+        params: dict[str, object] = {}
         if metric_types:
             params["metric_types"] = metric_types
         if insight_keys:
@@ -540,7 +540,7 @@ def register_tools(mcp, api_client):
         """
         endpoint = f"population-benchmarks/metric/{metric_type}"
 
-        params = {"time_zone": time_zone}
+        params: dict[str, object] = {"time_zone": time_zone}
         if start_date:
             params["start_date"] = start_date
         if end_date:
@@ -610,7 +610,7 @@ def register_tools(mcp, api_client):
         """
         endpoint = f"organization/{org_id}/company_metrics/"
 
-        data = {"metric_ids": metric_ids}
+        data: dict[str, object] = {"metric_ids": metric_ids}
         result = await api_client.request("DELETE", endpoint, data=data)
         return json.dumps(result, indent=2)
 

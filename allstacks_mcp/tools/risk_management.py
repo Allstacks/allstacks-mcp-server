@@ -41,7 +41,7 @@ def register_tools(mcp, api_client):
         """
         endpoint = f"organization/{org_id}/risk_definitions/"
 
-        params = {"limit": limit, "offset": offset}
+        params: dict[str, object] = {"limit": limit, "offset": offset}
 
         if ordering:
             params["ordering"] = ordering
@@ -82,7 +82,7 @@ def register_tools(mcp, api_client):
         except ValueError as e:
             return json.dumps({"error": str(e)})
 
-        data = {
+        data: dict[str, object] = {
             "name": name,
             "description": description,
             "condition": condition_dict,
@@ -192,7 +192,7 @@ def register_tools(mcp, api_client):
         """
         endpoint = f"project/{project_id}/risk_definitions/"
 
-        params = {}
+        params: dict[str, object] = {}
         if risk_type:
             params["risk_type"] = risk_type
         if severity:
@@ -240,7 +240,7 @@ def register_tools(mcp, api_client):
         """
         endpoint = f"project/{project_id}/risks/{risk_id}/acknowledge/"
 
-        data = {}
+        data: dict[str, object] = {}
         if note:
             data["note"] = note
 
@@ -266,7 +266,7 @@ def register_tools(mcp, api_client):
         """
         endpoint = f"project/{project_id}/risks/{risk_id}/resolve/"
 
-        data = {}
+        data: dict[str, object] = {}
         if resolution:
             data["resolution"] = resolution
 
@@ -296,7 +296,7 @@ def register_tools(mcp, api_client):
         """
         endpoint = f"project/{project_id}/risks/trends/"
 
-        params = {"time_zone": time_zone}
+        params: dict[str, object] = {"time_zone": time_zone}
         if start_date:
             params["start_date"] = start_date
         if end_date:
@@ -341,7 +341,7 @@ def register_tools(mcp, api_client):
         """
         endpoint = f"organization/{org_id}/risks/summary/"
 
-        params = {}
+        params: dict[str, object] = {}
         if project_ids:
             params["project_ids[]"] = project_ids.split(",")
 

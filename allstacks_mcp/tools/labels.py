@@ -43,7 +43,7 @@ def register_tools(mcp, api_client):
         """
         endpoint = f"organization/{org_id}/labels/"
 
-        params = {"limit": limit, "offset": offset}
+        params: dict[str, object] = {"limit": limit, "offset": offset}
 
         if label_family_id:
             params["label_family_id"] = label_family_id
@@ -79,7 +79,7 @@ def register_tools(mcp, api_client):
         """
         endpoint = f"organization/{org_id}/labels/"
 
-        data = {"name": name}
+        data: dict[str, object] = {"name": name}
 
         if label_family_id:
             data["label_family_id"] = label_family_id
@@ -162,7 +162,7 @@ def register_tools(mcp, api_client):
         """
         endpoint = f"organization/{org_id}/labels/{label_id}/"
 
-        params = {}
+        params: dict[str, object] = {}
         if delete_children:
             params["delete_children"] = delete_children
 
@@ -201,7 +201,7 @@ def register_tools(mcp, api_client):
         """
         endpoint = f"organization/{org_id}/labels/label_families/"
 
-        params = {"limit": limit, "offset": offset}
+        params: dict[str, object] = {"limit": limit, "offset": offset}
 
         if ordering:
             params["ordering"] = ordering
@@ -233,7 +233,7 @@ def register_tools(mcp, api_client):
         """
         endpoint = f"organization/{org_id}/labels/label_families/"
 
-        data = {"name": name}
+        data: dict[str, object] = {"name": name}
 
         if description:
             data["description"] = description
@@ -308,7 +308,7 @@ def register_tools(mcp, api_client):
         """
         endpoint = f"organization/{org_id}/labels/label_families/{family_id}/"
 
-        params = {}
+        params: dict[str, object] = {}
         if delete_labels:
             params["delete_labels"] = delete_labels
 
@@ -338,7 +338,10 @@ def register_tools(mcp, api_client):
         """
         endpoint = f"organization/{org_id}/labels/bulk_assign/"
 
-        data = {"service_item_ids": service_item_ids, "label_ids": label_ids}
+        data: dict[str, object] = {
+            "service_item_ids": service_item_ids,
+            "label_ids": label_ids,
+        }
 
         result = await api_client.request("POST", endpoint, data=data)
         return json.dumps(result, indent=2)
@@ -362,7 +365,10 @@ def register_tools(mcp, api_client):
         """
         endpoint = f"organization/{org_id}/labels/bulk_remove/"
 
-        data = {"service_item_ids": service_item_ids, "label_ids": label_ids}
+        data: dict[str, object] = {
+            "service_item_ids": service_item_ids,
+            "label_ids": label_ids,
+        }
 
         result = await api_client.request("POST", endpoint, data=data)
         return json.dumps(result, indent=2)
@@ -409,7 +415,7 @@ def register_tools(mcp, api_client):
         """
         endpoint = f"organization/{org_id}/service_items/{service_item_id}/labels/"
 
-        data = {"label_id": label_id}
+        data: dict[str, object] = {"label_id": label_id}
 
         result = await api_client.request("POST", endpoint, data=data)
         return json.dumps(result, indent=2)

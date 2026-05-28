@@ -43,7 +43,7 @@ def register_tools(mcp, api_client):
         """
         endpoint = f"organization/{org_id}/alert_rules/"
 
-        params = {"limit": limit, "offset": offset}
+        params: dict[str, object] = {"limit": limit, "offset": offset}
 
         if project_id:
             params["project_id"] = project_id
@@ -86,7 +86,7 @@ def register_tools(mcp, api_client):
         except ValueError as e:
             return json.dumps({"error": str(e)})
 
-        data = {
+        data: dict[str, object] = {
             "name": name,
             "condition": condition_dict,
             "alert_type": alert_type,
@@ -195,7 +195,7 @@ def register_tools(mcp, api_client):
         """
         endpoint = f"organization/{org_id}/alerts/history/"
 
-        params = {"limit": limit, "offset": offset}
+        params: dict[str, object] = {"limit": limit, "offset": offset}
 
         if rule_id:
             params["rule_id"] = rule_id
@@ -227,7 +227,7 @@ def register_tools(mcp, api_client):
         """
         endpoint = f"organization/{org_id}/alerts/{alert_id}/acknowledge/"
 
-        data = {}
+        data: dict[str, object] = {}
         if note:
             data["note"] = note
 
@@ -253,7 +253,7 @@ def register_tools(mcp, api_client):
         """
         endpoint = f"organization/{org_id}/alerts/{alert_id}/resolve/"
 
-        data = {}
+        data: dict[str, object] = {}
         if resolution:
             data["resolution"] = resolution
 
@@ -333,7 +333,7 @@ def register_tools(mcp, api_client):
         """
         endpoint = f"organization/{org_id}/alert_subscriptions/"
 
-        params = {}
+        params: dict[str, object] = {}
         if user_id:
             params["user_id"] = user_id
 
@@ -370,7 +370,11 @@ def register_tools(mcp, api_client):
         ):
             return json.dumps({"error": "channels must be a JSON array of strings"})
 
-        data = {"rule_id": rule_id, "user_id": user_id, "channels": channels_list}
+        data: dict[str, object] = {
+            "rule_id": rule_id,
+            "user_id": user_id,
+            "channels": channels_list,
+        }
 
         result = await api_client.request("POST", endpoint, data=data)
         return json.dumps(result, indent=2)

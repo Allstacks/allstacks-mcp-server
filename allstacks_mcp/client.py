@@ -59,9 +59,12 @@ class AllstacksAPIClient:
         self.base_url = base_url.rstrip("/")
         self.prompt_guard_config = prompt_guard_config or PromptGuardConfig()
 
-        self.auth: Optional[Tuple[str, str]] = (
-            (username, password) if token is None else None
-        )
+        if token is None:
+            assert username is not None
+            assert password is not None
+            self.auth: Optional[Tuple[str, str]] = (username, password)
+        else:
+            self.auth = None
         self.headers = {
             "Content-Type": "application/json",
             "Accept": "application/json",
@@ -73,8 +76,8 @@ class AllstacksAPIClient:
         self,
         method: str,
         endpoint: str,
-        params: Dict = None,
-        data: Dict = None,
+        params: Optional[Dict[str, Any]] = None,
+        data: Optional[Dict[str, Any]] = None,
         timeout_seconds: float = 30.0,
         expect_json: bool = True,
     ) -> Dict:
@@ -124,8 +127,8 @@ class AllstacksAPIClient:
         self,
         method: str,
         endpoint: str,
-        params: Dict = None,
-        data: Dict = None,
+        params: Optional[Dict[str, Any]] = None,
+        data: Optional[Dict[str, Any]] = None,
         timeout_seconds: float = 30.0,
         expect_json: bool = True,
         response_format: str = "json",

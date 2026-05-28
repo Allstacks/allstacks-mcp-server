@@ -39,7 +39,7 @@ def register_tools(mcp, api_client):
         """
         endpoint = f"project/{project_id}/work_bundles/initial/"
 
-        params = {
+        params: dict[str, object] = {
             "work_bundle_limit": work_bundle_limit,
             "group_offset": group_offset,
         }
@@ -73,7 +73,7 @@ def register_tools(mcp, api_client):
         """
         endpoint = f"project/{project_id}/work_bundles/"
 
-        data = {"name": name}
+        data: dict[str, object] = {"name": name}
 
         if description:
             data["description"] = description
@@ -169,7 +169,7 @@ def register_tools(mcp, api_client):
         """
         endpoint = f"project/{project_id}/work_bundles/{bundle_id}/add_items/"
 
-        data = {"service_item_ids": service_item_ids}
+        data: dict[str, object] = {"service_item_ids": service_item_ids}
 
         result = await api_client.request("POST", endpoint, data=data)
         return json.dumps(result, indent=2)
@@ -193,7 +193,7 @@ def register_tools(mcp, api_client):
         """
         endpoint = f"project/{project_id}/work_bundles/{bundle_id}/remove_items/"
 
-        data = {"service_item_ids": service_item_ids}
+        data: dict[str, object] = {"service_item_ids": service_item_ids}
 
         result = await api_client.request("POST", endpoint, data=data)
         return json.dumps(result, indent=2)
@@ -221,7 +221,10 @@ def register_tools(mcp, api_client):
         """
         endpoint = f"project/{project_id}/work_bundles/{bundle_id}/forecast/"
 
-        params = {"confidence_level": confidence_level, "time_zone": time_zone}
+        params: dict[str, object] = {
+            "confidence_level": confidence_level,
+            "time_zone": time_zone,
+        }
 
         result = await api_client.request("GET", endpoint, params=params)
         return json.dumps(result, indent=2)
@@ -251,7 +254,7 @@ def register_tools(mcp, api_client):
         """
         endpoint = f"project/{project_id}/work_bundles/{bundle_id}/metrics/"
 
-        params = {"time_zone": time_zone}
+        params: dict[str, object] = {"time_zone": time_zone}
         if start_date:
             params["start_date"] = start_date
         if end_date:
@@ -277,7 +280,7 @@ def register_tools(mcp, api_client):
         """
         endpoint = f"project/{project_id}/work_bundles/{bundle_id}/clone/"
 
-        data = {"name": new_name}
+        data: dict[str, object] = {"name": new_name}
 
         result = await api_client.request("POST", endpoint, data=data)
         return json.dumps(result, indent=2)

@@ -37,7 +37,7 @@ def register_tools(mcp, api_client):
         """
         endpoint = "service_items/service_item/"
 
-        params = {"limit": limit, "offset": offset}
+        params: dict[str, object] = {"limit": limit, "offset": offset}
 
         if item_type:
             params["item_type"] = item_type
@@ -63,7 +63,7 @@ def register_tools(mcp, api_client):
         """
         endpoint = "service_items/service_item/get_property_keys/"
 
-        params = {"item_type": item_type}
+        params: dict[str, object] = {"item_type": item_type}
 
         result = await api_client.request("GET", endpoint, params=params)
         return json.dumps(result, indent=2)
@@ -93,7 +93,7 @@ def register_tools(mcp, api_client):
         """
         endpoint = f"service_items/{metric}/"
 
-        params = {"limit": limit, "offset": offset}
+        params: dict[str, object] = {"limit": limit, "offset": offset}
 
         if ordering:
             params["ordering"] = ordering
@@ -155,7 +155,10 @@ def register_tools(mcp, api_client):
         """
         endpoint = f"project/{project_id}/parent_service_items/"
 
-        params = {"time_zone": time_zone, "order_direction": order_direction}
+        params: dict[str, object] = {
+            "time_zone": time_zone,
+            "order_direction": order_direction,
+        }
 
         # Handle array parameters - API expects fields[]=value format
         if parent_service_item_ids:
@@ -206,7 +209,7 @@ def register_tools(mcp, api_client):
         """
         endpoint = f"project/{project_id}/service_items/types/"
 
-        params = {}
+        params: dict[str, object] = {}
         if service_item_types:
             params["service_item_types[]"] = service_item_types.split(",")
 
@@ -238,7 +241,7 @@ def register_tools(mcp, api_client):
         """
         endpoint = f"project/{project_id}/service_items/initial/"
 
-        params = {
+        params: dict[str, object] = {
             "service_item_limit": service_item_limit,
             "group_offset": group_offset,
         }
@@ -268,7 +271,7 @@ def register_tools(mcp, api_client):
         """
         endpoint = f"project/{project_id}/service_items/estimation_method/"
 
-        params = {}
+        params: dict[str, object] = {}
         if service_item_ids:
             params["service_item_ids[]"] = service_item_ids.split(",")
 
@@ -294,7 +297,7 @@ def register_tools(mcp, api_client):
         """
         endpoint = f"project/{project_id}/service_items/estimation_method/"
 
-        data = {
+        data: dict[str, object] = {
             "service_item_ids": service_item_ids,
             "estimation_method": estimation_method,
         }
@@ -321,7 +324,7 @@ def register_tools(mcp, api_client):
         """
         endpoint = f"project/{project_id}/service_item/{milestone_item_id}/notes"
 
-        data = {"notes": notes}
+        data: dict[str, object] = {"notes": notes}
 
         result = await api_client.request("POST", endpoint, data=data)
         return json.dumps(result, indent=2)
@@ -376,7 +379,7 @@ def register_tools(mcp, api_client):
         """
         endpoint = f"project/{project_id}/item_props/"
 
-        params = {
+        params: dict[str, object] = {
             "limit": limit,
             "offset": offset,
             "many": many,
@@ -434,7 +437,7 @@ def register_tools(mcp, api_client):
         """
         endpoint = f"organization/{org_id}/configuration_options/"
 
-        params = {}
+        params: dict[str, object] = {}
         if metric:
             params["metric"] = metric
         if item_types:
@@ -465,7 +468,7 @@ def register_tools(mcp, api_client):
         """
         endpoint = f"project/{project_id}/metrics_filter_sets/"
 
-        params = {"limit": limit, "offset": offset}
+        params: dict[str, object] = {"limit": limit, "offset": offset}
 
         if search:
             params["search"] = search
@@ -499,7 +502,7 @@ def register_tools(mcp, api_client):
         if not isinstance(filter_dict, dict):
             return json.dumps({"error": "filter_set must be a JSON object"})
 
-        data = {"filter_set": filter_dict}
+        data: dict[str, object] = {"filter_set": filter_dict}
         if name:
             data["name"] = name
 
@@ -548,7 +551,7 @@ def register_tools(mcp, api_client):
         """
         endpoint = f"project/{project_id}/metrics_filter_sets/{filter_set_id}/"
 
-        data = {}
+        data: dict[str, object] = {}
         if name:
             data["name"] = name
         if filter_set is not None:

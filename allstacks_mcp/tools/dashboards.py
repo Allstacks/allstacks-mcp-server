@@ -41,7 +41,7 @@ def register_tools(mcp, api_client):
         """
         endpoint = f"organization/{org_id}/dashboards/"
 
-        params = {"limit": limit, "offset": offset}
+        params: dict[str, object] = {"limit": limit, "offset": offset}
 
         if ordering:
             params["ordering"] = ordering
@@ -200,7 +200,7 @@ def register_tools(mcp, api_client):
         """
         endpoint = f"organization/{org_id}/dashboards/{dashboard_id}/clone/"
 
-        data = {}
+        data: dict[str, object] = {}
         if new_name:
             data["name"] = new_name
 
@@ -240,7 +240,7 @@ def register_tools(mcp, api_client):
         """
         endpoint = f"organization/{org_id}/dashboard_widgets/"
 
-        params = {"limit": limit, "offset": offset}
+        params: dict[str, object] = {"limit": limit, "offset": offset}
 
         if dashboard_id:
             params["dashboard_id"] = dashboard_id
@@ -285,7 +285,7 @@ def register_tools(mcp, api_client):
         except ValueError as e:
             return json.dumps({"error": str(e)})
 
-        data = {
+        data: dict[str, object] = {
             "dashboard_id": dashboard_id,
             "widget_type": widget_type,
             "config": config_dict,
@@ -392,7 +392,7 @@ def register_tools(mcp, api_client):
         """
         endpoint = f"organization/{org_id}/shared_links/"
 
-        params = {"limit": limit, "offset": offset}
+        params: dict[str, object] = {"limit": limit, "offset": offset}
 
         if ordering:
             params["ordering"] = ordering
@@ -424,7 +424,7 @@ def register_tools(mcp, api_client):
         """
         endpoint = f"organization/{org_id}/shared_links/"
 
-        data = {"dashboard_id": dashboard_id}
+        data: dict[str, object] = {"dashboard_id": dashboard_id}
         if expires_at:
             data["expires_at"] = expires_at
         if password:

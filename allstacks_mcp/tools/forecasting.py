@@ -38,7 +38,10 @@ def register_tools(mcp, api_client):
         """
         endpoint = f"forecasting/{project_id}/v3/"
 
-        params = {"confidence_level": confidence_level, "time_zone": time_zone}
+        params: dict[str, object] = {
+            "confidence_level": confidence_level,
+            "time_zone": time_zone,
+        }
         if work_bundle_ids:
             params["work_bundle_ids[]"] = work_bundle_ids.split(",")
         if service_item_ids:
@@ -137,7 +140,7 @@ def register_tools(mcp, api_client):
         """
         endpoint = f"forecasting/{project_id}/history/"
 
-        params = {"limit": limit, "offset": offset}
+        params: dict[str, object] = {"limit": limit, "offset": offset}
         if work_bundle_id:
             params["work_bundle_id"] = work_bundle_id
         if service_item_id:
@@ -168,7 +171,10 @@ def register_tools(mcp, api_client):
         except ValueError as e:
             return json.dumps({"error": str(e)})
 
-        request_data = {"data": data_dict, "analysis_type": analysis_type}
+        request_data: dict[str, object] = {
+            "data": data_dict,
+            "analysis_type": analysis_type,
+        }
 
         result = await api_client.request("POST", endpoint, data=request_data)
         return json.dumps(result, indent=2)
@@ -189,7 +195,7 @@ def register_tools(mcp, api_client):
         """
         endpoint = "charts/analysis/"
 
-        data = {"chart_id": chart_id, "project_id": project_id}
+        data: dict[str, object] = {"chart_id": chart_id, "project_id": project_id}
 
         result = await api_client.request("POST", endpoint, data=data)
         return json.dumps(result, indent=2)
@@ -219,7 +225,7 @@ def register_tools(mcp, api_client):
         """
         endpoint = f"organization/{org_id}/forecasting/capacity/"
 
-        params = {"start_date": start_date, "end_date": end_date}
+        params: dict[str, object] = {"start_date": start_date, "end_date": end_date}
         if project_ids:
             params["project_ids[]"] = project_ids.split(",")
 
@@ -255,7 +261,10 @@ def register_tools(mcp, api_client):
         if not isinstance(scenarios_list, list):
             return json.dumps({"error": "scenarios must be a JSON array"})
 
-        data = {"work_bundle_ids": work_bundle_ids, "scenarios": scenarios_list}
+        data: dict[str, object] = {
+            "work_bundle_ids": work_bundle_ids,
+            "scenarios": scenarios_list,
+        }
 
         result = await api_client.request("POST", endpoint, data=data)
         return json.dumps(result, indent=2)

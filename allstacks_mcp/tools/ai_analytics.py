@@ -45,7 +45,7 @@ def register_tools(mcp, api_client):
         """
         endpoint = f"organization/{org_id}/ai-reports/"
 
-        params = {"limit": limit, "offset": offset}
+        params: dict[str, object] = {"limit": limit, "offset": offset}
 
         if project_id:
             params["project_id"] = project_id
@@ -81,7 +81,7 @@ def register_tools(mcp, api_client):
         """
         endpoint = f"organization/{org_id}/ai-reports/"
 
-        data = {"report_type": report_type, "project_id": project_id}
+        data: dict[str, object] = {"report_type": report_type, "project_id": project_id}
 
         if config is not None:
             try:
@@ -176,7 +176,7 @@ def register_tools(mcp, api_client):
         """
         endpoint = f"organization/{org_id}/action_ai/code_query/"
 
-        data = {"project_id": project_id, "query": query}
+        data: dict[str, object] = {"project_id": project_id, "query": query}
 
         if file_patterns:
             data["file_patterns"] = file_patterns
@@ -204,7 +204,7 @@ def register_tools(mcp, api_client):
         """
         endpoint = f"organization/{org_id}/action_ai/metric_builder/"
 
-        data = {"project_id": project_id, "description": description}
+        data: dict[str, object] = {"project_id": project_id, "description": description}
 
         if context:
             data["context"] = context
@@ -305,7 +305,10 @@ def register_tools(mcp, api_client):
         """
         endpoint = f"organization/{org_id}/action_ai/pattern_analysis/"
 
-        data = {"project_id": project_id, "pattern_type": pattern_type}
+        data: dict[str, object] = {
+            "project_id": project_id,
+            "pattern_type": pattern_type,
+        }
 
         if time_range:
             data["time_range"] = time_range
@@ -340,7 +343,7 @@ def register_tools(mcp, api_client):
         """
         endpoint = f"organization/{org_id}/surveys/"
 
-        params = {}
+        params: dict[str, object] = {}
         if project_id:
             params["project_id"] = project_id
         if status:
@@ -400,7 +403,7 @@ def register_tools(mcp, api_client):
         """
         endpoint = f"organization/{org_id}/ai_tool_usage/"
 
-        params = {"project_id": project_id}
+        params: dict[str, object] = {"project_id": project_id}
         if tool_name:
             params["tool_name"] = tool_name
         if start_date:
@@ -430,7 +433,7 @@ def register_tools(mcp, api_client):
         """
         endpoint = f"organization/{org_id}/ai_tool_usage/impact/"
 
-        params = {"project_id": project_id}
+        params: dict[str, object] = {"project_id": project_id}
         if user_id:
             params["user_id"] = user_id
 
@@ -460,7 +463,7 @@ def register_tools(mcp, api_client):
         """
         endpoint = f"organization/{org_id}/insights/{insight_id}/dismiss/"
 
-        data = {}
+        data: dict[str, object] = {}
         if reason:
             data["reason"] = reason
 
