@@ -1,7 +1,7 @@
 """HTTP client for Allstacks API communication"""
 
 import json
-from typing import Dict, Optional, Tuple
+from typing import Any, Dict, Optional, Tuple
 
 import httpx
 
@@ -23,6 +23,7 @@ class AllstacksAPIClient:
         password: Optional[str] = None,
         base_url: str = "https://app.allstacks.com/api/v1/",
         token: Optional[str] = None,
+        openapi_schema_url: Optional[str] = None,
     ):
         """Initialize the Allstacks API client with authentication credentials.
 
@@ -31,6 +32,7 @@ class AllstacksAPIClient:
             password: Password for HTTP Basic auth (requires username).
             base_url: Base URL for the Allstacks API.
             token: Personal Access Token for Bearer auth (mutually exclusive with username/password).
+            openapi_schema_url: Absolute URL for the published OpenAPI schema.
 
         Raises:
             ValueError: If both auth modes are provided or neither is provided.
@@ -44,6 +46,7 @@ class AllstacksAPIClient:
         self.password = password
         self.token = token
         self.base_url = base_url.rstrip("/")
+        self.openapi_schema_url = openapi_schema_url or f"{self.base_url}/schema/"
 
         self.auth: Optional[Tuple[str, str]] = (
             (username, password) if token is None else None
@@ -63,10 +66,28 @@ class AllstacksAPIClient:
         data: Dict = None,
         timeout_seconds: float = 30.0,
         expect_json: bool = True,
-    ) -> Dict:
+    ) -> Any:
         """Make an async HTTP request to the Allstacks API"""
         url = f"{self.base_url}/{endpoint.lstrip('/')}"
+        return await self.request_url(
+            method,
+            url,
+            params=params,
+            data=data,
+            timeout_seconds=timeout_seconds,
+            expect_json=expect_json,
+        )
 
+    async def request_url(
+        self,
+        method: str,
+        url: str,
+        params: Dict = None,
+        data: Dict = None,
+        timeout_seconds: float = 30.0,
+        expect_json: bool = True,
+    ) -> Any:
+        """Make an async HTTP request to an absolute Allstacks API URL"""
         async with httpx.AsyncClient(timeout=timeout_seconds) as client:
             try:
                 response = await client.request(
@@ -103,3 +124,7 @@ class AllstacksAPIClient:
                     "status_code": None,
                     "message": f"Request failed: {str(e)}",
                 }
+
+    async def get_openapi_schema(self) -> Any:
+        """Fetch the published OpenAPI schema with the configured authentication."""
+        return await self.request_url("GET", self.openapi_schema_url)

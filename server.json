@@ -2,7 +2,7 @@
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-10-17/server.schema.json",
   "name": "com.allstacks/allstacks-mcp",
   "title": "Allstacks Analytics MCP Server",
-  "description": "Provides 194+ tools for AI-native engineering intelligence via Allstacks API. Supports Bearer token (PAT) or HTTP Basic authentication.",
+  "description": "Provides 189 tools and 2 resources for AI-native engineering intelligence via Allstacks API. Supports Bearer token (PAT) or HTTP Basic authentication.",
   "version": "0.1.4",
   "homepage": "https://github.com/allstacks/allstacks-mcp",
   "license": "MIT",

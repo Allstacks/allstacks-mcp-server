@@ -81,6 +81,28 @@ class ClientErrorHandlingTests(unittest.TestCase):
         result = _run(client.request("GET", "good/"))
         self.assertEqual(result, {"ok": True})
 
+    def test_default_openapi_schema_url_uses_api_schema_route(self):
+        client = AllstacksAPIClient("u", "p", "https://example.test/api/v1/")
+        self.assertEqual(
+            client.openapi_schema_url,
+            "https://example.test/api/v1/schema/",
+        )
+
+    def test_get_openapi_schema_uses_configured_absolute_url(self):
+        seen_urls = []
+
+        def handler(request: httpx.Request) -> httpx.Response:
+            seen_urls.append(str(request.url))
+            return httpx.Response(200, json={"openapi": "3.0.3"})
+
+        client = self._build_client(httpx.MockTransport(handler))
+        client.openapi_schema_url = "https://docs.example.test/openapi.json"
+
+        result = _run(client.get_openapi_schema())
+
+        self.assertEqual(result, {"openapi": "3.0.3"})
+        self.assertEqual(seen_urls, ["https://docs.example.test/openapi.json"])
+
     def test_request_error_returns_none_status_code(self):
         """Transport-layer failures surface as a structured error with status_code=None."""
 

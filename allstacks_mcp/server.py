@@ -2,8 +2,8 @@
 """
 Allstacks MCP Server - AI-ready interface to Allstacks API
 
-This modular MCP server provides 194+ tools across 12 categories for interacting
-with the Allstacks API using HTTP Basic Authentication.
+This modular MCP server provides 189 tools, including API discovery, for
+interacting with the Allstacks API using HTTP Basic Authentication.
 """
 
 import argparse
@@ -23,6 +23,7 @@ from .tools import (
     alerts,
     work_bundles,
     risk_management,
+    discovery,
 )
 
 # Shown in initialize.instructions for connected clients (token cost per turn).
@@ -49,7 +50,9 @@ MCP_SERVER_INSTRUCTIONS = (
     "inner config shape. (4) Dashboards — list_org_dashboards, "
     "get_org_dashboard, list_dashboard_widgets. (5) AI insights — list_ai_reports "
     "as appropriate. "
-    "Errors may appear as JSON with error/status_code instead of exceptions."
+    "Errors may appear as JSON with error/status_code instead of exceptions. "
+    "For API discovery, use list_tool_categories for a compact domain map and "
+    "get_openapi_schema or the allstacks://openapi resource for the live schema."
 )
 
 # Initialize FastMCP server
@@ -61,6 +64,7 @@ api_client = None
 
 def register_all_tools():
     """Register all tool modules with the MCP server"""
+    discovery.register_tools(mcp, api_client)
     metrics.register_tools(mcp, api_client)
     service_items.register_tools(mcp, api_client)
     users_teams.register_tools(mcp, api_client)
@@ -103,6 +107,14 @@ def main():
         default="https://app.allstacks.com/api/v1/",
         help="Base URL for the API (default: https://app.allstacks.com/api/v1/)",
     )
+    parser.add_argument(
+        "--openapi-schema-url",
+        default=None,
+        help=(
+            "Absolute URL for the published OpenAPI schema "
+            "(default: <base-url>/schema/)"
+        ),
+    )
 
     # Parse arguments
     args = parser.parse_args()
@@ -113,9 +125,18 @@ def main():
         parser.error("must provide --token, or both --username and --password")
 
     if args.token:
-        api_client = AllstacksAPIClient(base_url=args.base_url, token=args.token)
+        api_client = AllstacksAPIClient(
+            base_url=args.base_url,
+            token=args.token,
+            openapi_schema_url=args.openapi_schema_url,
+        )
     else:
-        api_client = AllstacksAPIClient(args.username, args.password, args.base_url)
+        api_client = AllstacksAPIClient(
+            args.username,
+            args.password,
+            args.base_url,
+            openapi_schema_url=args.openapi_schema_url,
+        )
 
     # Register all tools from the various modules
     register_all_tools()
