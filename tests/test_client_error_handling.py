@@ -31,7 +31,7 @@ class ClientErrorHandlingTests(unittest.TestCase):
             return original(*args, **kwargs)
 
         self._async_client_patch = original
-        httpx.AsyncClient = _factory  # type: ignore[assignment]
+        httpx.AsyncClient = _factory  # type: ignore[assignment,misc]
         self.addCleanup(self._restore_async_client)
         return client
 
@@ -80,6 +80,49 @@ class ClientErrorHandlingTests(unittest.TestCase):
         client = self._build_client(httpx.MockTransport(handler))
         result = _run(client.request("GET", "good/"))
         self.assertEqual(result, {"ok": True})
+
+    def test_request_text_defaults_to_pretty_json(self):
+        def handler(request: httpx.Request) -> httpx.Response:
+            return httpx.Response(200, json={"results": [{"id": 1, "name": "Alpha"}]})
+
+        client = self._build_client(httpx.MockTransport(handler))
+        result = _run(client.request_text("GET", "good/"))
+        self.assertEqual(
+            result,
+            '{\n  "results": [\n    {\n      "id": 1,\n      "name": "Alpha"\n    }\n  ]\n}',
+        )
+
+    def test_request_text_can_return_toon(self):
+        def handler(request: httpx.Request) -> httpx.Response:
+            return httpx.Response(
+                200,
+                json={
+                    "results": [
+                        {"id": 1, "name": "Alpha"},
+                        {"id": 2, "name": "Beta"},
+                    ]
+                },
+            )
+
+        client = self._build_client(httpx.MockTransport(handler))
+        result = _run(client.request_text("GET", "good/", response_format="toon"))
+        self.assertEqual(result, "results[2]{id,name}:\n1,Alpha\n2,Beta")
+
+    def test_request_text_rejects_unknown_format(self):
+        def handler(request: httpx.Request) -> httpx.Response:
+            return httpx.Response(200, json={"ok": True})
+
+        client = self._build_client(httpx.MockTransport(handler))
+        result = _run(client.request_text("GET", "good/", response_format="xml"))
+        self.assertIn("Unsupported response_format", result)
+
+    def test_request_text_rejects_non_string_format(self):
+        def handler(request: httpx.Request) -> httpx.Response:
+            return httpx.Response(200, json={"ok": True})
+
+        client = self._build_client(httpx.MockTransport(handler))
+        result = _run(client.request_text("GET", "good/", response_format=123))
+        self.assertIn("Unsupported response_format", result)
 
     def test_request_error_returns_none_status_code(self):
         """Transport-layer failures surface as a structured error with status_code=None."""

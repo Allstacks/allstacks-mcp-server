@@ -16,6 +16,7 @@ def register_tools(mcp, api_client):
         service_item_ids: Optional[str] = None,
         confidence_level: int = 80,
         time_zone: str = "UTC",
+        response_format: str = "json",
     ) -> str:
         """
         Get v3 forecast data for work items with probability distributions.
@@ -30,20 +31,25 @@ def register_tools(mcp, api_client):
             service_item_ids: Optional comma-separated service item IDs to forecast
             confidence_level: Confidence percentage (50-95) (default: 80)
             time_zone: Timezone string (default: UTC)
+            response_format: Output encoding: json (default) or toon
 
         Returns:
-            JSON with forecast completion dates, probability distributions, and confidence intervals
+            Forecast completion dates, probability distributions, and confidence intervals
         """
         endpoint = f"forecasting/{project_id}/v3/"
 
-        params = {"confidence_level": confidence_level, "time_zone": time_zone}
+        params: dict[str, object] = {
+            "confidence_level": confidence_level,
+            "time_zone": time_zone,
+        }
         if work_bundle_ids:
             params["work_bundle_ids[]"] = work_bundle_ids.split(",")
         if service_item_ids:
             params["service_item_ids[]"] = service_item_ids.split(",")
 
-        result = await api_client.request("GET", endpoint, params=params)
-        return json.dumps(result, indent=2)
+        return await api_client.request_text(
+            "GET", endpoint, params=params, response_format=response_format
+        )
 
     @mcp.tool()
     async def get_forecasting_config(project_id: int) -> str:
@@ -114,6 +120,7 @@ def register_tools(mcp, api_client):
         service_item_id: Optional[int] = None,
         limit: int = 100,
         offset: int = 0,
+        response_format: str = "json",
     ) -> str:
         """
         Get historical forecasting data to track forecast accuracy over time.
@@ -126,20 +133,22 @@ def register_tools(mcp, api_client):
             service_item_id: Optional service item ID to filter history
             limit: Number of results per page (default: 100)
             offset: Pagination offset (default: 0)
+            response_format: Output encoding: json (default) or toon
 
         Returns:
-            JSON array of historical forecast snapshots
+            Historical forecast snapshots
         """
         endpoint = f"forecasting/{project_id}/history/"
 
-        params = {"limit": limit, "offset": offset}
+        params: dict[str, object] = {"limit": limit, "offset": offset}
         if work_bundle_id:
             params["work_bundle_id"] = work_bundle_id
         if service_item_id:
             params["service_item_id"] = service_item_id
 
-        result = await api_client.request("GET", endpoint, params=params)
-        return json.dumps(result, indent=2)
+        return await api_client.request_text(
+            "GET", endpoint, params=params, response_format=response_format
+        )
 
     @mcp.tool()
     async def analyze_chart_data(data: JsonInput, analysis_type: str = "trends") -> str:
@@ -162,7 +171,10 @@ def register_tools(mcp, api_client):
         except ValueError as e:
             return json.dumps({"error": str(e)})
 
-        request_data = {"data": data_dict, "analysis_type": analysis_type}
+        request_data: dict[str, object] = {
+            "data": data_dict,
+            "analysis_type": analysis_type,
+        }
 
         result = await api_client.request("POST", endpoint, data=request_data)
         return json.dumps(result, indent=2)
@@ -183,14 +195,18 @@ def register_tools(mcp, api_client):
         """
         endpoint = "charts/analysis/"
 
-        data = {"chart_id": chart_id, "project_id": project_id}
+        data: dict[str, object] = {"chart_id": chart_id, "project_id": project_id}
 
         result = await api_client.request("POST", endpoint, data=data)
         return json.dumps(result, indent=2)
 
     @mcp.tool()
     async def get_capacity_planning(
-        org_id: int, start_date: str, end_date: str, project_ids: Optional[str] = None
+        org_id: int,
+        start_date: str,
+        end_date: str,
+        project_ids: Optional[str] = None,
+        response_format: str = "json",
     ) -> str:
         """
         Get resource capacity planning data across projects.
@@ -202,18 +218,20 @@ def register_tools(mcp, api_client):
             start_date: Start date for capacity planning (ISO format)
             end_date: End date for capacity planning (ISO format)
             project_ids: Optional comma-separated project IDs to include
+            response_format: Output encoding: json (default) or toon
 
         Returns:
-            JSON with capacity allocation and availability
+            Capacity allocation and availability
         """
         endpoint = f"organization/{org_id}/forecasting/capacity/"
 
-        params = {"start_date": start_date, "end_date": end_date}
+        params: dict[str, object] = {"start_date": start_date, "end_date": end_date}
         if project_ids:
             params["project_ids[]"] = project_ids.split(",")
 
-        result = await api_client.request("GET", endpoint, params=params)
-        return json.dumps(result, indent=2)
+        return await api_client.request_text(
+            "GET", endpoint, params=params, response_format=response_format
+        )
 
     @mcp.tool()
     async def get_scenario_analysis(
@@ -243,7 +261,10 @@ def register_tools(mcp, api_client):
         if not isinstance(scenarios_list, list):
             return json.dumps({"error": "scenarios must be a JSON array"})
 
-        data = {"work_bundle_ids": work_bundle_ids, "scenarios": scenarios_list}
+        data: dict[str, object] = {
+            "work_bundle_ids": work_bundle_ids,
+            "scenarios": scenarios_list,
+        }
 
         result = await api_client.request("POST", endpoint, data=data)
         return json.dumps(result, indent=2)

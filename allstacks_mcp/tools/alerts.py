@@ -20,6 +20,7 @@ def register_tools(mcp, api_client):
         ordering: Optional[str] = None,
         limit: int = 100,
         offset: int = 0,
+        response_format: str = "json",
     ) -> str:
         """
         List all alert rules configured for the organization or project.
@@ -35,21 +36,23 @@ def register_tools(mcp, api_client):
             ordering: Optional ordering field
             limit: Number of results per page (default: 100)
             offset: Pagination offset (default: 0)
+            response_format: Output encoding: json (default) or toon
 
         Returns:
-            JSON array of alert rules with conditions and actions
+            Alert rules with conditions and actions
         """
         endpoint = f"organization/{org_id}/alert_rules/"
 
-        params = {"limit": limit, "offset": offset}
+        params: dict[str, object] = {"limit": limit, "offset": offset}
 
         if project_id:
             params["project_id"] = project_id
         if ordering:
             params["ordering"] = ordering
 
-        result = await api_client.request("GET", endpoint, params=params)
-        return json.dumps(result, indent=2)
+        return await api_client.request_text(
+            "GET", endpoint, params=params, response_format=response_format
+        )
 
     @mcp.tool()
     async def create_alert_rule(
@@ -83,7 +86,7 @@ def register_tools(mcp, api_client):
         except ValueError as e:
             return json.dumps({"error": str(e)})
 
-        data = {
+        data: dict[str, object] = {
             "name": name,
             "condition": condition_dict,
             "alert_type": alert_type,
@@ -171,6 +174,7 @@ def register_tools(mcp, api_client):
         end_date: Optional[str] = None,
         limit: int = 100,
         offset: int = 0,
+        response_format: str = "json",
     ) -> str:
         """
         Get historical alert data and trigger events.
@@ -184,13 +188,14 @@ def register_tools(mcp, api_client):
             end_date: Optional end date filter (ISO format)
             limit: Number of results per page (default: 100)
             offset: Pagination offset (default: 0)
+            response_format: Output encoding: json (default) or toon
 
         Returns:
-            JSON array of historical alert events
+            Historical alert events
         """
         endpoint = f"organization/{org_id}/alerts/history/"
 
-        params = {"limit": limit, "offset": offset}
+        params: dict[str, object] = {"limit": limit, "offset": offset}
 
         if rule_id:
             params["rule_id"] = rule_id
@@ -199,8 +204,9 @@ def register_tools(mcp, api_client):
         if end_date:
             params["end_date"] = end_date
 
-        result = await api_client.request("GET", endpoint, params=params)
-        return json.dumps(result, indent=2)
+        return await api_client.request_text(
+            "GET", endpoint, params=params, response_format=response_format
+        )
 
     @mcp.tool()
     async def acknowledge_alert(
@@ -221,7 +227,7 @@ def register_tools(mcp, api_client):
         """
         endpoint = f"organization/{org_id}/alerts/{alert_id}/acknowledge/"
 
-        data = {}
+        data: dict[str, object] = {}
         if note:
             data["note"] = note
 
@@ -247,7 +253,7 @@ def register_tools(mcp, api_client):
         """
         endpoint = f"organization/{org_id}/alerts/{alert_id}/resolve/"
 
-        data = {}
+        data: dict[str, object] = {}
         if resolution:
             data["resolution"] = resolution
 
@@ -308,7 +314,9 @@ def register_tools(mcp, api_client):
 
     @mcp.tool()
     async def list_alert_subscriptions(
-        org_id: int, user_id: Optional[int] = None
+        org_id: int,
+        user_id: Optional[int] = None,
+        response_format: str = "json",
     ) -> str:
         """
         List alert subscriptions for users.
@@ -318,18 +326,20 @@ def register_tools(mcp, api_client):
         Args:
             org_id: Organization identifier
             user_id: Optional filter by specific user
+            response_format: Output encoding: json (default) or toon
 
         Returns:
-            JSON array of alert subscriptions
+            Alert subscriptions
         """
         endpoint = f"organization/{org_id}/alert_subscriptions/"
 
-        params = {}
+        params: dict[str, object] = {}
         if user_id:
             params["user_id"] = user_id
 
-        result = await api_client.request("GET", endpoint, params=params)
-        return json.dumps(result, indent=2)
+        return await api_client.request_text(
+            "GET", endpoint, params=params, response_format=response_format
+        )
 
     @mcp.tool()
     async def subscribe_to_alert(
@@ -360,7 +370,11 @@ def register_tools(mcp, api_client):
         ):
             return json.dumps({"error": "channels must be a JSON array of strings"})
 
-        data = {"rule_id": rule_id, "user_id": user_id, "channels": channels_list}
+        data: dict[str, object] = {
+            "rule_id": rule_id,
+            "user_id": user_id,
+            "channels": channels_list,
+        }
 
         result = await api_client.request("POST", endpoint, data=data)
         return json.dumps(result, indent=2)

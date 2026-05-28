@@ -28,7 +28,7 @@ def register_tools(mcp, api_client):
         """
         endpoint = f"employee/{project_id}/metrics/"
 
-        params = {"item_id": item_id}
+        params: dict[str, object] = {"item_id": item_id}
 
         result = await api_client.request("GET", endpoint, params=params)
         return json.dumps(result, indent=2)
@@ -49,14 +49,16 @@ def register_tools(mcp, api_client):
         """
         endpoint = f"employee/{project_id}/periods/"
 
-        params = {"item_id": item_id}
+        params: dict[str, object] = {"item_id": item_id}
 
         result = await api_client.request("GET", endpoint, params=params)
         return json.dumps(result, indent=2)
 
     @mcp.tool()
     async def list_project_employees(
-        project_id: int, include_disabled_users: int = 0
+        project_id: int,
+        include_disabled_users: int = 0,
+        response_format: str = "json",
     ) -> str:
         """
         Retrieve a list of employees (service users) for a specific project with their
@@ -67,9 +69,10 @@ def register_tools(mcp, api_client):
         Args:
             project_id: Project identifier
             include_disabled_users: Include disabled users in results (0 = no, 1 = yes) (default: 0)
+            response_format: Output encoding: json (default) or toon
 
         Returns:
-            JSON array of employees with:
+            Employees with:
             - Employee ID, name, and email
             - Cohort leadership status (has children)
             - Service count (number of services assigned)
@@ -77,10 +80,11 @@ def register_tools(mcp, api_client):
         """
         endpoint = f"employee/{project_id}/users/"
 
-        params = {"include_disabled_users": include_disabled_users}
+        params: dict[str, object] = {"include_disabled_users": include_disabled_users}
 
-        result = await api_client.request("GET", endpoint, params=params)
-        return json.dumps(result, indent=2)
+        return await api_client.request_text(
+            "GET", endpoint, params=params, response_format=response_format
+        )
 
     @mcp.tool()
     async def get_employee_cohort_data(
@@ -90,6 +94,7 @@ def register_tools(mcp, api_client):
         start_date: Optional[int] = None,
         end_date: Optional[int] = None,
         time_zone: str = "UTC",
+        response_format: str = "json",
     ) -> str:
         """
         Get cohort comparison data for an employee metric.
@@ -105,20 +110,22 @@ def register_tools(mcp, api_client):
             start_date: Optional unix timestamp in milliseconds
             end_date: Optional unix timestamp in milliseconds
             time_zone: Timezone string (default: UTC)
+            response_format: Output encoding: json (default) or toon
 
         Returns:
-            JSON with cohort comparison data
+            Cohort comparison data
         """
         endpoint = f"employee/{project_id}/cohort/{item_id}/{metric_type}"
 
-        params = {"time_zone": time_zone}
+        params: dict[str, object] = {"time_zone": time_zone}
         if start_date:
             params["start_date"] = start_date
         if end_date:
             params["end_date"] = end_date
 
-        result = await api_client.request("GET", endpoint, params=params)
-        return json.dumps(result, indent=2)
+        return await api_client.request_text(
+            "GET", endpoint, params=params, response_format=response_format
+        )
 
     @mcp.tool()
     async def get_employee_metric_data(
@@ -129,6 +136,7 @@ def register_tools(mcp, api_client):
         end_date: Optional[int] = None,
         time_zone: str = "UTC",
         grouping: Optional[str] = None,
+        response_format: str = "json",
     ) -> str:
         """
         Get detailed metric data for a specific employee.
@@ -143,13 +151,14 @@ def register_tools(mcp, api_client):
             end_date: Optional unix timestamp in milliseconds
             time_zone: Timezone string (default: UTC)
             grouping: Optional grouping parameter
+            response_format: Output encoding: json (default) or toon
 
         Returns:
-            JSON with employee metric time series data
+            Employee metric time series data
         """
         endpoint = f"employee/{project_id}/metric/{item_id}/{metric_type}"
 
-        params = {"time_zone": time_zone}
+        params: dict[str, object] = {"time_zone": time_zone}
         if start_date:
             params["start_date"] = start_date
         if end_date:
@@ -157,8 +166,9 @@ def register_tools(mcp, api_client):
         if grouping:
             params["grouping"] = grouping
 
-        result = await api_client.request("GET", endpoint, params=params)
-        return json.dumps(result, indent=2)
+        return await api_client.request_text(
+            "GET", endpoint, params=params, response_format=response_format
+        )
 
     @mcp.tool()
     async def get_employee_work_items(
@@ -169,6 +179,7 @@ def register_tools(mcp, api_client):
         time_zone: str = "UTC",
         limit: int = 100,
         offset: int = 0,
+        response_format: str = "json",
     ) -> str:
         """
         Get work items (cards, commits, PRs) associated with an employee.
@@ -183,20 +194,26 @@ def register_tools(mcp, api_client):
             time_zone: Timezone string (default: UTC)
             limit: Number of results per page (default: 100)
             offset: Pagination offset (default: 0)
+            response_format: Output encoding: json (default) or toon
 
         Returns:
-            JSON array of work items with details
+            Work items with details
         """
         endpoint = f"employee/{project_id}/work_items/{item_id}"
 
-        params = {"time_zone": time_zone, "limit": limit, "offset": offset}
+        params: dict[str, object] = {
+            "time_zone": time_zone,
+            "limit": limit,
+            "offset": offset,
+        }
         if start_date:
             params["start_date"] = start_date
         if end_date:
             params["end_date"] = end_date
 
-        result = await api_client.request("GET", endpoint, params=params)
-        return json.dumps(result, indent=2)
+        return await api_client.request_text(
+            "GET", endpoint, params=params, response_format=response_format
+        )
 
     @mcp.tool()
     async def get_employee_timeline(
@@ -205,6 +222,7 @@ def register_tools(mcp, api_client):
         start_date: Optional[int] = None,
         end_date: Optional[int] = None,
         time_zone: str = "UTC",
+        response_format: str = "json",
     ) -> str:
         """
         Get timeline of activities for an employee.
@@ -217,20 +235,22 @@ def register_tools(mcp, api_client):
             start_date: Optional unix timestamp in milliseconds
             end_date: Optional unix timestamp in milliseconds
             time_zone: Timezone string (default: UTC)
+            response_format: Output encoding: json (default) or toon
 
         Returns:
-            JSON with timeline events
+            Timeline events
         """
         endpoint = f"employee/{project_id}/timeline/{item_id}"
 
-        params = {"time_zone": time_zone}
+        params: dict[str, object] = {"time_zone": time_zone}
         if start_date:
             params["start_date"] = start_date
         if end_date:
             params["end_date"] = end_date
 
-        result = await api_client.request("GET", endpoint, params=params)
-        return json.dumps(result, indent=2)
+        return await api_client.request_text(
+            "GET", endpoint, params=params, response_format=response_format
+        )
 
     @mcp.tool()
     async def get_employee_summary(
@@ -257,7 +277,7 @@ def register_tools(mcp, api_client):
         """
         endpoint = f"employee/{project_id}/summary/{item_id}"
 
-        params = {"time_zone": time_zone}
+        params: dict[str, object] = {"time_zone": time_zone}
         if start_date:
             params["start_date"] = start_date
         if end_date:
