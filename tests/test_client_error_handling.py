@@ -89,10 +89,10 @@ class ClientErrorHandlingTests(unittest.TestCase):
         )
 
     def test_get_openapi_schema_uses_configured_absolute_url(self):
-        seen_urls = []
+        seen_requests = []
 
         def handler(request: httpx.Request) -> httpx.Response:
-            seen_urls.append(str(request.url))
+            seen_requests.append(request)
             return httpx.Response(200, json={"openapi": "3.0.3"})
 
         client = self._build_client(httpx.MockTransport(handler))
@@ -101,7 +101,29 @@ class ClientErrorHandlingTests(unittest.TestCase):
         result = _run(client.get_openapi_schema())
 
         self.assertEqual(result, {"openapi": "3.0.3"})
-        self.assertEqual(seen_urls, ["https://docs.example.test/openapi.json"])
+        self.assertEqual(
+            [str(request.url) for request in seen_requests],
+            ["https://docs.example.test/openapi.json"],
+        )
+        self.assertNotIn("authorization", seen_requests[0].headers)
+
+    def test_get_openapi_schema_sends_auth_for_same_origin_schema(self):
+        seen_requests = []
+
+        def handler(request: httpx.Request) -> httpx.Response:
+            seen_requests.append(request)
+            return httpx.Response(200, json={"openapi": "3.0.3"})
+
+        client = self._build_client(httpx.MockTransport(handler))
+
+        result = _run(client.get_openapi_schema())
+
+        self.assertEqual(result, {"openapi": "3.0.3"})
+        self.assertEqual(
+            [str(request.url) for request in seen_requests],
+            ["https://example.test/api/v1/schema/"],
+        )
+        self.assertIn("authorization", seen_requests[0].headers)
 
     def test_request_error_returns_none_status_code(self):
         """Transport-layer failures surface as a structured error with status_code=None."""

@@ -2,6 +2,7 @@
 
 import json
 from typing import Any, Dict, Optional, Tuple
+from urllib.parse import urlsplit
 
 import httpx
 
@@ -96,15 +97,23 @@ class AllstacksAPIClient:
         data: Dict = None,
         timeout_seconds: float = 30.0,
         expect_json: bool = True,
+        include_auth: bool = True,
     ) -> Any:
         """Make an async HTTP request to an absolute Allstacks API URL"""
+        headers = self.headers
+        if not include_auth:
+            headers = {
+                "Content-Type": "application/json",
+                "Accept": "application/json",
+            }
+
         async with httpx.AsyncClient(timeout=timeout_seconds) as client:
             try:
                 response = await client.request(
                     method=method,
                     url=url,
-                    auth=self.auth,
-                    headers=self.headers,
+                    auth=self.auth if include_auth else None,
+                    headers=headers,
                     params=params,
                     json=data,
                 )
@@ -139,7 +148,14 @@ class AllstacksAPIClient:
 
     async def get_openapi_schema(self) -> Any:
         """Fetch the published OpenAPI schema with the configured authentication."""
-        return await self.request_url("GET", self.openapi_schema_url)
+        base = urlsplit(self.base_url)
+        schema = urlsplit(self.openapi_schema_url)
+        same_origin = (base.scheme, base.netloc) == (schema.scheme, schema.netloc)
+        return await self.request_url(
+            "GET",
+            self.openapi_schema_url,
+            include_auth=same_origin,
+        )
 
     async def _scan_and_return(self, result: Any) -> Any:
         """Run PromptGuard scanning on a successful response."""

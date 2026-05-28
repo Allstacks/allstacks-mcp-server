@@ -3,7 +3,7 @@
 Allstacks MCP Server - AI-ready interface to Allstacks API
 
 This modular MCP server provides 189 tools, including API discovery, for
-interacting with the Allstacks API using HTTP Basic Authentication.
+interacting with the Allstacks API using HTTP Basic or Bearer token authentication.
 """
 
 import argparse
