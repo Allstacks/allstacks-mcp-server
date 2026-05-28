@@ -15,6 +15,7 @@ def register_tools(mcp, api_client):
         ordering: Optional[str] = None,
         limit: int = 100,
         offset: int = 0,
+        response_format: str = "json",
     ) -> str:
         """
         List service items (work items, commits, pull requests, etc.) with comprehensive filtering.
@@ -29,9 +30,10 @@ def register_tools(mcp, api_client):
             ordering: Optional ordering field
             limit: Number of results to return per page (default: 100)
             offset: Pagination offset (default: 0)
+            response_format: Output encoding: json (default) or toon
 
         Returns:
-            JSON array of service items with metadata
+            Service items with metadata
         """
         endpoint = "service_items/service_item/"
 
@@ -42,8 +44,9 @@ def register_tools(mcp, api_client):
         if ordering:
             params["ordering"] = ordering
 
-        result = await api_client.request("GET", endpoint, params=params)
-        return json.dumps(result, indent=2)
+        return await api_client.request_text(
+            "GET", endpoint, params=params, response_format=response_format
+        )
 
     @mcp.tool()
     async def get_service_item_property_keys(item_type: str) -> str:
@@ -67,7 +70,11 @@ def register_tools(mcp, api_client):
 
     @mcp.tool()
     async def get_service_items_for_metric(
-        metric: str, ordering: Optional[str] = None, limit: int = 100, offset: int = 0
+        metric: str,
+        ordering: Optional[str] = None,
+        limit: int = 100,
+        offset: int = 0,
+        response_format: str = "json",
     ) -> str:
         """
         Get service items for use on metric pages with metric-specific context.
@@ -79,9 +86,10 @@ def register_tools(mcp, api_client):
             ordering: Optional ordering field
             limit: Number of results per page
             offset: Pagination offset
+            response_format: Output encoding: json (default) or toon
 
         Returns:
-            JSON array of service items relevant to the metric
+            Service items relevant to the metric
         """
         endpoint = f"service_items/{metric}/"
 
@@ -90,8 +98,9 @@ def register_tools(mcp, api_client):
         if ordering:
             params["ordering"] = ordering
 
-        result = await api_client.request("GET", endpoint, params=params)
-        return json.dumps(result, indent=2)
+        return await api_client.request_text(
+            "GET", endpoint, params=params, response_format=response_format
+        )
 
     @mcp.tool()
     async def get_parent_service_items(
@@ -109,6 +118,7 @@ def register_tools(mcp, api_client):
         pin_filter: Optional[int] = None,
         estimation_method_override: Optional[str] = None,
         fields: Optional[str] = None,
+        response_format: str = "json",
     ) -> str:
         """
         Return parent service items (epics, milestones, features) for a project with detailed metadata.
@@ -138,9 +148,10 @@ def register_tools(mcp, api_client):
                     risk_count, risks, scope_creep_percentage, scope_time_series, scope_trend,
                     service_item_count, state, team_priority, total_work, unestimated_item_ids,
                     unestimated_work, url, velocity, notes, velocity_time_series, velocity_trend)
+            response_format: Output encoding: json (default) or toon
 
         Returns:
-            JSON with service_item_count and list of parent service items with requested fields
+            Service item count and list of parent service items with requested fields
         """
         endpoint = f"project/{project_id}/parent_service_items/"
 
@@ -173,8 +184,9 @@ def register_tools(mcp, api_client):
             # Convert comma-separated fields to array format
             params["fields[]"] = fields.split(",")
 
-        result = await api_client.request("GET", endpoint, params=params)
-        return json.dumps(result, indent=2)
+        return await api_client.request_text(
+            "GET", endpoint, params=params, response_format=response_format
+        )
 
     @mcp.tool()
     async def get_service_item_types(
@@ -207,6 +219,7 @@ def register_tools(mcp, api_client):
         service_item_limit: int = 3,
         group_limit: Optional[int] = None,
         group_offset: int = 0,
+        response_format: str = "json",
     ) -> str:
         """
         Return recent service items for a project by type-group-service combination.
@@ -218,9 +231,10 @@ def register_tools(mcp, api_client):
             service_item_limit: Number of items to return for each combination (default: 3)
             group_limit: Optional number of groups to return
             group_offset: Offset for groups (default: 0)
+            response_format: Output encoding: json (default) or toon
 
         Returns:
-            JSON with grouped service items
+            Grouped service items
         """
         endpoint = f"project/{project_id}/service_items/initial/"
 
@@ -232,8 +246,9 @@ def register_tools(mcp, api_client):
         if group_limit is not None:
             params["group_limit"] = group_limit
 
-        result = await api_client.request("GET", endpoint, params=params)
-        return json.dumps(result, indent=2)
+        return await api_client.request_text(
+            "GET", endpoint, params=params, response_format=response_format
+        )
 
     @mcp.tool()
     async def get_service_item_estimation_method(
@@ -339,6 +354,7 @@ def register_tools(mcp, api_client):
         versioned: bool = False,
         limit: int = 100,
         offset: int = 0,
+        response_format: str = "json",
     ) -> str:
         """
         Get available properties for service items for advanced filtering.
@@ -353,9 +369,10 @@ def register_tools(mcp, api_client):
             versioned: Include versioned properties (default: False)
             limit: Maximum results (default: 100)
             offset: Pagination offset (default: 0)
+            response_format: Output encoding: json (default) or toon
 
         Returns:
-            JSON array of available properties with metadata
+            Available properties with metadata
         """
         endpoint = f"project/{project_id}/item_props/"
 
@@ -371,8 +388,9 @@ def register_tools(mcp, api_client):
         if data_types:
             params["data_types[]"] = data_types.split(",")
 
-        result = await api_client.request("GET", endpoint, params=params)
-        return json.dumps(result, indent=2)
+        return await api_client.request_text(
+            "GET", endpoint, params=params, response_format=response_format
+        )
 
     @mcp.tool()
     async def get_item_props_by_type(project_id: int, item_type: str) -> str:

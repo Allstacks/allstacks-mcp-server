@@ -15,7 +15,11 @@ def register_tools(mcp, api_client):
 
     @mcp.tool()
     async def list_org_users(
-        org_id: int, ordering: Optional[str] = None, limit: int = 100, offset: int = 0
+        org_id: int,
+        ordering: Optional[str] = None,
+        limit: int = 100,
+        offset: int = 0,
+        response_format: str = "json",
     ) -> str:
         """
         List all users in the organization with their roles and permissions.
@@ -27,9 +31,10 @@ def register_tools(mcp, api_client):
             ordering: Optional ordering field
             limit: Number of results per page (default: 100)
             offset: Pagination offset (default: 0)
+            response_format: Output encoding: json (default) or toon
 
         Returns:
-            JSON array of organization users with roles and metadata
+            Organization users with roles and metadata
         """
         endpoint = f"organization/{org_id}/users/"
 
@@ -38,8 +43,9 @@ def register_tools(mcp, api_client):
         if ordering:
             params["ordering"] = ordering
 
-        result = await api_client.request("GET", endpoint, params=params)
-        return json.dumps(result, indent=2)
+        return await api_client.request_text(
+            "GET", endpoint, params=params, response_format=response_format
+        )
 
     @mcp.tool()
     async def get_org_user(org_id: int, user_id: int) -> str:
@@ -109,7 +115,11 @@ def register_tools(mcp, api_client):
 
     @mcp.tool()
     async def list_org_user_invites(
-        org_id: int, ordering: Optional[str] = None, limit: int = 100, offset: int = 0
+        org_id: int,
+        ordering: Optional[str] = None,
+        limit: int = 100,
+        offset: int = 0,
+        response_format: str = "json",
     ) -> str:
         """
         List pending user invites for the organization.
@@ -121,9 +131,10 @@ def register_tools(mcp, api_client):
             ordering: Optional ordering field
             limit: Number of results per page (default: 100)
             offset: Pagination offset (default: 0)
+            response_format: Output encoding: json (default) or toon
 
         Returns:
-            JSON array of pending invites
+            Pending invites
         """
         endpoint = f"organization/{org_id}/user_invites/"
 
@@ -132,8 +143,9 @@ def register_tools(mcp, api_client):
         if ordering:
             params["ordering"] = ordering
 
-        result = await api_client.request("GET", endpoint, params=params)
-        return json.dumps(result, indent=2)
+        return await api_client.request_text(
+            "GET", endpoint, params=params, response_format=response_format
+        )
 
     @mcp.tool()
     async def create_user_invite(
@@ -265,6 +277,7 @@ def register_tools(mcp, api_client):
         ordering: Optional[str] = None,
         limit: int = 100,
         offset: int = 0,
+        response_format: str = "json",
     ) -> str:
         """
         List users associated with a specific project.
@@ -291,9 +304,10 @@ def register_tools(mcp, api_client):
             ordering: Optional ordering field for sorting results
             limit: Number of results to return per page (default: 100)
             offset: The initial index from which to return the results (default: 0)
+            response_format: Output encoding: json (default) or toon
 
         Returns:
-            JSON array of project users with service details
+            Project users with service details
         """
         endpoint = f"project/{project_id}/users/"
 
@@ -302,8 +316,9 @@ def register_tools(mcp, api_client):
         if ordering:
             params["ordering"] = ordering
 
-        result = await api_client.request("GET", endpoint, params=params)
-        return json.dumps(result, indent=2)
+        return await api_client.request_text(
+            "GET", endpoint, params=params, response_format=response_format
+        )
 
     @mcp.tool()
     async def list_service_users_v2(
@@ -313,6 +328,7 @@ def register_tools(mcp, api_client):
         ordering: Optional[str] = None,
         limit: int = 100,
         offset: int = 0,
+        response_format: str = "json",
     ) -> str:
         """
         List service users with v2 endpoint providing enhanced data.
@@ -326,9 +342,10 @@ def register_tools(mcp, api_client):
             ordering: Optional ordering field
             limit: Number of results per page (default: 100)
             offset: Pagination offset (default: 0)
+            response_format: Output encoding: json (default) or toon
 
         Returns:
-            JSON array of service users with enhanced metadata
+            Service users with enhanced metadata
         """
         endpoint = f"project/{project_id}/service_users_v2/"
 
@@ -339,15 +356,16 @@ def register_tools(mcp, api_client):
         if ordering:
             params["ordering"] = ordering
 
-        result = await api_client.request("GET", endpoint, params=params)
-        return json.dumps(result, indent=2)
+        return await api_client.request_text(
+            "GET", endpoint, params=params, response_format=response_format
+        )
 
     # ============================================================================
     # Team Tags
     # ============================================================================
 
     @mcp.tool()
-    async def list_team_tags(project_id: int) -> str:
+    async def list_team_tags(project_id: int, response_format: str = "json") -> str:
         """
         Fetch all team tags for a project.
 
@@ -355,14 +373,16 @@ def register_tools(mcp, api_client):
 
         Args:
             project_id: Project identifier
+            response_format: Output encoding: json (default) or toon
 
         Returns:
-            JSON array of team tags
+            Team tags
         """
         endpoint = f"project/{project_id}/tag"
 
-        result = await api_client.request("GET", endpoint)
-        return json.dumps(result, indent=2)
+        return await api_client.request_text(
+            "GET", endpoint, response_format=response_format
+        )
 
     @mcp.tool()
     async def get_team_tag(project_id: int, tag_id: int) -> str:
@@ -439,7 +459,9 @@ def register_tools(mcp, api_client):
     # ============================================================================
 
     @mcp.tool()
-    async def list_personal_access_tokens(org_id: int) -> str:
+    async def list_personal_access_tokens(
+        org_id: int, response_format: str = "json"
+    ) -> str:
         """
         List all personal access tokens for the organization.
 
@@ -447,14 +469,16 @@ def register_tools(mcp, api_client):
 
         Args:
             org_id: Organization identifier
+            response_format: Output encoding: json (default) or toon
 
         Returns:
-            JSON array of personal access tokens
+            Personal access tokens
         """
         endpoint = f"organization/{org_id}/personal_access_tokens/"
 
-        result = await api_client.request("GET", endpoint)
-        return json.dumps(result, indent=2)
+        return await api_client.request_text(
+            "GET", endpoint, response_format=response_format
+        )
 
     @mcp.tool()
     async def create_personal_access_token(

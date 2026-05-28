@@ -11,7 +11,9 @@ def register_tools(mcp, api_client):
     """Register all metrics-related tools with the MCP server"""
 
     @mcp.tool()
-    async def list_metrics(project_id: Optional[int] = None) -> str:
+    async def list_metrics(
+        project_id: Optional[int] = None, response_format: str = "json"
+    ) -> str:
         """
         List all available metric types and their definitions.
 
@@ -20,17 +22,19 @@ def register_tools(mcp, api_client):
 
         Args:
             project_id: Optional project ID to filter metrics
+            response_format: Output encoding: json (default) or toon
 
         Returns:
-            JSON array of available metrics with descriptions
+            Available metrics with descriptions
         """
         endpoint = "metrics/"
         params = {}
         if project_id:
             params["project_id"] = project_id
 
-        result = await api_client.request("GET", endpoint, params=params)
-        return json.dumps(result, indent=2)
+        return await api_client.request_text(
+            "GET", endpoint, params=params, response_format=response_format
+        )
 
     @mcp.tool()
     async def get_metric_details(metric_id: int) -> str:
@@ -105,6 +109,7 @@ def register_tools(mcp, api_client):
         end_date: Optional[int] = None,
         aggregation: str = "sum",
         time_zone: str = "UTC",
+        response_format: str = "json",
     ) -> str:
         """
         Fetch Generated Metric Data Time Series (GMDTS) data - Main multi-dimension time series API.
@@ -130,6 +135,7 @@ def register_tools(mcp, api_client):
             end_date: Unix timestamp in milliseconds for end date
             aggregation: Aggregation method - avg, count, count_unique, min, max, sum (default: sum)
             time_zone: Timezone for date interpretation - pytz compatible (default: UTC)
+            response_format: Output encoding: json (default) or toon
 
         Additional query parameters can be passed via POST body:
         - service_ids: Array of service IDs to filter
@@ -143,7 +149,7 @@ def register_tools(mcp, api_client):
         - trailing_aggregation: Custom time string for trailing aggregation
 
         Returns:
-            JSON formatted time series data with dimensions and aggregated values
+            Time series data with dimensions and aggregated values
         """
         endpoint = f"project/{project_id}/generated_metric_data/{metric_type}"
 
@@ -164,8 +170,9 @@ def register_tools(mcp, api_client):
         if end_date:
             params["end_date"] = end_date
 
-        result = await api_client.request("GET", endpoint, params=params)
-        return json.dumps(result, indent=2)
+        return await api_client.request_text(
+            "GET", endpoint, params=params, response_format=response_format
+        )
 
     @mcp.tool()
     async def get_project_metrics_v2_data(
@@ -174,6 +181,7 @@ def register_tools(mcp, api_client):
         get_count_only: bool = False,
         variables: Optional[JsonInput] = None,
         use_cache: bool = True,
+        response_format: str = "json",
     ) -> str:
         """
         Fetch Metrics V2 data for a project (Work Item Table / Data Explorer).
@@ -197,9 +205,10 @@ def register_tools(mcp, api_client):
             get_count_only: If true, request only row count
             variables: Optional JSON string or object of variables for ``{{var}}`` substitution
             use_cache: Query param; false bypasses response cache
+            response_format: Output encoding: json (default) or toon
 
         Returns:
-            JSON string, or ``{"raw_body": "..."}`` for CSV
+            Encoded response string, or ``{"raw_body": "..."}`` JSON for CSV
         """
         endpoint = f"project/{project_id}/metrics_v2/metrics"
         params = {"use_cache": str(use_cache).lower()}
@@ -214,15 +223,15 @@ def register_tools(mcp, api_client):
             isinstance(inner_config, dict) and bool(inner_config.get("as_csv"))
         )
 
-        result = await api_client.request(
+        return await api_client.request_text(
             "POST",
             endpoint,
             params=params,
             data=body,
             timeout_seconds=120.0 if not expect_json else 60.0,
             expect_json=expect_json,
+            response_format=response_format,
         )
-        return json.dumps(result, indent=2)
 
     @mcp.tool()
     async def get_org_metrics_v2_data(
@@ -231,6 +240,7 @@ def register_tools(mcp, api_client):
         get_count_only: bool = False,
         variables: Optional[JsonInput] = None,
         use_cache: bool = True,
+        response_format: str = "json",
     ) -> str:
         """
         Fetch Metrics V2 data for an organization (cross-project scope).
@@ -245,9 +255,10 @@ def register_tools(mcp, api_client):
             get_count_only: If true, request only row count
             variables: Optional JSON string or object of variables dict
             use_cache: Query param; false bypasses cache
+            response_format: Output encoding: json (default) or toon
 
         Returns:
-            JSON string, or ``{"raw_body": "..."}`` for CSV
+            Encoded response string, or ``{"raw_body": "..."}`` JSON for CSV
         """
         endpoint = f"organization/{org_id}/metrics_v2/metrics"
         params = {"use_cache": str(use_cache).lower()}
@@ -262,15 +273,15 @@ def register_tools(mcp, api_client):
             isinstance(inner_config, dict) and bool(inner_config.get("as_csv"))
         )
 
-        result = await api_client.request(
+        return await api_client.request_text(
             "POST",
             endpoint,
             params=params,
             data=body,
             timeout_seconds=120.0 if not expect_json else 60.0,
             expect_json=expect_json,
+            response_format=response_format,
         )
-        return json.dumps(result, indent=2)
 
     @mcp.tool()
     async def get_org_metrics_v2_capitalization_data(
@@ -279,6 +290,7 @@ def register_tools(mcp, api_client):
         get_count_only: bool = False,
         variables: Optional[JsonInput] = None,
         use_cache: bool = True,
+        response_format: str = "json",
     ) -> str:
         """
         Fetch Metrics V2 capitalization query data for an organization (SOC 1 certified engine).
@@ -294,9 +306,10 @@ def register_tools(mcp, api_client):
             get_count_only: If true, request only row count
             variables: Optional JSON string or object of variables dict
             use_cache: Query param; false bypasses cache
+            response_format: Output encoding: json (default) or toon
 
         Returns:
-            JSON string, or ``{"raw_body": "..."}`` for CSV
+            Encoded response string, or ``{"raw_body": "..."}`` JSON for CSV
         """
         endpoint = f"organization/{org_id}/metrics_v2_capitalization/metrics"
         params = {"use_cache": str(use_cache).lower()}
@@ -311,15 +324,15 @@ def register_tools(mcp, api_client):
             isinstance(inner_config, dict) and bool(inner_config.get("as_csv"))
         )
 
-        result = await api_client.request(
+        return await api_client.request_text(
             "POST",
             endpoint,
             params=params,
             data=body,
             timeout_seconds=120.0 if not expect_json else 60.0,
             expect_json=expect_json,
+            response_format=response_format,
         )
-        return json.dumps(result, indent=2)
 
     @mcp.tool()
     async def get_metrics_v2_org_templates(org_id: int, tag: str) -> str:
@@ -446,7 +459,9 @@ def register_tools(mcp, api_client):
         return json.dumps(result, indent=2)
 
     @mcp.tool()
-    async def get_project_metrics_list(project_id: int) -> str:
+    async def get_project_metrics_list(
+        project_id: int, response_format: str = "json"
+    ) -> str:
         """
         Get list of available metrics for a project.
 
@@ -454,14 +469,16 @@ def register_tools(mcp, api_client):
 
         Args:
             project_id: Project identifier
+            response_format: Output encoding: json (default) or toon
 
         Returns:
-            JSON array of available metrics for the project
+            Available metrics for the project
         """
         endpoint = f"project/{project_id}/metrics/"
 
-        result = await api_client.request("GET", endpoint)
-        return json.dumps(result, indent=2)
+        return await api_client.request_text(
+            "GET", endpoint, response_format=response_format
+        )
 
     @mcp.tool()
     async def get_insight_configs(
@@ -502,6 +519,7 @@ def register_tools(mcp, api_client):
         start_date: Optional[int] = None,
         end_date: Optional[int] = None,
         time_zone: str = "UTC",
+        response_format: str = "json",
     ) -> str:
         """
         Get population-benchmark data for a metric type to compare against industry standards.
@@ -515,9 +533,10 @@ def register_tools(mcp, api_client):
             start_date: Optional unix timestamp in milliseconds - only supply data after this date (defaults to epoch)
             end_date: Optional unix timestamp in milliseconds - only supply data before this date (defaults to current time)
             time_zone: A pytz compatible timezone string (defaults to UTC)
+            response_format: Output encoding: json (default) or toon
 
         Returns:
-            JSON with data array containing aggregate_value fields and metadata
+            Population benchmark data containing aggregate_value fields and metadata
         """
         endpoint = f"population-benchmarks/metric/{metric_type}"
 
@@ -527,8 +546,9 @@ def register_tools(mcp, api_client):
         if end_date:
             params["end_date"] = end_date
 
-        result = await api_client.request("GET", endpoint, params=params)
-        return json.dumps(result, indent=2)
+        return await api_client.request_text(
+            "GET", endpoint, params=params, response_format=response_format
+        )
 
     @mcp.tool()
     async def get_company_metrics(org_id: int) -> str:

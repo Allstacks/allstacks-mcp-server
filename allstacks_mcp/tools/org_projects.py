@@ -14,7 +14,7 @@ def register_tools(mcp, api_client):
     # ============================================================================
 
     @mcp.tool()
-    async def list_organizations() -> str:
+    async def list_organizations(response_format: str = "json") -> str:
         """
         Return the current user's organization ("MyCompany" view).
 
@@ -25,13 +25,17 @@ def register_tools(mcp, api_client):
         the plural-sounding tool name. Use the returned ``id`` as the
         ``org_id`` argument for downstream tools.
 
+        Args:
+            response_format: Output encoding: json (default) or toon
+
         Returns:
-            JSON describing the current user's organization
+            Current user's organization
         """
         endpoint = "organization/"
 
-        result = await api_client.request("GET", endpoint)
-        return json.dumps(result, indent=2)
+        return await api_client.request_text(
+            "GET", endpoint, response_format=response_format
+        )
 
     @mcp.tool()
     async def get_organization(org_id: int) -> str:
@@ -118,7 +122,11 @@ def register_tools(mcp, api_client):
         return json.dumps(result, indent=2)
 
     @mcp.tool()
-    async def get_employee_list(org_id: int, include_disabled_users: int = 0) -> str:
+    async def get_employee_list(
+        org_id: int,
+        include_disabled_users: int = 0,
+        response_format: str = "json",
+    ) -> str:
         """
         List employees in the organization with filtering options.
 
@@ -127,19 +135,26 @@ def register_tools(mcp, api_client):
         Args:
             org_id: Organization identifier
             include_disabled_users: Include disabled users (0 = no, 1 = yes) (default: 0)
+            response_format: Output encoding: json (default) or toon
 
         Returns:
-            JSON array of employees
+            Employees
         """
         endpoint = f"organization/{org_id}/employee_list/"
 
         params = {"include_disabled_users": include_disabled_users}
 
-        result = await api_client.request("GET", endpoint, params=params)
-        return json.dumps(result, indent=2)
+        return await api_client.request_text(
+            "GET", endpoint, params=params, response_format=response_format
+        )
 
     @mcp.tool()
-    async def get_error_logs(org_id: int, limit: int = 100, offset: int = 0) -> str:
+    async def get_error_logs(
+        org_id: int,
+        limit: int = 100,
+        offset: int = 0,
+        response_format: str = "json",
+    ) -> str:
         """
         Get error logs for the organization.
 
@@ -149,16 +164,18 @@ def register_tools(mcp, api_client):
             org_id: Organization identifier
             limit: Number of results per page (default: 100)
             offset: Pagination offset (default: 0)
+            response_format: Output encoding: json (default) or toon
 
         Returns:
-            JSON array of error logs
+            Error logs
         """
         endpoint = f"organization/{org_id}/error_logs/"
 
         params = {"limit": limit, "offset": offset}
 
-        result = await api_client.request("GET", endpoint, params=params)
-        return json.dumps(result, indent=2)
+        return await api_client.request_text(
+            "GET", endpoint, params=params, response_format=response_format
+        )
 
     # ============================================================================
     # Projects
@@ -166,7 +183,11 @@ def register_tools(mcp, api_client):
 
     @mcp.tool()
     async def list_projects(
-        org_id: int, ordering: Optional[str] = None, limit: int = 100, offset: int = 0
+        org_id: int,
+        ordering: Optional[str] = None,
+        limit: int = 100,
+        offset: int = 0,
+        response_format: str = "json",
     ) -> str:
         """
         List all projects in the organization.
@@ -178,9 +199,10 @@ def register_tools(mcp, api_client):
             ordering: Optional ordering field
             limit: Number of results per page (default: 100)
             offset: Pagination offset (default: 0)
+            response_format: Output encoding: json (default) or toon
 
         Returns:
-            JSON array of projects with metadata
+            Projects with metadata
         """
         endpoint = f"organization/{org_id}/projects/"
 
@@ -189,8 +211,9 @@ def register_tools(mcp, api_client):
         if ordering:
             params["ordering"] = ordering
 
-        result = await api_client.request("GET", endpoint, params=params)
-        return json.dumps(result, indent=2)
+        return await api_client.request_text(
+            "GET", endpoint, params=params, response_format=response_format
+        )
 
     @mcp.tool()
     async def create_project(org_id: int, project_data: JsonInput) -> str:
@@ -300,7 +323,11 @@ def register_tools(mcp, api_client):
 
     @mcp.tool()
     async def list_project_service_users(
-        project_id: int, service_id: int, limit: int = 100, offset: int = 0
+        project_id: int,
+        service_id: int,
+        limit: int = 100,
+        offset: int = 0,
+        response_format: str = "json",
     ) -> str:
         """
         List service users for a specific service in the project.
@@ -312,16 +339,18 @@ def register_tools(mcp, api_client):
             service_id: Service identifier
             limit: Number of results per page (default: 100)
             offset: Pagination offset (default: 0)
+            response_format: Output encoding: json (default) or toon
 
         Returns:
-            JSON array of service users
+            Service users
         """
         endpoint = f"project/{project_id}/service/{service_id}/service_users/"
 
         params = {"limit": limit, "offset": offset}
 
-        result = await api_client.request("GET", endpoint, params=params)
-        return json.dumps(result, indent=2)
+        return await api_client.request_text(
+            "GET", endpoint, params=params, response_format=response_format
+        )
 
     # ============================================================================
     # Slots Configuration
@@ -604,6 +633,7 @@ def register_tools(mcp, api_client):
     async def list_generated_capitalization_reports(
         org_id: int,
         report_type: Optional[str] = None,
+        response_format: str = "json",
     ) -> str:
         """
         List generated capitalization reports for an organization (most recent first).
@@ -615,16 +645,18 @@ def register_tools(mcp, api_client):
         Args:
             org_id: Organization identifier
             report_type: Optional query filter
+            response_format: Output encoding: json (default) or toon
 
         Returns:
-            JSON list of report records
+            Generated report records
         """
         endpoint = f"organization/{org_id}/generated_capitalization_reports/"
         params = {}
         if report_type:
             params["report_type"] = report_type
-        result = await api_client.request("GET", endpoint, params=params or None)
-        return json.dumps(result, indent=2)
+        return await api_client.request_text(
+            "GET", endpoint, params=params or None, response_format=response_format
+        )
 
     @mcp.tool()
     async def get_generated_capitalization_report(

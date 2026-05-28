@@ -154,6 +154,34 @@ This MCP server acts as a **pass-through** to the Allstacks API:
 
 ## Usage
 
+### Token-Efficient Responses
+
+High-volume list and time-series tools accept an optional
+`response_format` argument:
+
+- `response_format="json"` returns the existing pretty-printed JSON output
+  and remains the default for compatibility.
+- `response_format="toon"` returns a compact TOON-style text encoding. Arrays
+  of repeated objects are represented as tables, which removes repeated field
+  names from each row.
+
+Example:
+
+```text
+get_org_metrics_v2_data(org_id, config, response_format="toon")
+list_service_items(item_type="CARD", limit=100, response_format="toon")
+get_capacity_planning(org_id, start_date="2026-06-01", end_date="2026-06-30", response_format="toon")
+```
+
+Measured with synthetic payloads shaped like common API responses, using
+character count as a tokenizer-independent proxy:
+
+| Payload shape | Pretty JSON chars | TOON chars | Reduction |
+| --- | ---: | ---: | ---: |
+| Metric time-series, 90 rows x 4 scalar fields | 11,413 | 2,449 | 79% |
+| Paginated service-item list, 100 rows x 5 scalar fields | 12,357 | 2,367 | 81% |
+| Allocation/capacity rows, 60 rows x 6 scalar fields | 11,421 | 2,133 | 81% |
+
 ### Running the Server Standalone
 
 Bearer / PAT (recommended; required for SSO users):

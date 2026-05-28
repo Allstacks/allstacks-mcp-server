@@ -1,9 +1,14 @@
 """HTTP client for Allstacks API communication"""
 
 import json
-from typing import Dict, Optional, Tuple
+from typing import Any, Dict, Optional, Tuple
 
 import httpx
+
+from .toon import encode_toon
+
+
+SUPPORTED_RESPONSE_FORMATS = ("json", "toon")
 
 
 class AllstacksAPIClient:
@@ -103,3 +108,41 @@ class AllstacksAPIClient:
                     "status_code": None,
                     "message": f"Request failed: {str(e)}",
                 }
+
+    async def request_text(
+        self,
+        method: str,
+        endpoint: str,
+        params: Dict = None,
+        data: Dict = None,
+        timeout_seconds: float = 30.0,
+        expect_json: bool = True,
+        response_format: str = "json",
+    ) -> str:
+        """Make a request and encode the parsed response for MCP tool output."""
+        result = await self.request(
+            method,
+            endpoint,
+            params=params,
+            data=data,
+            timeout_seconds=timeout_seconds,
+            expect_json=expect_json,
+        )
+        try:
+            return self.format_response(result, response_format=response_format)
+        except ValueError as e:
+            return json.dumps({"error": str(e)}, indent=2)
+
+    @staticmethod
+    def format_response(payload: Any, response_format: str = "json") -> str:
+        """Encode a JSON-compatible payload as pretty JSON or compact TOON."""
+        normalized_format = (response_format or "json").lower()
+        if normalized_format == "json":
+            return json.dumps(payload, indent=2)
+        if normalized_format == "toon":
+            return encode_toon(payload)
+
+        supported = ", ".join(SUPPORTED_RESPONSE_FORMATS)
+        raise ValueError(
+            f"Unsupported response_format '{response_format}'. Use one of: {supported}."
+        )

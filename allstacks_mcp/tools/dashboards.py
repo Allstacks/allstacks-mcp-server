@@ -15,7 +15,11 @@ def register_tools(mcp, api_client):
 
     @mcp.tool()
     async def list_org_dashboards(
-        org_id: int, ordering: Optional[str] = None, limit: int = 100, offset: int = 0
+        org_id: int,
+        ordering: Optional[str] = None,
+        limit: int = 100,
+        offset: int = 0,
+        response_format: str = "json",
     ) -> str:
         """
         List all dashboards for an organization.
@@ -30,9 +34,10 @@ def register_tools(mcp, api_client):
             ordering: Optional ordering field
             limit: Number of results per page (default: 100)
             offset: Pagination offset (default: 0)
+            response_format: Output encoding: json (default) or toon
 
         Returns:
-            JSON array of dashboards with metadata
+            Dashboards with metadata
         """
         endpoint = f"organization/{org_id}/dashboards/"
 
@@ -41,8 +46,9 @@ def register_tools(mcp, api_client):
         if ordering:
             params["ordering"] = ordering
 
-        result = await api_client.request("GET", endpoint, params=params)
-        return json.dumps(result, indent=2)
+        return await api_client.request_text(
+            "GET", endpoint, params=params, response_format=response_format
+        )
 
     @mcp.tool()
     async def create_org_dashboard(org_id: int, dashboard_data: JsonInput) -> str:
@@ -213,6 +219,7 @@ def register_tools(mcp, api_client):
         ordering: Optional[str] = None,
         limit: int = 100,
         offset: int = 0,
+        response_format: str = "json",
     ) -> str:
         """
         List all dashboard widgets with optional filtering.
@@ -226,9 +233,10 @@ def register_tools(mcp, api_client):
             ordering: Optional ordering field
             limit: Number of results per page (default: 100)
             offset: Pagination offset (default: 0)
+            response_format: Output encoding: json (default) or toon
 
         Returns:
-            JSON array of dashboard widgets
+            Dashboard widgets
         """
         endpoint = f"organization/{org_id}/dashboard_widgets/"
 
@@ -241,8 +249,9 @@ def register_tools(mcp, api_client):
         if ordering:
             params["ordering"] = ordering
 
-        result = await api_client.request("GET", endpoint, params=params)
-        return json.dumps(result, indent=2)
+        return await api_client.request_text(
+            "GET", endpoint, params=params, response_format=response_format
+        )
 
     @mcp.tool()
     async def create_dashboard_widget(
@@ -360,7 +369,11 @@ def register_tools(mcp, api_client):
 
     @mcp.tool()
     async def list_shared_links(
-        org_id: int, ordering: Optional[str] = None, limit: int = 100, offset: int = 0
+        org_id: int,
+        ordering: Optional[str] = None,
+        limit: int = 100,
+        offset: int = 0,
+        response_format: str = "json",
     ) -> str:
         """
         List all shared dashboard links for the organization.
@@ -372,9 +385,10 @@ def register_tools(mcp, api_client):
             ordering: Optional ordering field
             limit: Number of results per page (default: 100)
             offset: Pagination offset (default: 0)
+            response_format: Output encoding: json (default) or toon
 
         Returns:
-            JSON array of shared links
+            Shared links
         """
         endpoint = f"organization/{org_id}/shared_links/"
 
@@ -383,8 +397,9 @@ def register_tools(mcp, api_client):
         if ordering:
             params["ordering"] = ordering
 
-        result = await api_client.request("GET", endpoint, params=params)
-        return json.dumps(result, indent=2)
+        return await api_client.request_text(
+            "GET", endpoint, params=params, response_format=response_format
+        )
 
     @mcp.tool()
     async def create_shared_link(

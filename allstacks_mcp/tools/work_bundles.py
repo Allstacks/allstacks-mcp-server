@@ -15,6 +15,7 @@ def register_tools(mcp, api_client):
         work_bundle_limit: int = 3,
         group_limit: Optional[int] = None,
         group_offset: int = 0,
+        response_format: str = "json",
     ) -> str:
         """
         List initial (most recent) work bundles for a project, grouped by
@@ -31,9 +32,10 @@ def register_tools(mcp, api_client):
             work_bundle_limit: Number of bundles to return per group (default: 3)
             group_limit: Optional number of groups to return
             group_offset: Offset for groups (default: 0)
+            response_format: Output encoding: json (default) or toon
 
         Returns:
-            JSON with grouped work bundles and ``has_more_groups``
+            Grouped work bundles and ``has_more_groups``
         """
         endpoint = f"project/{project_id}/work_bundles/initial/"
 
@@ -44,8 +46,9 @@ def register_tools(mcp, api_client):
         if group_limit is not None:
             params["group_limit"] = group_limit
 
-        result = await api_client.request("GET", endpoint, params=params)
-        return json.dumps(result, indent=2)
+        return await api_client.request_text(
+            "GET", endpoint, params=params, response_format=response_format
+        )
 
     @mcp.tool()
     async def create_work_bundle(

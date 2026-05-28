@@ -21,6 +21,7 @@ def register_tools(mcp, api_client):
         ordering: Optional[str] = None,
         limit: int = 100,
         offset: int = 0,
+        response_format: str = "json",
     ) -> str:
         """
         List AI-generated reports for analysis and insights.
@@ -37,9 +38,10 @@ def register_tools(mcp, api_client):
             ordering: Optional ordering field
             limit: Number of results per page (default: 100)
             offset: Pagination offset (default: 0)
+            response_format: Output encoding: json (default) or toon
 
         Returns:
-            JSON array of AI reports with summaries and insights
+            AI reports with summaries and insights
         """
         endpoint = f"organization/{org_id}/ai-reports/"
 
@@ -52,8 +54,9 @@ def register_tools(mcp, api_client):
         if ordering:
             params["ordering"] = ordering
 
-        result = await api_client.request("GET", endpoint, params=params)
-        return json.dumps(result, indent=2)
+        return await api_client.request_text(
+            "GET", endpoint, params=params, response_format=response_format
+        )
 
     @mcp.tool()
     async def create_ai_report(
@@ -316,7 +319,10 @@ def register_tools(mcp, api_client):
 
     @mcp.tool()
     async def list_surveys(
-        org_id: int, project_id: Optional[int] = None, status: Optional[str] = None
+        org_id: int,
+        project_id: Optional[int] = None,
+        status: Optional[str] = None,
+        response_format: str = "json",
     ) -> str:
         """
         List developer experience surveys and their results.
@@ -327,9 +333,10 @@ def register_tools(mcp, api_client):
             org_id: Organization identifier
             project_id: Optional filter by project
             status: Optional filter by status (active, completed, draft)
+            response_format: Output encoding: json (default) or toon
 
         Returns:
-            JSON array of surveys with participation and response data
+            Surveys with participation and response data
         """
         endpoint = f"organization/{org_id}/surveys/"
 
@@ -339,8 +346,9 @@ def register_tools(mcp, api_client):
         if status:
             params["status"] = status
 
-        result = await api_client.request("GET", endpoint, params=params)
-        return json.dumps(result, indent=2)
+        return await api_client.request_text(
+            "GET", endpoint, params=params, response_format=response_format
+        )
 
     @mcp.tool()
     async def get_survey_results(org_id: int, survey_id: int) -> str:

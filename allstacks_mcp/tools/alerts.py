@@ -20,6 +20,7 @@ def register_tools(mcp, api_client):
         ordering: Optional[str] = None,
         limit: int = 100,
         offset: int = 0,
+        response_format: str = "json",
     ) -> str:
         """
         List all alert rules configured for the organization or project.
@@ -35,9 +36,10 @@ def register_tools(mcp, api_client):
             ordering: Optional ordering field
             limit: Number of results per page (default: 100)
             offset: Pagination offset (default: 0)
+            response_format: Output encoding: json (default) or toon
 
         Returns:
-            JSON array of alert rules with conditions and actions
+            Alert rules with conditions and actions
         """
         endpoint = f"organization/{org_id}/alert_rules/"
 
@@ -48,8 +50,9 @@ def register_tools(mcp, api_client):
         if ordering:
             params["ordering"] = ordering
 
-        result = await api_client.request("GET", endpoint, params=params)
-        return json.dumps(result, indent=2)
+        return await api_client.request_text(
+            "GET", endpoint, params=params, response_format=response_format
+        )
 
     @mcp.tool()
     async def create_alert_rule(
@@ -171,6 +174,7 @@ def register_tools(mcp, api_client):
         end_date: Optional[str] = None,
         limit: int = 100,
         offset: int = 0,
+        response_format: str = "json",
     ) -> str:
         """
         Get historical alert data and trigger events.
@@ -184,9 +188,10 @@ def register_tools(mcp, api_client):
             end_date: Optional end date filter (ISO format)
             limit: Number of results per page (default: 100)
             offset: Pagination offset (default: 0)
+            response_format: Output encoding: json (default) or toon
 
         Returns:
-            JSON array of historical alert events
+            Historical alert events
         """
         endpoint = f"organization/{org_id}/alerts/history/"
 
@@ -199,8 +204,9 @@ def register_tools(mcp, api_client):
         if end_date:
             params["end_date"] = end_date
 
-        result = await api_client.request("GET", endpoint, params=params)
-        return json.dumps(result, indent=2)
+        return await api_client.request_text(
+            "GET", endpoint, params=params, response_format=response_format
+        )
 
     @mcp.tool()
     async def acknowledge_alert(
@@ -308,7 +314,9 @@ def register_tools(mcp, api_client):
 
     @mcp.tool()
     async def list_alert_subscriptions(
-        org_id: int, user_id: Optional[int] = None
+        org_id: int,
+        user_id: Optional[int] = None,
+        response_format: str = "json",
     ) -> str:
         """
         List alert subscriptions for users.
@@ -318,9 +326,10 @@ def register_tools(mcp, api_client):
         Args:
             org_id: Organization identifier
             user_id: Optional filter by specific user
+            response_format: Output encoding: json (default) or toon
 
         Returns:
-            JSON array of alert subscriptions
+            Alert subscriptions
         """
         endpoint = f"organization/{org_id}/alert_subscriptions/"
 
@@ -328,8 +337,9 @@ def register_tools(mcp, api_client):
         if user_id:
             params["user_id"] = user_id
 
-        result = await api_client.request("GET", endpoint, params=params)
-        return json.dumps(result, indent=2)
+        return await api_client.request_text(
+            "GET", endpoint, params=params, response_format=response_format
+        )
 
     @mcp.tool()
     async def subscribe_to_alert(

@@ -20,6 +20,7 @@ def register_tools(mcp, api_client):
         ordering: Optional[str] = None,
         limit: int = 100,
         offset: int = 0,
+        response_format: str = "json",
     ) -> str:
         """
         List all labels for an organization with optional filtering by label family.
@@ -35,9 +36,10 @@ def register_tools(mcp, api_client):
             ordering: Optional ordering field
             limit: Number of results per page (default: 100)
             offset: Pagination offset (default: 0)
+            response_format: Output encoding: json (default) or toon
 
         Returns:
-            JSON array of labels with hierarchy information
+            Labels with hierarchy information
         """
         endpoint = f"organization/{org_id}/labels/"
 
@@ -48,8 +50,9 @@ def register_tools(mcp, api_client):
         if ordering:
             params["ordering"] = ordering
 
-        result = await api_client.request("GET", endpoint, params=params)
-        return json.dumps(result, indent=2)
+        return await api_client.request_text(
+            "GET", endpoint, params=params, response_format=response_format
+        )
 
     @mcp.tool()
     async def create_label(
@@ -172,7 +175,11 @@ def register_tools(mcp, api_client):
 
     @mcp.tool()
     async def list_label_families(
-        org_id: int, ordering: Optional[str] = None, limit: int = 100, offset: int = 0
+        org_id: int,
+        ordering: Optional[str] = None,
+        limit: int = 100,
+        offset: int = 0,
+        response_format: str = "json",
     ) -> str:
         """
         List all label families (hierarchical label groups) for the organization.
@@ -187,9 +194,10 @@ def register_tools(mcp, api_client):
             ordering: Optional ordering field
             limit: Number of results per page (default: 100)
             offset: Pagination offset (default: 0)
+            response_format: Output encoding: json (default) or toon
 
         Returns:
-            JSON array of label families with their hierarchies
+            Label families with their hierarchies
         """
         endpoint = f"organization/{org_id}/labels/label_families/"
 
@@ -198,8 +206,9 @@ def register_tools(mcp, api_client):
         if ordering:
             params["ordering"] = ordering
 
-        result = await api_client.request("GET", endpoint, params=params)
-        return json.dumps(result, indent=2)
+        return await api_client.request_text(
+            "GET", endpoint, params=params, response_format=response_format
+        )
 
     @mcp.tool()
     async def create_label_family(
