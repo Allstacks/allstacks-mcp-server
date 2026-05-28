@@ -32,6 +32,26 @@
             "description": "Base URL for Allstacks API (default: https://app.allstacks.com/api/v1/)",
             "isRequired": false,
             "isSecret": false
+          },
+          "ALLSTACKS_PROMPT_GUARD": {
+            "description": "Set to '1' to enable PromptGuard response scanning for indirect prompt injection (default: disabled). See PROMPTGUARD.md.",
+            "isRequired": false,
+            "isSecret": false
+          },
+          "ALLSTACKS_PROMPT_GUARD_FAIL_OPEN": {
+            "description": "Set to '1' to allow responses through when the external scanner is unreachable (default: fail-closed).",
+            "isRequired": false,
+            "isSecret": false
+          },
+          "ALLSTACKS_PROMPT_GUARD_URL": {
+            "description": "URL of an external PromptGuard scanner service (e.g. Llama PromptGuard 2 wrapper). Optional; built-in heuristics run regardless.",
+            "isRequired": false,
+            "isSecret": false
+          },
+          "ALLSTACKS_PROMPT_GUARD_TOKEN": {
+            "description": "Bearer token for authenticating with the external PromptGuard scanner service.",
+            "isRequired": false,
+            "isSecret": true
           }
         }
       }
