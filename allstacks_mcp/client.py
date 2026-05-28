@@ -2,6 +2,7 @@
 
 import json
 from typing import Any, Dict, Optional, Tuple
+from urllib.parse import urlsplit
 
 import httpx
 
@@ -34,6 +35,7 @@ class AllstacksAPIClient:
         password: Optional[str] = None,
         base_url: str = "https://app.allstacks.com/api/v1/",
         token: Optional[str] = None,
+        openapi_schema_url: Optional[str] = None,
         prompt_guard_config: Optional[PromptGuardConfig] = None,
     ):
         """Initialize the Allstacks API client with authentication credentials.
@@ -43,6 +45,7 @@ class AllstacksAPIClient:
             password: Password for HTTP Basic auth (requires username).
             base_url: Base URL for the Allstacks API.
             token: Personal Access Token for Bearer auth (mutually exclusive with username/password).
+            openapi_schema_url: Absolute URL for the published OpenAPI schema.
             prompt_guard_config: Optional PromptGuard configuration for response scanning.
 
         Raises:
@@ -57,6 +60,7 @@ class AllstacksAPIClient:
         self.password = password
         self.token = token
         self.base_url = base_url.rstrip("/")
+        self.openapi_schema_url = openapi_schema_url or f"{self.base_url}/schema/"
         self.prompt_guard_config = prompt_guard_config or PromptGuardConfig()
 
         if token is None:
@@ -80,17 +84,43 @@ class AllstacksAPIClient:
         data: Optional[Dict[str, Any]] = None,
         timeout_seconds: float = 30.0,
         expect_json: bool = True,
-    ) -> Dict:
+    ) -> Any:
         """Make an async HTTP request to the Allstacks API"""
         url = f"{self.base_url}/{endpoint.lstrip('/')}"
+        return await self.request_url(
+            method,
+            url,
+            params=params,
+            data=data,
+            timeout_seconds=timeout_seconds,
+            expect_json=expect_json,
+        )
+
+    async def request_url(
+        self,
+        method: str,
+        url: str,
+        params: Optional[Dict[str, Any]] = None,
+        data: Optional[Dict[str, Any]] = None,
+        timeout_seconds: float = 30.0,
+        expect_json: bool = True,
+        include_auth: bool = True,
+    ) -> Any:
+        """Make an async HTTP request to an absolute Allstacks API URL"""
+        headers = self.headers
+        if not include_auth:
+            headers = {
+                "Content-Type": "application/json",
+                "Accept": "application/json",
+            }
 
         async with httpx.AsyncClient(timeout=timeout_seconds) as client:
             try:
                 response = await client.request(
                     method=method,
                     url=url,
-                    auth=self.auth,
-                    headers=self.headers,
+                    auth=self.auth if include_auth else None,
+                    headers=headers,
                     params=params,
                     json=data,
                 )
@@ -122,6 +152,17 @@ class AllstacksAPIClient:
                     "status_code": None,
                     "message": f"Request failed: {str(e)}",
                 }
+
+    async def get_openapi_schema(self) -> Any:
+        """Fetch the published OpenAPI schema with the configured authentication."""
+        base = urlsplit(self.base_url)
+        schema = urlsplit(self.openapi_schema_url)
+        same_origin = (base.scheme, base.netloc) == (schema.scheme, schema.netloc)
+        return await self.request_url(
+            "GET",
+            self.openapi_schema_url,
+            include_auth=same_origin,
+        )
 
     async def request_text(
         self,
@@ -169,7 +210,7 @@ class AllstacksAPIClient:
             f"Unsupported response_format '{response_format}'. Use one of: {supported}."
         )
 
-    async def _scan_and_return(self, result: Dict) -> Dict:
+    async def _scan_and_return(self, result: Any) -> Any:
         """Run PromptGuard scanning on a successful response."""
         scan = await scan_response(result, self.prompt_guard_config)
         if scan.verdict != ScanVerdict.ALLOWED:

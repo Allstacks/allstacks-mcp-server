@@ -1,7 +1,7 @@
 {
   "name": "@allstacks/allstacks-mcp",
   "version": "2.0.0",
-  "description": "MCP Server for Allstacks Analytics - 208 tools for AI-native engineering intelligence",
+  "description": "MCP Server for Allstacks Analytics - 189 tools and 2 resources for AI-native engineering intelligence",
   "author": "Jeremy Freeman",
   "license": "MIT",
   "keywords": [
@@ -22,8 +22,9 @@
     "type": "python",
     "runtime": "python3",
     "entry": "server.py",
-    "tools": 208,
-    "categories": 12
+    "tools": 189,
+    "resources": 2,
+    "categories": 13
   }
 }
 

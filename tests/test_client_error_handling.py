@@ -81,6 +81,50 @@ class ClientErrorHandlingTests(unittest.TestCase):
         result = _run(client.request("GET", "good/"))
         self.assertEqual(result, {"ok": True})
 
+    def test_default_openapi_schema_url_uses_api_schema_route(self):
+        client = AllstacksAPIClient("u", "p", "https://example.test/api/v1/")
+        self.assertEqual(
+            client.openapi_schema_url,
+            "https://example.test/api/v1/schema/",
+        )
+
+    def test_get_openapi_schema_uses_configured_absolute_url(self):
+        seen_requests = []
+
+        def handler(request: httpx.Request) -> httpx.Response:
+            seen_requests.append(request)
+            return httpx.Response(200, json={"openapi": "3.0.3"})
+
+        client = self._build_client(httpx.MockTransport(handler))
+        client.openapi_schema_url = "https://docs.example.test/openapi.json"
+
+        result = _run(client.get_openapi_schema())
+
+        self.assertEqual(result, {"openapi": "3.0.3"})
+        self.assertEqual(
+            [str(request.url) for request in seen_requests],
+            ["https://docs.example.test/openapi.json"],
+        )
+        self.assertNotIn("authorization", seen_requests[0].headers)
+
+    def test_get_openapi_schema_sends_auth_for_same_origin_schema(self):
+        seen_requests = []
+
+        def handler(request: httpx.Request) -> httpx.Response:
+            seen_requests.append(request)
+            return httpx.Response(200, json={"openapi": "3.0.3"})
+
+        client = self._build_client(httpx.MockTransport(handler))
+
+        result = _run(client.get_openapi_schema())
+
+        self.assertEqual(result, {"openapi": "3.0.3"})
+        self.assertEqual(
+            [str(request.url) for request in seen_requests],
+            ["https://example.test/api/v1/schema/"],
+        )
+        self.assertIn("authorization", seen_requests[0].headers)
+
     def test_request_text_defaults_to_pretty_json(self):
         def handler(request: httpx.Request) -> httpx.Response:
             return httpx.Response(200, json={"results": [{"id": 1, "name": "Alpha"}]})

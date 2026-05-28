@@ -12,6 +12,7 @@ from . import alerts
 from . import ai_analytics
 from . import work_bundles
 from . import risk_management
+from . import discovery
 
 __all__ = [
     "metrics",
@@ -26,4 +27,5 @@ __all__ = [
     "ai_analytics",
     "work_bundles",
     "risk_management",
+    "discovery",
 ]

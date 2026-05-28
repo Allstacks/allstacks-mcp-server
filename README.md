@@ -6,7 +6,7 @@ A comprehensive Model Context Protocol (MCP) server providing AI-ready access to
 
 ## Overview
 
-This MCP server exposes **187 tools** organized into **12 categories** for comprehensive interaction with Allstacks:
+This MCP server exposes **189 tools** organized into **13 categories** for comprehensive interaction with Allstacks:
 
 ### Tool Categories
 
@@ -22,6 +22,7 @@ This MCP server exposes **187 tools** organized into **12 categories** for compr
 10. **AI & Intelligence (14 tools)**: AI reports, Action AI code query, metric builder, AI metric builder (project), pattern analysis, surveys, DX scores, AI tool usage
 11. **Work Bundles (12 tools)**: Selectable work bundle management, forecasting, metrics, cloning
 12. **Risk Management (12 tools)**: Risk definitions, project risks, assessment, trends, resolution
+13. **API Discovery (2 tools, 2 resources)**: Runtime OpenAPI schema access and lightweight domain-to-tool category mapping
 
 ## Project Structure
 
@@ -30,7 +31,7 @@ allstacks-mcp-server/
 ├── allstacks_mcp/
 │   ├── __init__.py
 │   ├── __main__.py             # python -m allstacks_mcp entry point
-│   ├── server.py               # Main entry — 187 tools, arg parsing
+│   ├── server.py               # Main entry — 189 tools, resources, arg parsing
 │   ├── client.py               # HTTP client (Basic + Bearer auth)
 │   └── tools/                  # Tool modules by category
 │       ├── __init__.py
@@ -45,7 +46,8 @@ allstacks-mcp-server/
 │       ├── alerts.py           # 13 alert/monitoring tools
 │       ├── ai_analytics.py     # 14 AI & analytics tools
 │       ├── work_bundles.py     # 12 work bundle tools
-│       └── risk_management.py  # 12 risk management tools
+│       ├── risk_management.py  # 12 risk management tools
+│       └── discovery.py        # 2 API discovery tools and 2 resources
 ├── pyproject.toml
 ├── uv.lock
 └── README.md
@@ -199,6 +201,7 @@ uvx allstacks-mcp --username YOUR_USERNAME --password YOUR_PASSWORD
 - `--username` or `-u`: Username for HTTP Basic auth (paired with `--password`)
 - `--password` or `-p`: Password for HTTP Basic auth (paired with `--username`)
 - `--base-url` or `-b`: Override the default API base URL (default: `https://app.allstacks.com/api/v1/`)
+- `--openapi-schema-url`: Override the published OpenAPI schema URL (default: `<base-url>/schema/`)
 
 Pass either `--token` OR both `--username` and `--password` — not both modes at once.
 
@@ -248,6 +251,7 @@ Add to your MCP client configuration (e.g., Claude Desktop's `claude_desktop_con
 - Replace `YOUR_PERSONAL_ACCESS_TOKEN` with your actual PAT from the Allstacks UI
 - Or replace `your-email@example.com` and `your-password` with your credentials (local accounts only)
 - The `--base-url` is optional (defaults to `https://app.allstacks.com/api/v1/`)
+- The OpenAPI resource uses `<base-url>/schema/` unless `--openapi-schema-url` is provided
 - `uvx` automatically installs and runs the latest version from PyPI — no manual installation needed!
 
 > **Using a local clone for development?** See the [Local Development](#local-development) section for the configuration pattern.
@@ -262,6 +266,13 @@ All tools are verified against the official Allstacks OpenAPI specification:
 - ✅ Proper error handling and validation
 - ✅ Authentication via Bearer token (PAT) or HTTP Basic
 - ✅ Async/await for performance
+
+### API Discovery Resources
+
+Agents can discover API shape without loading the full tool catalog:
+- `get_openapi_schema`: Fetches the published OpenAPI schema at runtime using the configured credentials
+- `allstacks://openapi` and `schema://api`: MCP resources exposing the same runtime schema as JSON
+- `list_tool_categories`: Returns a compact domain-to-tool-name map for metrics, allocations, delivery, AI impact, and related domains
 
 ### Modular Architecture
 
