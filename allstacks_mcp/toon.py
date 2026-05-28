@@ -131,8 +131,9 @@ def _is_tabular_list(value: Any) -> bool:
         return False
 
     headers = tuple(value[0].keys())
+    header_set = set(headers)
     return all(
-        tuple(item.keys()) == headers
+        set(item.keys()) == header_set
         and all(isinstance(item[header], _SCALAR_TYPES) for header in headers)
         for item in value
     )

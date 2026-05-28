@@ -26,6 +26,14 @@ class ToonEncodingTests(unittest.TestCase):
 
         self.assertEqual(encode_toon(payload), '[1]{id,name}:\n1,"Alpha, Inc."')
 
+    def test_reordered_row_keys_still_encode_as_table(self):
+        payload = [
+            {"id": 1, "name": "Alpha"},
+            {"name": "Beta", "id": 2},
+        ]
+
+        self.assertEqual(encode_toon(payload), "[2]{id,name}:\n1,Alpha\n2,Beta")
+
     def test_toon_is_smaller_for_repeated_metric_rows(self):
         payload = {
             "results": [
