@@ -7,9 +7,12 @@ with the Allstacks API using HTTP Basic Authentication.
 """
 
 import argparse
+import sys
+
 from mcp.server.fastmcp import FastMCP
 
 from .client import AllstacksAPIClient
+from .prompt_guard import PromptGuardConfig, config_from_env
 from .tools import (
     metrics,
     service_items,
@@ -77,6 +80,23 @@ def register_all_tools():
     risk_management.register_tools(mcp, api_client)
 
 
+def _build_prompt_guard_config(args: argparse.Namespace) -> PromptGuardConfig:
+    """Merge CLI flags with env-var defaults (CLI wins)."""
+    env = config_from_env()
+    return PromptGuardConfig(
+        enabled=args.prompt_guard if args.prompt_guard is not None else env.enabled,
+        fail_open=(
+            args.prompt_guard_fail_open
+            if args.prompt_guard_fail_open is not None
+            else env.fail_open
+        ),
+        external_url=args.prompt_guard_url or env.external_url,
+        external_timeout=env.external_timeout,
+        external_token=env.external_token,
+        heuristics_enabled=env.heuristics_enabled,
+    )
+
+
 def main():
     """Main entry point for the Allstacks MCP server"""
     global api_client
@@ -106,6 +126,34 @@ def main():
         help="Base URL for the API (default: https://app.allstacks.com/api/v1/)",
     )
 
+    # PromptGuard response-scanning flags
+    parser.add_argument(
+        "--prompt-guard",
+        action="store_true",
+        default=None,
+        help=(
+            "Enable PromptGuard response scanning for indirect prompt injection. "
+            "Also enabled by env ALLSTACKS_PROMPT_GUARD=1."
+        ),
+    )
+    parser.add_argument(
+        "--prompt-guard-fail-open",
+        action="store_true",
+        default=None,
+        help=(
+            "If the external scanner is unreachable, allow responses through "
+            "instead of blocking (fail-open). Default is fail-closed."
+        ),
+    )
+    parser.add_argument(
+        "--prompt-guard-url",
+        default=None,
+        help=(
+            "URL of an external PromptGuard scanner service (e.g. Llama "
+            "PromptGuard 2 wrapper). Optional; heuristics run regardless."
+        ),
+    )
+
     # Parse arguments
     args = parser.parse_args()
 
@@ -114,10 +162,30 @@ def main():
     if not args.token and not (args.username and args.password):
         parser.error("must provide --token, or both --username and --password")
 
+    pg_config = _build_prompt_guard_config(args)
+
+    if pg_config.enabled:
+        print(
+            "PromptGuard: enabled"
+            f" | fail-{'open' if pg_config.fail_open else 'closed'}"
+            f" | external={'yes' if pg_config.external_url else 'no'}"
+            f" | heuristics={'on' if pg_config.heuristics_enabled else 'off'}",
+            file=sys.stderr,
+        )
+
     if args.token:
-        api_client = AllstacksAPIClient(base_url=args.base_url, token=args.token)
+        api_client = AllstacksAPIClient(
+            base_url=args.base_url,
+            token=args.token,
+            prompt_guard_config=pg_config,
+        )
     else:
-        api_client = AllstacksAPIClient(args.username, args.password, args.base_url)
+        api_client = AllstacksAPIClient(
+            args.username,
+            args.password,
+            args.base_url,
+            prompt_guard_config=pg_config,
+        )
 
     # Register all tools from the various modules
     register_all_tools()
