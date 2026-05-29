@@ -243,24 +243,31 @@ uv run server.py \
   --base-url https://custom-api.allstacks.com/api/v1/
 ```
 
-## Available Tools (79 Total)
+## Available Tools (170 Total)
 
-### 1. Metrics Data Retrieval (7 tools)
-- `list_metrics` - List all available metric types
-- `get_metric_info` - Get detailed metric information
-- `get_gmdts_data` - Fetch Generated Metric Data Time Series
-- `get_metrics_v2_data` - Fetch data using Metrics V2 configuration
-- `list_metrics_v2_configs` - List saved V2 configurations
-- `create_metrics_v2_config` - Create new V2 configuration
-- `get_insight_configs` - Get insight configurations
+### 1. Metrics Data Retrieval (8 tools)
+- `get_project_metrics_v2_data` - Fetch Metrics V2 data for a project
+- `get_org_metrics_v2_data` - Fetch Metrics V2 data across an organization
+- `get_org_metrics_v2_capitalization_data` - Preview Metrics V2 capitalization query data
+- `get_metrics_v2_org_templates` - List predefined Metrics V2 configuration templates
+- `get_metrics_v2_individual_scorecard_templates` - List scorecard templates
+- `get_metrics_v2_allstacks_labels` - Get label values for Metrics V2 filters
+- `get_metrics_v2_user_tags` - Get user tag values for Metrics V2 filters
+- `get_metrics_v2_item_props` - Get item properties for Metrics V2 configs
 
-### 2. Service Items & Filtering (6 tools)
+### 2. Service Items & Filtering (12 tools)
 - `list_service_items` - List work items with filtering
+- `get_service_item_property_keys` - Get property keys by item type
 - `get_item_props` - Get available item properties
 - `get_configuration_options` - Get configuration options
-- `search_service_items` - Full-text search across items
 - `get_parent_service_items` - Get hierarchical parent items
-- `get_metrics_filter_sets` - Get saved filter sets
+- `get_service_item_types` - Get available service item types
+- `get_initial_service_items` - Get initial service item groups
+- `get_service_item_estimation_method` - Get estimation method
+- `set_service_item_estimation_method` - Set estimation method
+- `add_service_item_notes` - Add notes to a service item
+- `delete_service_item_notes` - Delete service item notes
+- `get_item_props_by_type` - Get item properties grouped by type
 
 ### 3. User & Team Management (4 tools)
 - `list_service_users` - List users with merge handling
@@ -299,7 +306,7 @@ uv run server.py \
 - `get_slots` - Get resource slots/capacity
 - `analyze_chart_data` - Analyze chart data
 - `get_chart_analysis` - Get AI analysis for charts
-- `get_company_metrics` - Get company-level metrics
+- `get_scenario_analysis` - Get scenario planning analysis
 
 ### 9. Labels & Tagging (5 tools)
 - `list_labels` - List all labels
@@ -388,7 +395,7 @@ For issues or questions:
 ## Version
 
 Allstacks MCP Server v1.0.0
-- 79 tools across 14 categories
+- 170 tools across 13 categories
 - HTTP Basic Authentication
 - Python 3.13+ recommended
 INSTALLEOF
