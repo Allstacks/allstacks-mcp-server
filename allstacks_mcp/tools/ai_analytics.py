@@ -185,34 +185,6 @@ def register_tools(mcp, api_client):
         return json.dumps(result, indent=2)
 
     @mcp.tool()
-    async def create_metric_with_ai(
-        org_id: int, project_id: int, description: str, context: Optional[str] = None
-    ) -> str:
-        """
-        Use AI to create a custom metric configuration from natural language description.
-
-        From OpenAPI: POST /api/v1/organization/{org_id}/action_ai/metric_builder/
-
-        Args:
-            org_id: Organization identifier
-            project_id: Project identifier
-            description: Natural language description of desired metric (REQUIRED)
-            context: Optional additional context or examples
-
-        Returns:
-            JSON with AI-generated metric configuration ready to use
-        """
-        endpoint = f"organization/{org_id}/action_ai/metric_builder/"
-
-        data: dict[str, object] = {"project_id": project_id, "description": description}
-
-        if context:
-            data["context"] = context
-
-        result = await api_client.request("POST", endpoint, data=data)
-        return json.dumps(result, indent=2)
-
-    @mcp.tool()
     async def ai_metric_builder(
         project_id: int,
         prompt: str,

@@ -6,12 +6,12 @@ A comprehensive Model Context Protocol (MCP) server providing AI-ready access to
 
 ## Overview
 
-This MCP server exposes **189 tools** organized into **13 categories** for comprehensive interaction with Allstacks:
+This MCP server exposes **170 tools** organized into **13 categories** for comprehensive interaction with Allstacks:
 
 ### Tool Categories
 
-1. **Metrics & Analytics (20 tools)**: GMDTS data, Metrics V2 (including capitalization preview), templates, insight configs, population benchmarks, company metrics
-2. **Service Items & Work Items (18 tools)**: Complete CRUD for work items, parent service items, property keys, estimation methods, notes, filter sets
+1. **Metrics & Analytics (8 tools)**: Metrics V2 data, Metrics V2 capitalization preview, templates, labels, tags, and item properties
+2. **Service Items & Work Items (12 tools)**: Complete CRUD for work items, parent service items, property keys, estimation methods, and notes
 3. **Users & Teams (20 tools)**: Full user management, invites, roles, team tags, personal access tokens, service users
 4. **Organization & Projects (28 tools)**: Organizations, projects, settings, services, calendars, time periods, slots, capitalization reports (V2)
 5. **Dashboards & Widgets (18 tools)**: Complete dashboard/widget CRUD, shared links, cloning, widget management
@@ -19,7 +19,7 @@ This MCP server exposes **189 tools** organized into **13 categories** for compr
 7. **Forecasting & Planning (9 tools)**: V3 forecasts, velocity, scenarios, capacity planning, chart analysis
 8. **Labels & Tagging (15 tools)**: Labels, label families, bulk operations, service item label assignment
 9. **Alerts & Monitoring (13 tools)**: Alert rules, active alerts, notifications, subscriptions, preferences
-10. **AI & Intelligence (14 tools)**: AI reports, Action AI code query, metric builder, AI metric builder (project), pattern analysis, surveys, DX scores, AI tool usage
+10. **AI & Intelligence (13 tools)**: AI reports, Action AI code query, AI metric builder (project), pattern analysis, surveys, DX scores, AI tool usage
 11. **Work Bundles (12 tools)**: Selectable work bundle management, forecasting, metrics, cloning
 12. **Risk Management (12 tools)**: Risk definitions, project risks, assessment, trends, resolution
 13. **API Discovery (2 tools, 2 resources)**: Runtime OpenAPI schema access and lightweight domain-to-tool category mapping
@@ -31,12 +31,12 @@ allstacks-mcp-server/
 ├── allstacks_mcp/
 │   ├── __init__.py
 │   ├── __main__.py             # python -m allstacks_mcp entry point
-│   ├── server.py               # Main entry — 189 tools, resources, arg parsing
+│   ├── server.py               # Main entry — 170 tools, resources, arg parsing
 │   ├── client.py               # HTTP client (Basic + Bearer auth)
 │   └── tools/                  # Tool modules by category
 │       ├── __init__.py
-│       ├── metrics.py          # 20 metrics tools
-│       ├── service_items.py    # 18 service item tools
+│       ├── metrics.py          # 8 metrics tools
+│       ├── service_items.py    # 12 service item tools
 │       ├── users_teams.py      # 20 user/team tools
 │       ├── org_projects.py     # 28 org/project tools
 │       ├── dashboards.py       # 18 dashboard tools
@@ -44,7 +44,7 @@ allstacks-mcp-server/
 │       ├── forecasting.py      # 9 forecasting tools
 │       ├── labels.py           # 15 label management tools
 │       ├── alerts.py           # 13 alert/monitoring tools
-│       ├── ai_analytics.py     # 14 AI & analytics tools
+│       ├── ai_analytics.py     # 13 AI & analytics tools
 │       ├── work_bundles.py     # 12 work bundle tools
 │       ├── risk_management.py  # 12 risk management tools
 │       └── discovery.py        # 2 API discovery tools and 2 resources
@@ -293,14 +293,18 @@ Every tool includes:
 
 ## Example Tool Usage
 
-### Get GMDTS Metrics Data
+### Get Metrics V2 Data
 ```python
-# Get Generated Metric Data Time Series (GMDTS)
-get_gmdts_data(
+# Query Metrics V2 using an inner config object. Use ai_metric_builder first
+# when you want to turn a natural-language question into this config shape.
+get_project_metrics_v2_data(
     project_id=123,
-    metric_type="Velocity",
-    start_date=1704067200000,
-    end_date=1706745600000
+    config={
+        "item_type": "CARD",
+        "dimensions": [{"field": "state"}],
+        "measures": [{"aggregation": "count"}],
+    },
+    response_format="toon",
 )
 ```
 

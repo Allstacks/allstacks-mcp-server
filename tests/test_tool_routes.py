@@ -16,6 +16,7 @@ from allstacks_mcp.tools import (
     metrics,
     org_projects,
     risk_management,
+    service_items,
     work_bundles,
 )
 
@@ -115,38 +116,20 @@ class ToolRouteTests(unittest.TestCase):
         _run(mcp.call_tool("list_work_bundles", {"project_id": 49816}))
         self.assertEqual(client.last["endpoint"], "project/49816/work_bundles/initial/")
 
-    def test_time_series_tools_forward_toon_response_format(self):
+    def test_metrics_v2_tools_forward_toon_response_format(self):
         mcp, client = self._build(metrics.register_tools)
         _run(
             mcp.call_tool(
-                "get_gmdts_data",
+                "get_project_metrics_v2_data",
                 {
                     "project_id": 49816,
-                    "metric_type": "Velocity",
+                    "config": "{}",
                     "response_format": "toon",
                 },
             )
         )
-        self.assertEqual(
-            client.last["endpoint"], "project/49816/generated_metric_data/Velocity"
-        )
+        self.assertEqual(client.last["endpoint"], "project/49816/metrics_v2/metrics")
         self.assertEqual(client.last["response_format"], "toon")
-
-    def test_get_population_benchmark_route_has_no_trailing_slash(self):
-        # The Django route regex (metric/(?P<metric_type>.+)$) captures a trailing
-        # slash into metric_type and the view rejects it as an invalid type.
-        mcp, client = self._build(metrics.register_tools)
-        _run(mcp.call_tool("get_population_benchmark", {"metric_type": "CycleTime"}))
-        self.assertEqual(
-            client.last["endpoint"], "population-benchmarks/metric/CycleTime"
-        )
-
-    def test_get_population_benchmark_strips_trailing_slash(self):
-        mcp, client = self._build(metrics.register_tools)
-        _run(mcp.call_tool("get_population_benchmark", {"metric_type": "CycleTime/"}))
-        self.assertEqual(
-            client.last["endpoint"], "population-benchmarks/metric/CycleTime"
-        )
 
     def test_list_project_risk_definitions_uses_risk_definitions_route(self):
         mcp, client = self._build(risk_management.register_tools)
@@ -172,6 +155,8 @@ class DeadToolRemovalTests(unittest.TestCase):
         op_names = self._names(org_projects.register_tools)
         alert_names = self._names(alerts.register_tools)
         forecast_names = self._names(forecasting.register_tools)
+        metric_names = self._names(metrics.register_tools)
+        service_item_names = self._names(service_items.register_tools)
 
         risk_names = self._names(risk_management.register_tools)
         for name, present_in in [
@@ -185,6 +170,25 @@ class DeadToolRemovalTests(unittest.TestCase):
             # Renamed to list_project_risk_definitions; the old name described
             # active risks but the URL returns definitions.
             ("get_project_risks", risk_names),
+            ("list_metrics", metric_names),
+            ("get_metric_details", metric_names),
+            ("get_metric_info", metric_names),
+            ("get_generated_metric", metric_names),
+            ("get_gmdts_data", metric_names),
+            ("get_project_metrics_list", metric_names),
+            ("get_insight_configs", metric_names),
+            ("get_population_benchmark", metric_names),
+            ("get_company_metrics", metric_names),
+            ("create_company_metrics", metric_names),
+            ("delete_company_metrics", metric_names),
+            ("get_company_available_metrics", metric_names),
+            ("get_service_items_for_metric", service_item_names),
+            ("get_metrics_filter_sets", service_item_names),
+            ("create_metrics_filter_set", service_item_names),
+            ("get_metrics_filter_set", service_item_names),
+            ("update_metrics_filter_set", service_item_names),
+            ("delete_metrics_filter_set", service_item_names),
+            ("create_metric_with_ai", ai_names),
         ]:
             self.assertNotIn(name, present_in, f"{name} should be removed")
 
