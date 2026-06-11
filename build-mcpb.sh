@@ -243,110 +243,10 @@ uv run server.py \
   --base-url https://custom-api.allstacks.com/api/v1/
 ```
 
-## Available Tools (79 Total)
+## Available Tools (170 Total)
 
-### 1. Metrics Data Retrieval (7 tools)
-- `list_metrics` - List all available metric types
-- `get_metric_info` - Get detailed metric information
-- `get_gmdts_data` - Fetch Generated Metric Data Time Series
-- `get_metrics_v2_data` - Fetch data using Metrics V2 configuration
-- `list_metrics_v2_configs` - List saved V2 configurations
-- `create_metrics_v2_config` - Create new V2 configuration
-- `get_insight_configs` - Get insight configurations
-
-### 2. Service Items & Filtering (6 tools)
-- `list_service_items` - List work items with filtering
-- `get_item_props` - Get available item properties
-- `get_configuration_options` - Get configuration options
-- `search_service_items` - Full-text search across items
-- `get_parent_service_items` - Get hierarchical parent items
-- `get_metrics_filter_sets` - Get saved filter sets
-
-### 3. User & Team Management (4 tools)
-- `list_service_users` - List users with merge handling
-- `get_user_mapping` - Map user keys to names
-- `get_user_tags` - Get user categorization tags
-- `get_team_categories` - List team hierarchies
-
-### 4. Organization & Projects (4 tools)
-- `get_organization_settings` - Get org configuration
-- `list_projects` - List all projects
-- `get_project_services` - Get connected services
-- `get_enabled_work_bundles` - List work bundles
-
-### 5. AI & Analytics (4 tools)
-- `get_organization_investments` - Get investment analysis
-- `generate_workflow_analysis` - Generate AI workflow reports
-- `get_developer_experience_metrics` - Get DevEx metrics
-- `get_capitalization_report` - Get R&D capitalization report
-
-### 6. Dashboards & Widgets (5 tools)
-- `list_dashboards` - List dashboards
-- `get_dashboard_widgets` - Get dashboard widgets
-- `create_dashboard_widget` - Create new widget
-- `get_shared_links` - Get shared dashboard links
-- `create_shared_link` - Create shared dashboard link
-
-### 7. Employee & Productivity (5 tools)
-- `get_employee_metrics` - Get employee productivity metrics
-- `get_employee_periods` - Get employee activity periods
-- `get_employee_users` - Get employee user list
-- `get_employee_metric_data` - Get detailed employee metrics
-- `merge_service_users` - Merge multiple service users
-
-### 8. Forecasting & Planning (5 tools)
-- `get_forecast_v3` - Get v3 forecast data
-- `get_slots` - Get resource slots/capacity
-- `analyze_chart_data` - Analyze chart data
-- `get_chart_analysis` - Get AI analysis for charts
-- `get_company_metrics` - Get company-level metrics
-
-### 9. Labels & Tagging (5 tools)
-- `list_labels` - List all labels
-- `create_label` - Create new label
-- `add_service_user_tags` - Add tags to users
-- `remove_service_user_tags` - Remove tags from users
-- `get_manageable_roles` - Get roles and permissions
-
-### 10. Alerts & Monitoring (5 tools)
-- `get_service_item_alerts` - Get service item alerts
-- `get_deliverable_risks` - Get deliverable risk assessment
-- `get_service_health` - Get service health status
-- `get_error_logs` - Get error logs
-- `get_audit_log` - Get audit log
-
-### 11. Portfolio & Deliverables (5 tools)
-- `list_portfolios` - List all portfolios
-- `get_portfolio_details` - Get portfolio details
-- `create_portfolio` - Create new portfolio
-- `list_deliverables` - List project deliverables
-- `get_deliverable_status` - Get deliverable status
-
-### 12. Milestones & Pinned Milestones (6 tools)
-- `list_milestones` - List all milestones
-- `get_pinned_milestones` - Get pinned milestones
-- `pin_milestone` - Pin a milestone
-- `unpin_milestone` - Unpin a milestone
-- `get_milestone_report` - Generate milestone report
-- `create_milestone` - Create new milestone
-
-### 13. Attainment & Goals (7 tools)
-- `get_attainment_metrics` - Get attainment metrics for OKRs
-- `list_attainment_goals` - List attainment goals
-- `create_attainment_goal` - Create new attainment goal
-- `get_attainment_progress` - Get goal progress tracking
-- `get_attainment_widget_data` - Get attainment widget data
-- `create_attainment_widget` - Create attainment widget
-- `get_attainment_report` - Generate attainment report
-
-### 14. Portfolio Analytics (7 tools)
-- `get_portfolio_health` - Get portfolio health metrics
-- `get_portfolio_timeline` - Get portfolio timeline view
-- `get_portfolio_allocation` - Get resource allocation
-- `get_portfolio_dependencies` - Get dependency map
-- `compare_portfolios` - Compare multiple portfolios
-- `get_portfolio_forecast` - Get portfolio forecast
-- `export_portfolio_report` - Export portfolio report
+Refer to the canonical catalog in `README.md` (Tool Categories) and runtime
+discovery (`list_tool_categories`) for the current 13-category tool map.
 
 ## Troubleshooting
 
@@ -388,7 +288,7 @@ For issues or questions:
 ## Version
 
 Allstacks MCP Server v1.0.0
-- 79 tools across 14 categories
+- 170 tools across 13 categories
 - HTTP Basic Authentication
 - Python 3.13+ recommended
 INSTALLEOF

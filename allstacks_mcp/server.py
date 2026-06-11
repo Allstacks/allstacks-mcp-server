@@ -2,7 +2,7 @@
 """
 Allstacks MCP Server - AI-ready interface to Allstacks API
 
-This modular MCP server provides 189 tools, including API discovery, for
+This modular MCP server provides 170 tools, including API discovery, for
 interacting with the Allstacks API using HTTP Basic or Bearer token authentication.
 """
 
@@ -44,9 +44,10 @@ MCP_SERVER_INSTRUCTIONS = (
     "Happy paths: (1) Org/project context — list_organizations, list_projects, then "
     "scoped calls. (2) Engineering work — list_service_items / get_service_item_* "
     "with item_type (e.g. PULL_REQUEST, COMMIT, CARD); use get_service_item_property_keys "
-    "before complex filters. (3) Metrics — list_metrics or get_project_metrics_list, "
-    "get_metric_info / get_generated_metric, then get_project_metrics_v2_data or "
-    "get_org_metrics_v2_data for time series. AI-built Metrics V2 example: call "
+    "before complex filters. (3) Metrics — use Metrics V2 only: discover fields "
+    "with get_metrics_v2_item_props, get_metrics_v2_user_tags, "
+    "get_metrics_v2_allstacks_labels, or get_metrics_v2_org_templates, then call "
+    "get_project_metrics_v2_data or get_org_metrics_v2_data. AI-built Metrics V2 example: call "
     "ai_metric_builder(project_id, prompt, stream=false), parse the JSON string, "
     "take inner = obj['config'] if isinstance(obj.get('config'), dict) else obj, "
     "then get_project_metrics_v2_data(project_id, json.dumps(inner)); use "
