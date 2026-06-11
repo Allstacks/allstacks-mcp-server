@@ -3,7 +3,7 @@
 import json
 from typing import Optional
 
-from .._json_input import JsonInput, parse_json_input
+from .._json_input import JsonObjectInput, parse_json_input
 
 
 def register_tools(mcp, api_client):
@@ -104,7 +104,7 @@ def register_tools(mcp, api_client):
 
     @mcp.tool()
     async def update_work_bundle(
-        project_id: int, bundle_id: int, bundle_data: JsonInput
+        project_id: int, bundle_id: int, bundle_data: JsonObjectInput
     ) -> str:
         """
         Update work bundle properties.
@@ -125,8 +125,6 @@ def register_tools(mcp, api_client):
             data = parse_json_input(bundle_data, name="bundle_data")
         except ValueError as e:
             return json.dumps({"error": str(e)})
-        if not isinstance(data, dict):
-            return json.dumps({"error": "bundle_data must be a JSON object"})
 
         result = await api_client.request("PATCH", endpoint, data=data)
         return json.dumps(result, indent=2)

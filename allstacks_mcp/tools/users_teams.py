@@ -3,7 +3,7 @@
 import json
 from typing import Optional
 
-from .._json_input import JsonInput, parse_json_input
+from .._json_input import JsonObjectInput, JsonValueInput, parse_json_input
 
 
 def register_tools(mcp, api_client):
@@ -67,7 +67,9 @@ def register_tools(mcp, api_client):
         return json.dumps(result, indent=2)
 
     @mcp.tool()
-    async def update_org_user(org_id: int, user_id: int, user_data: JsonInput) -> str:
+    async def update_org_user(
+        org_id: int, user_id: int, user_data: JsonObjectInput
+    ) -> str:
         """
         Update user information in the organization.
 
@@ -152,7 +154,7 @@ def register_tools(mcp, api_client):
         org_id: int,
         email: str,
         role_id: Optional[int] = None,
-        projects: Optional[JsonInput] = None,
+        projects: Optional[JsonValueInput] = None,
     ) -> str:
         """
         Create a new user invitation.
@@ -204,7 +206,7 @@ def register_tools(mcp, api_client):
 
     @mcp.tool()
     async def update_user_invite(
-        org_id: int, invite_id: int, invite_data: JsonInput
+        org_id: int, invite_id: int, invite_data: JsonObjectInput
     ) -> str:
         """
         Update a pending user invitation.
@@ -409,7 +411,7 @@ def register_tools(mcp, api_client):
 
     @mcp.tool()
     async def add_team_tag(
-        project_id: int, tag_id: int, tag_data: Optional[JsonInput] = None
+        project_id: int, tag_id: int, tag_data: Optional[JsonObjectInput] = None
     ) -> str:
         """
         Add/update a tag to a team.
@@ -432,8 +434,6 @@ def register_tools(mcp, api_client):
                 parsed_tag_data = parse_json_input(tag_data, name="tag_data")
             except ValueError as e:
                 return json.dumps({"error": str(e)})
-            if not isinstance(parsed_tag_data, dict):
-                return json.dumps({"error": "tag_data must be a JSON object"})
             data = parsed_tag_data
 
         result = await api_client.request("POST", endpoint, data=data)

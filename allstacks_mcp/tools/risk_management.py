@@ -3,7 +3,7 @@
 import json
 from typing import Optional
 
-from .._json_input import JsonInput, parse_json_input
+from .._json_input import JsonObjectInput, parse_json_input
 
 
 def register_tools(mcp, api_client):
@@ -55,7 +55,7 @@ def register_tools(mcp, api_client):
         org_id: int,
         name: str,
         description: str,
-        condition: JsonInput,
+        condition: JsonObjectInput,
         severity: str,
         risk_type: str,
     ) -> str:
@@ -114,7 +114,7 @@ def register_tools(mcp, api_client):
 
     @mcp.tool()
     async def update_risk_definition(
-        org_id: int, definition_id: int, definition_data: JsonInput
+        org_id: int, definition_id: int, definition_data: JsonObjectInput
     ) -> str:
         """
         Update a risk definition's configuration.

@@ -3,7 +3,7 @@
 import json
 from typing import Optional
 
-from .._json_input import JsonInput, parse_json_input
+from .._json_input import JsonObjectInput, parse_json_input
 
 
 def register_tools(mcp, api_client):
@@ -63,7 +63,7 @@ def register_tools(mcp, api_client):
         org_id: int,
         report_type: str,
         project_id: int,
-        config: Optional[JsonInput] = None,
+        config: Optional[JsonObjectInput] = None,
     ) -> str:
         """
         Generate a new AI report for a project.
@@ -188,7 +188,7 @@ def register_tools(mcp, api_client):
     async def ai_metric_builder(
         project_id: int,
         prompt: str,
-        previous_config: Optional[JsonInput] = None,
+        previous_config: Optional[JsonObjectInput] = None,
         stream: bool = False,
         data_source: Optional[str] = None,
     ) -> str:

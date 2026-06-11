@@ -3,7 +3,7 @@
 import json
 from typing import Optional
 
-from .._json_input import JsonInput, parse_json_input
+from .._json_input import JsonArrayInput, JsonObjectInput, parse_json_input
 
 
 def register_tools(mcp, api_client):
@@ -58,7 +58,7 @@ def register_tools(mcp, api_client):
     async def create_alert_rule(
         org_id: int,
         name: str,
-        condition: JsonInput,
+        condition: JsonObjectInput,
         alert_type: str,
         project_id: Optional[int] = None,
         enabled: bool = True,
@@ -119,7 +119,9 @@ def register_tools(mcp, api_client):
         return json.dumps(result, indent=2)
 
     @mcp.tool()
-    async def update_alert_rule(org_id: int, rule_id: int, rule_data: JsonInput) -> str:
+    async def update_alert_rule(
+        org_id: int, rule_id: int, rule_data: JsonObjectInput
+    ) -> str:
         """
         Update an alert rule's configuration.
 
@@ -284,7 +286,7 @@ def register_tools(mcp, api_client):
 
     @mcp.tool()
     async def update_notification_preferences(
-        org_id: int, preferences: JsonInput
+        org_id: int, preferences: JsonObjectInput
     ) -> str:
         """
         Update notification preferences for alerts.
@@ -343,7 +345,7 @@ def register_tools(mcp, api_client):
 
     @mcp.tool()
     async def subscribe_to_alert(
-        org_id: int, rule_id: int, user_id: int, channels: JsonInput
+        org_id: int, rule_id: int, user_id: int, channels: JsonArrayInput
     ) -> str:
         """
         Subscribe a user to an alert rule.

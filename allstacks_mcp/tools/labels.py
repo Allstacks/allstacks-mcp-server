@@ -3,7 +3,7 @@
 import json
 from typing import Optional
 
-from .._json_input import JsonInput, parse_json_input
+from .._json_input import JsonObjectInput, parse_json_input
 
 
 def register_tools(mcp, api_client):
@@ -115,7 +115,9 @@ def register_tools(mcp, api_client):
         return json.dumps(result, indent=2)
 
     @mcp.tool()
-    async def update_label(org_id: int, label_id: int, label_data: JsonInput) -> str:
+    async def update_label(
+        org_id: int, label_id: int, label_data: JsonObjectInput
+    ) -> str:
         """
         Update label properties.
 
@@ -264,7 +266,7 @@ def register_tools(mcp, api_client):
 
     @mcp.tool()
     async def update_label_family(
-        org_id: int, family_id: int, family_data: JsonInput
+        org_id: int, family_id: int, family_data: JsonObjectInput
     ) -> str:
         """
         Update label family properties.

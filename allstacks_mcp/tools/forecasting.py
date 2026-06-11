@@ -3,7 +3,7 @@
 import json
 from typing import Optional
 
-from .._json_input import JsonInput, parse_json_input
+from .._json_input import JsonObjectInput, JsonValueInput, parse_json_input
 
 
 def register_tools(mcp, api_client):
@@ -70,7 +70,9 @@ def register_tools(mcp, api_client):
         return json.dumps(result, indent=2)
 
     @mcp.tool()
-    async def update_forecasting_config(project_id: int, config_data: JsonInput) -> str:
+    async def update_forecasting_config(
+        project_id: int, config_data: JsonObjectInput
+    ) -> str:
         """
         Update forecasting configuration for a project.
 
@@ -151,7 +153,9 @@ def register_tools(mcp, api_client):
         )
 
     @mcp.tool()
-    async def analyze_chart_data(data: JsonInput, analysis_type: str = "trends") -> str:
+    async def analyze_chart_data(
+        data: JsonValueInput, analysis_type: str = "trends"
+    ) -> str:
         """
         Analyze chart data for patterns, trends, and insights using AI.
 
@@ -235,7 +239,7 @@ def register_tools(mcp, api_client):
 
     @mcp.tool()
     async def get_scenario_analysis(
-        project_id: int, work_bundle_ids: str, scenarios: JsonInput
+        project_id: int, work_bundle_ids: str, scenarios: JsonValueInput
     ) -> str:
         """
         Run what-if scenario analysis for forecasting.

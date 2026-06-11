@@ -3,7 +3,7 @@
 import json
 from typing import Optional
 
-from .._json_input import JsonInput
+from .._json_input import JsonObjectInput
 from ..metrics_v2_payload import build_metrics_v2_post_body
 
 
@@ -13,9 +13,9 @@ def register_tools(mcp, api_client):
     @mcp.tool()
     async def get_project_metrics_v2_data(
         project_id: int,
-        config: JsonInput,
+        config: JsonObjectInput,
         get_count_only: bool = False,
-        variables: Optional[JsonInput] = None,
+        variables: Optional[JsonObjectInput] = None,
         use_cache: bool = True,
         response_format: str = "json",
     ) -> str:
@@ -72,9 +72,9 @@ def register_tools(mcp, api_client):
     @mcp.tool()
     async def get_org_metrics_v2_data(
         org_id: int,
-        config: JsonInput,
+        config: JsonObjectInput,
         get_count_only: bool = False,
-        variables: Optional[JsonInput] = None,
+        variables: Optional[JsonObjectInput] = None,
         use_cache: bool = True,
         response_format: str = "json",
     ) -> str:
@@ -122,9 +122,9 @@ def register_tools(mcp, api_client):
     @mcp.tool()
     async def get_org_metrics_v2_capitalization_data(
         org_id: int,
-        config: JsonInput,
+        config: JsonObjectInput,
         get_count_only: bool = False,
-        variables: Optional[JsonInput] = None,
+        variables: Optional[JsonObjectInput] = None,
         use_cache: bool = True,
         response_format: str = "json",
     ) -> str:
