@@ -6,7 +6,7 @@ import unittest
 
 from mcp.server.fastmcp import FastMCP
 
-from allstacks_mcp.tools import metrics, org_projects
+from allstacks_mcp.tools import alerts, metrics, org_projects
 
 
 class _MetricsClient:
@@ -84,6 +84,14 @@ class JsonObjectToolSignatureTests(unittest.TestCase):
             )
         )
         self.assertEqual(client.last["data"]["config"], {"views": []})
+
+    def test_subscribe_to_alert_channels_schema_is_array(self):
+        mcp = FastMCP("Test")
+        alerts.register_tools(mcp, _MetricsClient())
+        tools = _run(mcp.list_tools())
+        tool = next(t for t in tools if t.name == "subscribe_to_alert")
+        channels_schema = tool.inputSchema["properties"]["channels"]
+        self.assertEqual(channels_schema.get("type"), "array")
 
 
 class ListProjectsPaginationTests(unittest.TestCase):

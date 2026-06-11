@@ -4,9 +4,9 @@ MCP clients (Claude Desktop and others) often pre-parse JSON-shaped strings into
 dicts or lists before FastMCP validates tool arguments. Plain ``str`` annotations
 then fail validation and the call never reaches the handler.
 
-Use ``JsonObjectInput`` or ``JsonValueInput`` on tool parameters instead of
-``str``. Both accept an already-parsed object from the client and still coerce a
-JSON string when one arrives intact.
+Use ``JsonObjectInput``, ``JsonArrayInput``, or ``JsonValueInput`` on tool
+parameters instead of ``str``. They accept already-parsed JSON from the client
+and still coerce a JSON string when one arrives intact.
 """
 
 import json
@@ -19,7 +19,7 @@ def _parse_json_string(value: str) -> Any:
     try:
         return json.loads(value)
     except json.JSONDecodeError as e:
-        raise ValueError("Invalid JSON string") from e
+        raise ValueError(f"Invalid JSON string: {e}") from e
 
 
 def _coerce_json_value(value: Any) -> Union[Dict[str, Any], List[Any]]:
@@ -44,11 +44,19 @@ def _coerce_json_object(value: Any) -> Dict[str, Any]:
     return parsed
 
 
+def _coerce_json_array(value: Any) -> List[Any]:
+    parsed = _coerce_json_value(value)
+    if not isinstance(parsed, list):
+        raise ValueError("Expected a JSON array")
+    return parsed
+
+
 JsonValueInput = Annotated[
     Union[Dict[str, Any], List[Any]],
     BeforeValidator(_coerce_json_value),
 ]
 JsonObjectInput = Annotated[Dict[str, Any], BeforeValidator(_coerce_json_object)]
+JsonArrayInput = Annotated[List[Any], BeforeValidator(_coerce_json_array)]
 
 # Back-compat alias for parameters that accept either JSON objects or arrays.
 JsonInput = JsonValueInput

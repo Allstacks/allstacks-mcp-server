@@ -3,7 +3,7 @@
 import json
 from typing import Optional
 
-from .._json_input import JsonObjectInput, parse_json_input
+from .._json_input import JsonArrayInput, JsonObjectInput, parse_json_input
 
 
 def register_tools(mcp, api_client):
@@ -345,7 +345,7 @@ def register_tools(mcp, api_client):
 
     @mcp.tool()
     async def subscribe_to_alert(
-        org_id: int, rule_id: int, user_id: int, channels: JsonObjectInput
+        org_id: int, rule_id: int, user_id: int, channels: JsonArrayInput
     ) -> str:
         """
         Subscribe a user to an alert rule.
