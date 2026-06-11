@@ -2,13 +2,13 @@
 
 from typing import Any, Dict, Optional
 
-from ._json_input import JsonInput, parse_json_input
+from ._json_input import JsonObjectInput, parse_json_input
 
 
 def build_metrics_v2_post_body(
-    config_or_envelope: JsonInput,
+    config_or_envelope: JsonObjectInput,
     get_count_only: bool = False,
-    variables: Optional[JsonInput] = None,
+    variables: Optional[JsonObjectInput] = None,
 ) -> Dict[str, Any]:
     """
     Build the JSON body for POST .../metrics_v2/metrics.

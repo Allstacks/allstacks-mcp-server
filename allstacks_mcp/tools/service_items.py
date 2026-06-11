@@ -3,7 +3,7 @@
 import json
 from typing import Optional
 
-from .._json_input import JsonInput, parse_json_input
+from .._json_input import JsonObjectInput, parse_json_input
 
 
 def register_tools(mcp, api_client):
@@ -478,7 +478,7 @@ def register_tools(mcp, api_client):
 
     @mcp.tool()
     async def create_metrics_filter_set(
-        project_id: int, name: Optional[str] = None, filter_set: JsonInput = "{}"
+        project_id: int, name: Optional[str] = None, filter_set: JsonObjectInput = {}
     ) -> str:
         """
         Create a new metrics filter set.
@@ -533,7 +533,7 @@ def register_tools(mcp, api_client):
         project_id: int,
         filter_set_id: int,
         name: Optional[str] = None,
-        filter_set: Optional[JsonInput] = None,
+        filter_set: Optional[JsonObjectInput] = None,
     ) -> str:
         """
         Update a metrics filter set.

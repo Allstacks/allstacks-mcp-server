@@ -33,6 +33,8 @@ class _RecordingClient:
             "params": params,
             "data": data,
         }
+        if endpoint.endswith("projects/"):
+            return [{"id": i} for i in range(30)]
         return {"ok": True}
 
     async def request_text(
@@ -95,9 +97,18 @@ class ToolRouteTests(unittest.TestCase):
 
     def test_list_projects_forwards_toon_response_format(self):
         mcp, client = self._build(org_projects.register_tools)
-        _run(mcp.call_tool("list_projects", {"org_id": 7, "response_format": "toon"}))
+        result = _run(
+            mcp.call_tool("list_projects", {"org_id": 7, "response_format": "toon"})
+        )
         self.assertEqual(client.last["endpoint"], "organization/7/projects/")
-        self.assertEqual(client.last["response_format"], "toon")
+        text = result[0][0].text if isinstance(result, tuple) else result[0].text
+        self.assertNotIn('"id"', text)
+        self.assertIn("id", text)
+
+    def test_list_projects_forwards_limit(self):
+        mcp, client = self._build(org_projects.register_tools)
+        _run(mcp.call_tool("list_projects", {"org_id": 7, "limit": 10}))
+        self.assertEqual(client.last["params"]["limit"], 10)
 
     def test_list_work_bundles_uses_initial_route(self):
         mcp, client = self._build(work_bundles.register_tools)

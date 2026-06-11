@@ -3,7 +3,7 @@
 import json
 from typing import Optional
 
-from .._json_input import JsonInput, parse_json_input
+from .._json_input import JsonObjectInput, parse_json_input
 
 
 def register_tools(mcp, api_client):
@@ -104,7 +104,7 @@ def register_tools(mcp, api_client):
 
     @mcp.tool()
     async def update_work_bundle(
-        project_id: int, bundle_id: int, bundle_data: JsonInput
+        project_id: int, bundle_id: int, bundle_data: JsonObjectInput
     ) -> str:
         """
         Update work bundle properties.

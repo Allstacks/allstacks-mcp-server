@@ -3,7 +3,7 @@
 import json
 from typing import Optional
 
-from .._json_input import JsonInput, parse_json_input
+from .._json_input import JsonObjectInput, parse_json_input
 
 
 def register_tools(mcp, api_client):
@@ -51,7 +51,7 @@ def register_tools(mcp, api_client):
         )
 
     @mcp.tool()
-    async def create_org_dashboard(org_id: int, dashboard_data: JsonInput) -> str:
+    async def create_org_dashboard(org_id: int, dashboard_data: JsonObjectInput) -> str:
         """
         Create a new dashboard for the organization.
 
@@ -118,7 +118,7 @@ def register_tools(mcp, api_client):
 
     @mcp.tool()
     async def update_org_dashboard(
-        org_id: int, dashboard_id: int, dashboard_data: JsonInput
+        org_id: int, dashboard_id: int, dashboard_data: JsonObjectInput
     ) -> str:
         """
         Update a dashboard's configuration.
@@ -258,7 +258,7 @@ def register_tools(mcp, api_client):
         org_id: int,
         dashboard_id: int,
         widget_type: str,
-        config: JsonInput,
+        config: JsonObjectInput,
         title: str,
         description: Optional[str] = None,
     ) -> str:
@@ -319,7 +319,7 @@ def register_tools(mcp, api_client):
 
     @mcp.tool()
     async def update_dashboard_widget(
-        org_id: int, widget_id: int, widget_data: JsonInput
+        org_id: int, widget_id: int, widget_data: JsonObjectInput
     ) -> str:
         """
         Update a dashboard widget's configuration.
@@ -454,7 +454,7 @@ def register_tools(mcp, api_client):
 
     @mcp.tool()
     async def update_shared_link(
-        org_id: int, link_id: int, link_data: JsonInput
+        org_id: int, link_id: int, link_data: JsonObjectInput
     ) -> str:
         """
         Update a shared link's settings.

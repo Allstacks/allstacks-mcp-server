@@ -3,7 +3,9 @@
 import json
 from typing import Optional
 
-from .._json_input import JsonInput, parse_json_input
+from ..client import AllstacksAPIClient
+from .._json_input import JsonObjectInput, parse_json_input
+from .._pagination import cap_list_payload
 
 
 def register_tools(mcp, api_client):
@@ -56,7 +58,7 @@ def register_tools(mcp, api_client):
         return json.dumps(result, indent=2)
 
     @mcp.tool()
-    async def update_organization(org_id: int, org_data: JsonInput) -> str:
+    async def update_organization(org_id: int, org_data: JsonObjectInput) -> str:
         """
         Update organization settings.
 
@@ -98,7 +100,9 @@ def register_tools(mcp, api_client):
         return json.dumps(result, indent=2)
 
     @mcp.tool()
-    async def update_organization_settings(org_id: int, settings: JsonInput) -> str:
+    async def update_organization_settings(
+        org_id: int, settings: JsonObjectInput
+    ) -> str:
         """
         Update organization settings.
 
@@ -211,12 +215,17 @@ def register_tools(mcp, api_client):
         if ordering:
             params["ordering"] = ordering
 
-        return await api_client.request_text(
-            "GET", endpoint, params=params, response_format=response_format
+        result = await api_client.request("GET", endpoint, params=params)
+        if isinstance(result, dict) and result.get("error"):
+            return json.dumps(result, indent=2)
+
+        capped = cap_list_payload(result, limit=limit, offset=offset)
+        return AllstacksAPIClient.format_response(
+            capped, response_format=response_format
         )
 
     @mcp.tool()
-    async def create_project(org_id: int, project_data: JsonInput) -> str:
+    async def create_project(org_id: int, project_data: JsonObjectInput) -> str:
         """
         Create a new project in the organization.
 
@@ -261,7 +270,7 @@ def register_tools(mcp, api_client):
         return json.dumps(result, indent=2)
 
     @mcp.tool()
-    async def update_project(project_id: int, project_data: JsonInput) -> str:
+    async def update_project(project_id: int, project_data: JsonObjectInput) -> str:
         """
         Update project settings and configuration.
 
@@ -397,7 +406,7 @@ def register_tools(mcp, api_client):
 
     @mcp.tool()
     async def update_slot_configuration(
-        project_id: int, slot_type: str, slot_config: JsonInput
+        project_id: int, slot_type: str, slot_config: JsonObjectInput
     ) -> str:
         """
         Update a slot's configuration or template.
@@ -441,7 +450,7 @@ def register_tools(mcp, api_client):
         return json.dumps(result, indent=2)
 
     @mcp.tool()
-    async def create_calendar(org_id: int, calendar_data: JsonInput) -> str:
+    async def create_calendar(org_id: int, calendar_data: JsonObjectInput) -> str:
         """
         Create a new organization calendar.
 
@@ -485,7 +494,7 @@ def register_tools(mcp, api_client):
 
     @mcp.tool()
     async def update_calendar(
-        org_id: int, calendar_id: int, calendar_data: JsonInput
+        org_id: int, calendar_id: int, calendar_data: JsonObjectInput
     ) -> str:
         """
         Update a calendar.
@@ -536,7 +545,7 @@ def register_tools(mcp, api_client):
     @mcp.tool()
     async def send_v2_capitalization_report(
         org_id: int,
-        config: JsonInput,
+        config: JsonObjectInput,
         debug: bool = False,
     ) -> str:
         """
@@ -603,7 +612,7 @@ def register_tools(mcp, api_client):
     @mcp.tool()
     async def save_capitalization_report_config(
         org_id: int,
-        config_body: JsonInput,
+        config_body: JsonObjectInput,
         report_type: str = "capitalization",
     ) -> str:
         """

@@ -17,6 +17,8 @@ class BuildMetricsV2PostBodyTests(unittest.TestCase):
             body,
             {"config": inner, "get_count_only": False, "variables": {}},
         )
+        body_from_dict = build_metrics_v2_post_body(inner)
+        self.assertEqual(body_from_dict["config"], inner)
 
     def test_full_envelope_passthrough(self):
         inner = {"views": []}
