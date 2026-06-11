@@ -3,7 +3,7 @@
   "name": "com.allstacks/allstacks-mcp",
   "title": "Allstacks Analytics MCP Server",
   "description": "Provides 189 tools and 2 resources for AI-native engineering intelligence via Allstacks API. Supports Bearer token (PAT) or HTTP Basic authentication.",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "homepage": "https://github.com/allstacks/allstacks-mcp",
   "license": "MIT",
   "keywords": ["allstacks", "analytics", "engineering-intelligence", "metrics", "forecasting", "devops", "ai-tools", "project-management", "risk-management", "bearer-auth", "sso"],
@@ -11,7 +11,7 @@
     {
       "registryType": "pypi",
       "identifier": "allstacks-mcp",
-      "version": "0.1.5",
+      "version": "0.1.6",
       "transport": {
         "type": "stdio",
         "command": "uvx",
