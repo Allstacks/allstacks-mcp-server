@@ -527,9 +527,13 @@ def register_tools(mcp, api_client):
         From OpenAPI: GET /api/v1/population-benchmarks/metric/{metric_type}
 
         Supplies population-benchmark data for comparison with your team's metrics.
+        Do not append a trailing slash to metric_type; the API route captures it
+        into the metric type and rejects the request as invalid.
 
         Args:
-            metric_type: The population metric type for which data is required
+            metric_type: The population metric type for which data is required.
+                Valid values: CodeType, CodingDays, CommitVolume, CycleTime,
+                PlannedVsUnplannedWork
             start_date: Optional unix timestamp in milliseconds - only supply data after this date (defaults to epoch)
             end_date: Optional unix timestamp in milliseconds - only supply data before this date (defaults to current time)
             time_zone: A pytz compatible timezone string (defaults to UTC)
@@ -538,7 +542,9 @@ def register_tools(mcp, api_client):
         Returns:
             Population benchmark data containing aggregate_value fields and metadata
         """
-        endpoint = f"population-benchmarks/metric/{metric_type}"
+        # The API route regex captures trailing slashes into metric_type and then
+        # rejects the value, so normalize LLM-supplied input here.
+        endpoint = f"population-benchmarks/metric/{metric_type.rstrip('/')}"
 
         params: dict[str, object] = {"time_zone": time_zone}
         if start_date:

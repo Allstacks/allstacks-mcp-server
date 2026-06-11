@@ -132,6 +132,22 @@ class ToolRouteTests(unittest.TestCase):
         )
         self.assertEqual(client.last["response_format"], "toon")
 
+    def test_get_population_benchmark_route_has_no_trailing_slash(self):
+        # The Django route regex (metric/(?P<metric_type>.+)$) captures a trailing
+        # slash into metric_type and the view rejects it as an invalid type.
+        mcp, client = self._build(metrics.register_tools)
+        _run(mcp.call_tool("get_population_benchmark", {"metric_type": "CycleTime"}))
+        self.assertEqual(
+            client.last["endpoint"], "population-benchmarks/metric/CycleTime"
+        )
+
+    def test_get_population_benchmark_strips_trailing_slash(self):
+        mcp, client = self._build(metrics.register_tools)
+        _run(mcp.call_tool("get_population_benchmark", {"metric_type": "CycleTime/"}))
+        self.assertEqual(
+            client.last["endpoint"], "population-benchmarks/metric/CycleTime"
+        )
+
     def test_list_project_risk_definitions_uses_risk_definitions_route(self):
         mcp, client = self._build(risk_management.register_tools)
         _run(mcp.call_tool("list_project_risk_definitions", {"project_id": 49816}))
